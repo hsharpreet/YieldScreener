@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query, Response
 from pydantic import BaseModel
 
+from app.core.deps import get_optional_user
 from app.data.yfinance_provider import YFinanceProvider
+from app.db.models import User
 from app.screener.filters import FundamentalsFilter, filter_illiquid
 from app.screener.ranker import RankedContract, rank_contracts
 
@@ -92,6 +94,7 @@ def _to_contract_out(ranked_contract: RankedContract) -> ContractOut:
 
 @router.get("/screen", response_model=list[ScreenerRow])
 def screen(
+    response: Response,
     tickers: str | None = Query(
         None, description="Comma-separated tickers; defaults to built-in universe"
     ),
@@ -99,12 +102,16 @@ def screen(
     max_dte: int = Query(45, ge=1),
     min_market_cap: float = Query(5_000_000_000, ge=0),
     max_pe: float = Query(50.0, ge=0),
+    current_user: User | None = Depends(get_optional_user),
 ) -> list[ScreenerRow]:
     """Return the best covered call per quality-filtered stock.
 
+    Free tier: top 5 results. Pro tier: full results set.
     Educational data only — not investment advice.
     """
-    ticker_list = [t.strip().upper() for t in tickers.split(",")] if tickers else DEFAULT_UNIVERSE
+    ticker_list = (
+        [t.strip().upper() for t in tickers.split(",")] if tickers else DEFAULT_UNIVERSE
+    )
     provider = YFinanceProvider()
     fund_filter = FundamentalsFilter(min_market_cap=min_market_cap, max_pe=max_pe)
     rows: list[ScreenerRow] = []
@@ -141,6 +148,14 @@ def screen(
         key=lambda r: r.best_call.metrics.annualized_static if r.best_call else -1,
         reverse=True,
     )
+
+    is_pro = current_user is not None and current_user.tier == "pro"
+    response.headers["X-Tier"] = "pro" if is_pro else "free"
+    response.headers["X-Total"] = str(len(rows))
+
+    if not is_pro:
+        rows = rows[:5]
+
     return rows
 
 
@@ -150,7 +165,10 @@ def get_contracts(
     min_dte: int = Query(7, ge=1),
     max_dte: int = Query(60, ge=1),
 ) -> list[ContractOut]:
-    """All liquid covered-call contracts for a single ticker. Used by the accordion chain view."""
+    """All liquid covered-call contracts for a single ticker.
+
+    Used by the accordion chain view. Educational data only — not investment advice.
+    """
     provider = YFinanceProvider()
     try:
         quote = provider.get_quote(ticker)
