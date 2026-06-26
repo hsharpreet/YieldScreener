@@ -1,13 +1,28 @@
 'use client'
 import { ScreenerRow } from '@/lib/api'
 import AccordionDetail from './AccordionDetail'
+import WatchlistButton from './WatchlistButton'
 
 function pct(n: number) { return `${(n * 100).toFixed(2)}%` }
 function usd(n: number) { return `$${n.toFixed(2)}` }
 
-interface Props { row: ScreenerRow; expanded: boolean; onToggle: () => void }
+interface Props {
+  row: ScreenerRow
+  expanded: boolean
+  onToggle: () => void
+  inWatchlist: boolean
+  onWatchlistToggle: (ticker: string, add: boolean) => void
+  colSpanCount: number
+}
 
-export default function ScreenerRowComponent({ row, expanded, onToggle }: Props) {
+export default function ScreenerRowComponent({
+  row,
+  expanded,
+  onToggle,
+  inWatchlist,
+  onWatchlistToggle,
+  colSpanCount,
+}: Props) {
   const c = row.best_call
   const m = c?.metrics
 
@@ -26,12 +41,17 @@ export default function ScreenerRowComponent({ row, expanded, onToggle }: Props)
         <td className="px-4 py-3 text-gray-700">{c ? c.dte : '—'}</td>
         <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
           {c ? `$${c.strike} / ${c.expiry}` : '—'}
-          {c?.earnings_within_dte && <span className="ml-1 text-amber-600" title="Earnings fall within this contract's expiration">⚠</span>}
+          {c?.earnings_within_dte && (
+            <span className="ml-1 text-amber-600" title="Earnings fall within this contract's expiration">&#9888;</span>
+          )}
+        </td>
+        <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+          <WatchlistButton ticker={row.ticker} inWatchlist={inWatchlist} onToggle={onWatchlistToggle} />
         </td>
       </tr>
       {expanded && c && m && (
         <tr>
-          <td colSpan={9} className="bg-gray-50 border-t border-gray-100 px-4 py-4">
+          <td colSpan={colSpanCount} className="bg-gray-50 border-t border-gray-100 px-4 py-4">
             <AccordionDetail ticker={row.ticker} price={row.price} name={row.name} contract={c} />
           </td>
         </tr>
