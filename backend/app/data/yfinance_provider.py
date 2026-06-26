@@ -1,11 +1,23 @@
 from __future__ import annotations
 
 import datetime
+import json
 
 import pandas as pd
+import redis as redis_lib
 import yfinance as yf
 
+from app.core.config import settings
 from app.data.provider import DataProvider, OptionContract, StockQuote
+
+_redis: redis_lib.Redis | None = None
+
+
+def _get_redis() -> redis_lib.Redis:
+    global _redis
+    if _redis is None:
+        _redis = redis_lib.from_url(settings.REDIS_URL, decode_responses=True)
+    return _redis
 
 
 class YFinanceProvider(DataProvider):
@@ -31,6 +43,38 @@ class YFinanceProvider(DataProvider):
         min_dte: int = 21,
         max_dte: int = 45,
     ) -> list[OptionContract]:
+        """Return call contracts, reading from Redis cache when available.
+
+        Cache TTL is 900 seconds (15 minutes). Redis failures are silently
+        swallowed so caching is best-effort and never blocks the response.
+        """
+        cache_key = f"option_chain:{ticker}:{min_dte}:{max_dte}"
+        try:
+            r = _get_redis()
+            cached = r.get(cache_key)
+            if cached:
+                raw_list: list[dict] = json.loads(cached)
+                return [OptionContract(**d) for d in raw_list]
+        except Exception:
+            pass  # Redis unavailable — proceed without cache
+
+        contracts = self._fetch_call_options(ticker, min_dte, max_dte)
+
+        try:
+            r = _get_redis()
+            r.setex(cache_key, 900, json.dumps([c.__dict__ for c in contracts]))
+        except Exception:
+            pass  # Redis unavailable — store failure is silent
+
+        return contracts
+
+    def _fetch_call_options(
+        self,
+        ticker: str,
+        min_dte: int = 21,
+        max_dte: int = 45,
+    ) -> list[OptionContract]:
+        """Fetch option contracts directly from yfinance (no caching layer)."""
         t = yf.Ticker(ticker)
         today = datetime.date.today()
 
