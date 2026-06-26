@@ -14,6 +14,11 @@ class StockQuote:
     avg_volume: int | None = None
     sector: str | None = None
     beta: float | None = None
+    peg_ratio: float | None = None
+    roe: float | None = None          # returnOnEquity from yfinance
+    eps_growth: float | None = None   # earningsGrowth from yfinance
+    revenue_growth: float | None = None  # revenueGrowth
+    analyst_rating: float | None = None  # recommendationMean (1=Strong Buy, 5=Sell)
 
 
 @dataclass
@@ -29,6 +34,11 @@ class OptionContract:
     open_interest: int
     implied_volatility: float
     earnings_within_dte: bool
+    delta: float | None = None
+    gamma: float | None = None
+    theta: float | None = None
+    vega: float | None = None
+    iv_rank: float | None = None  # 0-100, None if not computable
 
 
 class DataProvider(ABC):

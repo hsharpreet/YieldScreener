@@ -53,6 +53,11 @@ class ContractOut(BaseModel):
     implied_volatility: float
     earnings_within_dte: bool
     metrics: MetricsOut
+    delta: float | None = None
+    gamma: float | None = None
+    theta: float | None = None
+    vega: float | None = None
+    iv_rank: float | None = None
 
 
 class ScreenerRow(BaseModel):
@@ -63,6 +68,9 @@ class ScreenerRow(BaseModel):
     pe_ratio: float | None
     sector: str | None
     best_call: ContractOut | None
+    peg_ratio: float | None = None
+    roe: float | None = None
+    analyst_rating: float | None = None
 
 
 def _to_contract_out(ranked_contract: RankedContract) -> ContractOut:
@@ -89,6 +97,11 @@ def _to_contract_out(ranked_contract: RankedContract) -> ContractOut:
             if_called_return=m.if_called_return,
             annualized_if_called=m.annualized_if_called,
         ),
+        delta=c.delta,
+        gamma=c.gamma,
+        theta=c.theta,
+        vega=c.vega,
+        iv_rank=c.iv_rank,
     )
 
 
@@ -102,6 +115,11 @@ def screen(
     max_dte: int = Query(45, ge=1),
     min_market_cap: float = Query(5_000_000_000, ge=0),
     max_pe: float = Query(50.0, ge=0),
+    max_beta: float | None = Query(None, ge=0),
+    min_roe: float | None = Query(None),
+    max_peg: float | None = Query(None, ge=0),
+    sectors: str | None = Query(None, description="Comma-separated sectors to include"),
+    max_analyst_rating: float | None = Query(None, ge=1.0, le=5.0),
     current_user: User | None = Depends(get_optional_user),
 ) -> list[ScreenerRow]:
     """Return the best covered call per quality-filtered stock.
@@ -113,7 +131,16 @@ def screen(
         [t.strip().upper() for t in tickers.split(",")] if tickers else DEFAULT_UNIVERSE
     )
     provider = YFinanceProvider()
-    fund_filter = FundamentalsFilter(min_market_cap=min_market_cap, max_pe=max_pe)
+    sector_list = [s.strip() for s in sectors.split(",")] if sectors else None
+    fund_filter = FundamentalsFilter(
+        min_market_cap=min_market_cap,
+        max_pe=max_pe,
+        max_beta=max_beta,
+        min_roe=min_roe,
+        max_peg=max_peg,
+        sector_filter=sector_list,
+        max_analyst_rating=max_analyst_rating,
+    )
     rows: list[ScreenerRow] = []
 
     for ticker in ticker_list:
@@ -141,6 +168,9 @@ def screen(
                 pe_ratio=quote.pe_ratio,
                 sector=quote.sector,
                 best_call=best,
+                peg_ratio=quote.peg_ratio,
+                roe=quote.roe,
+                analyst_rating=quote.analyst_rating,
             )
         )
 

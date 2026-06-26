@@ -20,21 +20,37 @@ def _get_redis() -> redis_lib.Redis:
     return _redis
 
 
+def _row_float(row: pd.Series, key: str) -> float | None:
+    """Return float value from a DataFrame row, or None when absent/null."""
+    val = row.get(key)
+    return float(val) if val is not None else None
+
+
 class YFinanceProvider(DataProvider):
     def get_quote(self, ticker: str) -> StockQuote:
         info = yf.Ticker(ticker).info
         price = info.get("currentPrice") or info.get("regularMarketPrice") or 0.0
+
+        def _float(key: str) -> float | None:
+            val = info.get(key)
+            return float(val) if val is not None else None
+
         return StockQuote(
             ticker=ticker,
             price=float(price),
             name=info.get("shortName") or ticker,
             market_cap=info.get("marketCap"),
-            pe_ratio=info.get("trailingPE"),
-            forward_pe=info.get("forwardPE"),
-            dividend_yield=info.get("dividendYield"),
+            pe_ratio=_float("trailingPE"),
+            forward_pe=_float("forwardPE"),
+            dividend_yield=_float("dividendYield"),
             avg_volume=info.get("averageVolume"),
             sector=info.get("sector"),
-            beta=info.get("beta"),
+            beta=_float("beta"),
+            peg_ratio=_float("pegRatio"),
+            roe=_float("returnOnEquity"),
+            eps_growth=_float("earningsGrowth"),
+            revenue_growth=_float("revenueGrowth"),
+            analyst_rating=_float("recommendationMean"),
         )
 
     def get_call_options(
@@ -99,6 +115,19 @@ class YFinanceProvider(DataProvider):
                 chain = t.option_chain(exp_str).calls
             except Exception:
                 continue
+
+            # Compute best-effort IV rank across this expiry's chain.
+            # iv_rank = (current_iv - min_iv) / (max_iv - min_iv) * 100.
+            # If all IVs are equal or only 1 contract exists, iv_rank is None.
+            iv_values: list[float] = [
+                float(row.get("impliedVolatility"))
+                for _, row in chain.iterrows()
+                if row.get("impliedVolatility") is not None
+            ]
+            iv_min = min(iv_values) if iv_values else None
+            iv_max = max(iv_values) if iv_values else None
+            iv_range = (iv_max - iv_min) if (iv_min is not None and iv_max is not None) else None
+
             for _, row in chain.iterrows():
                 bid = float(row.get("bid", 0) or 0)
                 ask = float(row.get("ask", 0) or 0)
@@ -109,6 +138,19 @@ class YFinanceProvider(DataProvider):
                     earnings_date is not None
                     and today < earnings_date <= (today + datetime.timedelta(days=dte))
                 )
+
+                current_iv_raw = row.get("impliedVolatility")
+                current_iv = float(current_iv_raw) if current_iv_raw is not None else None
+                if (
+                    iv_range is not None
+                    and iv_range > 0
+                    and current_iv is not None
+                    and iv_min is not None
+                ):
+                    iv_rank: float | None = (current_iv - iv_min) / iv_range * 100
+                else:
+                    iv_rank = None
+
                 contracts.append(
                     OptionContract(
                         ticker=ticker,
@@ -122,6 +164,11 @@ class YFinanceProvider(DataProvider):
                         open_interest=int(row.get("openInterest") or 0),
                         implied_volatility=float(row.get("impliedVolatility") or 0),
                         earnings_within_dte=earnings_flag,
+                        delta=_row_float(row, "delta"),
+                        gamma=_row_float(row, "gamma"),
+                        theta=_row_float(row, "theta"),
+                        vega=_row_float(row, "vega"),
+                        iv_rank=iv_rank,
                     )
                 )
         return contracts
