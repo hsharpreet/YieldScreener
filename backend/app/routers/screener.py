@@ -92,13 +92,18 @@ def _to_contract_out(ranked_contract: RankedContract) -> ContractOut:
 
 @router.get("/screen", response_model=list[ScreenerRow])
 def screen(
-    tickers: str | None = Query(None, description="Comma-separated tickers; defaults to built-in universe"),
+    tickers: str | None = Query(
+        None, description="Comma-separated tickers; defaults to built-in universe"
+    ),
     min_dte: int = Query(21, ge=1),
     max_dte: int = Query(45, ge=1),
     min_market_cap: float = Query(5_000_000_000, ge=0),
     max_pe: float = Query(50.0, ge=0),
 ) -> list[ScreenerRow]:
-    """Return the best covered call per quality-filtered stock. Educational data only — not investment advice."""
+    """Return the best covered call per quality-filtered stock.
+
+    Educational data only — not investment advice.
+    """
     ticker_list = [t.strip().upper() for t in tickers.split(",")] if tickers else DEFAULT_UNIVERSE
     provider = YFinanceProvider()
     fund_filter = FundamentalsFilter(min_market_cap=min_market_cap, max_pe=max_pe)
