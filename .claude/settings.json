@@ -1,0 +1,31 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/on_work_done.py",
+            "timeout": 60,
+            "statusMessage": "Committing + logging work block..."
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python .claude/hooks/on_work_done.py",
+            "timeout": 60,
+            "statusMessage": "Committing + logging subagent work..."
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "deny": ["Read(./.env)", "Edit(./.env)", "Write(./.env)"]
+  }
+}
