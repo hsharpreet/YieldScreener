@@ -7,6 +7,13 @@ class StockQuote:
     ticker: str
     price: float
     name: str
+    market_cap: float | None = None
+    pe_ratio: float | None = None
+    forward_pe: float | None = None
+    dividend_yield: float | None = None
+    avg_volume: int | None = None
+    sector: str | None = None
+    beta: float | None = None
 
 
 @dataclass

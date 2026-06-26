@@ -1,0 +1,157 @@
+from __future__ import annotations
+
+from fastapi import APIRouter, Query
+from pydantic import BaseModel
+
+from app.data.yfinance_provider import YFinanceProvider
+from app.screener.filters import FundamentalsFilter, filter_illiquid
+from app.screener.ranker import RankedContract, rank_contracts
+
+router = APIRouter(prefix="/api", tags=["screener"])
+
+DEFAULT_UNIVERSE = [
+    "AAPL",
+    "MSFT",
+    "GOOGL",
+    "AMZN",
+    "META",
+    "NVDA",
+    "TSLA",
+    "JPM",
+    "JNJ",
+    "XOM",
+    "HD",
+    "WMT",
+    "DIS",
+    "PFE",
+    "COST",
+]
+
+
+class MetricsOut(BaseModel):
+    net_credit: float
+    static_yield: float
+    annualized_static: float
+    downside_cushion: float
+    breakeven: float
+    if_called_profit: float
+    if_called_return: float
+    annualized_if_called: float
+
+
+class ContractOut(BaseModel):
+    strike: float
+    expiry: str
+    dte: int
+    premium: float
+    bid: float
+    ask: float
+    volume: int
+    open_interest: int
+    implied_volatility: float
+    earnings_within_dte: bool
+    metrics: MetricsOut
+
+
+class ScreenerRow(BaseModel):
+    ticker: str
+    name: str
+    price: float
+    market_cap: float | None
+    pe_ratio: float | None
+    sector: str | None
+    best_call: ContractOut | None
+
+
+def _to_contract_out(ranked_contract: RankedContract) -> ContractOut:
+    c = ranked_contract.contract
+    m = ranked_contract.metrics
+    return ContractOut(
+        strike=c.strike,
+        expiry=c.expiry,
+        dte=c.dte,
+        premium=c.premium,
+        bid=c.bid,
+        ask=c.ask,
+        volume=c.volume,
+        open_interest=c.open_interest,
+        implied_volatility=c.implied_volatility,
+        earnings_within_dte=c.earnings_within_dte,
+        metrics=MetricsOut(
+            net_credit=m.net_credit,
+            static_yield=m.static_yield,
+            annualized_static=m.annualized_static,
+            downside_cushion=m.downside_cushion,
+            breakeven=m.breakeven,
+            if_called_profit=m.if_called_profit,
+            if_called_return=m.if_called_return,
+            annualized_if_called=m.annualized_if_called,
+        ),
+    )
+
+
+@router.get("/screen", response_model=list[ScreenerRow])
+def screen(
+    tickers: str | None = Query(None, description="Comma-separated tickers; defaults to built-in universe"),
+    min_dte: int = Query(21, ge=1),
+    max_dte: int = Query(45, ge=1),
+    min_market_cap: float = Query(5_000_000_000, ge=0),
+    max_pe: float = Query(50.0, ge=0),
+) -> list[ScreenerRow]:
+    """Return the best covered call per quality-filtered stock. Educational data only — not investment advice."""
+    ticker_list = [t.strip().upper() for t in tickers.split(",")] if tickers else DEFAULT_UNIVERSE
+    provider = YFinanceProvider()
+    fund_filter = FundamentalsFilter(min_market_cap=min_market_cap, max_pe=max_pe)
+    rows: list[ScreenerRow] = []
+
+    for ticker in ticker_list:
+        try:
+            quote = provider.get_quote(ticker)
+        except Exception:
+            continue
+        if quote.price <= 0:
+            continue
+        if not fund_filter.passes(quote):
+            continue
+        try:
+            raw = provider.get_call_options(ticker, min_dte=min_dte, max_dte=max_dte)
+        except Exception:
+            raw = []
+        liquid = filter_illiquid(raw)
+        ranked = rank_contracts(liquid, price=quote.price)
+        best = _to_contract_out(ranked[0]) if ranked else None
+        rows.append(
+            ScreenerRow(
+                ticker=ticker,
+                name=quote.name,
+                price=quote.price,
+                market_cap=quote.market_cap,
+                pe_ratio=quote.pe_ratio,
+                sector=quote.sector,
+                best_call=best,
+            )
+        )
+
+    rows.sort(
+        key=lambda r: r.best_call.metrics.annualized_static if r.best_call else -1,
+        reverse=True,
+    )
+    return rows
+
+
+@router.get("/contracts/{ticker}", response_model=list[ContractOut])
+def get_contracts(
+    ticker: str,
+    min_dte: int = Query(7, ge=1),
+    max_dte: int = Query(60, ge=1),
+) -> list[ContractOut]:
+    """All liquid covered-call contracts for a single ticker. Used by the accordion chain view."""
+    provider = YFinanceProvider()
+    try:
+        quote = provider.get_quote(ticker)
+        raw = provider.get_call_options(ticker.upper(), min_dte=min_dte, max_dte=max_dte)
+    except Exception:
+        return []
+    liquid = filter_illiquid(raw)
+    ranked = rank_contracts(liquid, price=quote.price)
+    return [_to_contract_out(r) for r in ranked]
