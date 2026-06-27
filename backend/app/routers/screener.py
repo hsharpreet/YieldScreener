@@ -12,21 +12,20 @@ from app.screener.ranker import RankedContract, rank_contracts
 router = APIRouter(prefix="/api", tags=["screener"])
 
 DEFAULT_UNIVERSE = [
-    "AAPL",
-    "MSFT",
-    "GOOGL",
-    "AMZN",
-    "META",
-    "NVDA",
-    "TSLA",
-    "JPM",
-    "JNJ",
-    "XOM",
-    "HD",
-    "WMT",
-    "DIS",
-    "PFE",
-    "COST",
+    # Mega-cap tech
+    "AAPL", "MSFT", "GOOGL", "AMZN", "META", "NVDA", "TSLA", "ORCL", "AMD", "ADBE",
+    # Financials
+    "JPM", "BAC", "V", "MA", "GS", "BLK",
+    # Healthcare
+    "JNJ", "UNH", "PFE", "ABBV", "MRK",
+    # Consumer staples & discretionary
+    "WMT", "HD", "COST", "MCD", "KO", "PEP", "NKE",
+    # Energy
+    "XOM", "CVX",
+    # Communication & media
+    "DIS", "NFLX", "CMCSA",
+    # Other
+    "CRM", "INTC",
 ]
 
 
