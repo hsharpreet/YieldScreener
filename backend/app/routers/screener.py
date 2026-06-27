@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import time
+
 from fastapi import APIRouter, Depends, Query, Response
 from pydantic import BaseModel
 
@@ -142,7 +144,9 @@ def screen(
     )
     rows: list[ScreenerRow] = []
 
-    for ticker in ticker_list:
+    for i, ticker in enumerate(ticker_list):
+        if i > 0:
+            time.sleep(0.25)  # pace requests to avoid Yahoo Finance 429s
         try:
             quote = provider.get_quote(ticker)
         except Exception:
