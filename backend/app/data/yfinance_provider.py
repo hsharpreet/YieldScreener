@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime
 import json
+import time
 
 import pandas as pd
 import redis as redis_lib
@@ -12,6 +13,10 @@ from app.data.provider import DataProvider, OptionContract, StockQuote
 
 _redis: redis_lib.Redis | None = None
 
+QUOTE_TTL = 1800      # 30-minute cache for fundamental quotes
+CHAIN_TTL = 900       # 15-minute cache for option chains
+_INTER_REQUEST_DELAY = 0.25  # seconds between yfinance HTTP calls
+
 
 def _get_redis() -> redis_lib.Redis:
     global _redis
@@ -21,37 +26,68 @@ def _get_redis() -> redis_lib.Redis:
 
 
 def _row_float(row: pd.Series, key: str) -> float | None:
-    """Return float value from a DataFrame row, or None when absent/null."""
     val = row.get(key)
     return float(val) if val is not None else None
 
 
 class YFinanceProvider(DataProvider):
+
     def get_quote(self, ticker: str) -> StockQuote:
-        info = yf.Ticker(ticker).info
-        price = info.get("currentPrice") or info.get("regularMarketPrice") or 0.0
+        """Return fundamental quote, reading from Redis cache when available."""
+        cache_key = f"quote:{ticker}"
+        try:
+            r = _get_redis()
+            cached = r.get(cache_key)
+            if cached:
+                return StockQuote(**json.loads(cached))
+        except Exception:
+            pass
 
-        def _float(key: str) -> float | None:
-            val = info.get(key)
-            return float(val) if val is not None else None
+        quote = self._fetch_quote(ticker)
 
-        return StockQuote(
-            ticker=ticker,
-            price=float(price),
-            name=info.get("shortName") or ticker,
-            market_cap=info.get("marketCap"),
-            pe_ratio=_float("trailingPE"),
-            forward_pe=_float("forwardPE"),
-            dividend_yield=_float("dividendYield"),
-            avg_volume=info.get("averageVolume"),
-            sector=info.get("sector"),
-            beta=_float("beta"),
-            peg_ratio=_float("pegRatio"),
-            roe=_float("returnOnEquity"),
-            eps_growth=_float("earningsGrowth"),
-            revenue_growth=_float("revenueGrowth"),
-            analyst_rating=_float("recommendationMean"),
-        )
+        try:
+            r = _get_redis()
+            r.setex(cache_key, QUOTE_TTL, json.dumps(quote.__dict__))
+        except Exception:
+            pass
+
+        return quote
+
+    def _fetch_quote(self, ticker: str) -> StockQuote:
+        """Fetch fundamental quote from yfinance with one retry on 429."""
+        for attempt in range(3):
+            try:
+                info = yf.Ticker(ticker).info
+                price = info.get("currentPrice") or info.get("regularMarketPrice") or 0.0
+
+                def _float(key: str) -> float | None:
+                    val = info.get(key)
+                    return float(val) if val is not None else None
+
+                return StockQuote(
+                    ticker=ticker,
+                    price=float(price),
+                    name=info.get("shortName") or ticker,
+                    market_cap=info.get("marketCap"),
+                    pe_ratio=_float("trailingPE"),
+                    forward_pe=_float("forwardPE"),
+                    dividend_yield=_float("dividendYield"),
+                    avg_volume=info.get("averageVolume"),
+                    sector=info.get("sector"),
+                    beta=_float("beta"),
+                    peg_ratio=_float("pegRatio"),
+                    roe=_float("returnOnEquity"),
+                    eps_growth=_float("earningsGrowth"),
+                    revenue_growth=_float("revenueGrowth"),
+                    analyst_rating=_float("recommendationMean"),
+                )
+            except Exception as exc:
+                if "429" in str(exc) and attempt < 2:
+                    time.sleep(2 ** (attempt + 1))  # 2s, 4s backoff
+                    continue
+                raise
+
+        raise RuntimeError(f"Failed to fetch quote for {ticker} after retries")
 
     def get_call_options(
         self,
@@ -59,11 +95,7 @@ class YFinanceProvider(DataProvider):
         min_dte: int = 21,
         max_dte: int = 45,
     ) -> list[OptionContract]:
-        """Return call contracts, reading from Redis cache when available.
-
-        Cache TTL is 900 seconds (15 minutes). Redis failures are silently
-        swallowed so caching is best-effort and never blocks the response.
-        """
+        """Return call contracts, reading from Redis cache when available."""
         cache_key = f"option_chain:{ticker}:{min_dte}:{max_dte}"
         try:
             r = _get_redis()
@@ -72,15 +104,15 @@ class YFinanceProvider(DataProvider):
                 raw_list: list[dict] = json.loads(cached)
                 return [OptionContract(**d) for d in raw_list]
         except Exception:
-            pass  # Redis unavailable — proceed without cache
+            pass
 
         contracts = self._fetch_call_options(ticker, min_dte, max_dte)
 
         try:
             r = _get_redis()
-            r.setex(cache_key, 900, json.dumps([c.__dict__ for c in contracts]))
+            r.setex(cache_key, CHAIN_TTL, json.dumps([c.__dict__ for c in contracts]))
         except Exception:
-            pass  # Redis unavailable — store failure is silent
+            pass
 
         return contracts
 
@@ -90,7 +122,6 @@ class YFinanceProvider(DataProvider):
         min_dte: int = 21,
         max_dte: int = 45,
     ) -> list[OptionContract]:
-        """Fetch option contracts directly from yfinance (no caching layer)."""
         t = yf.Ticker(ticker)
         today = datetime.date.today()
 
@@ -116,9 +147,6 @@ class YFinanceProvider(DataProvider):
             except Exception:
                 continue
 
-            # Compute best-effort IV rank across this expiry's chain.
-            # iv_rank = (current_iv - min_iv) / (max_iv - min_iv) * 100.
-            # If all IVs are equal or only 1 contract exists, iv_rank is None.
             iv_values: list[float] = [
                 float(row.get("impliedVolatility"))
                 for _, row in chain.iterrows()

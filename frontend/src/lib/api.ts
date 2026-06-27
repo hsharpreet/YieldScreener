@@ -39,6 +39,11 @@ export interface ScreenParams {
   max_dte?: number
   min_market_cap?: number
   max_pe?: number
+  max_beta?: number
+  min_roe?: number
+  max_peg?: number
+  sectors?: string
+  max_analyst_rating?: number
 }
 
 export interface ScreenResult {
@@ -61,7 +66,7 @@ export interface SavedScreener {
   created_at: string
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+const API_BASE = ''
 
 export async function fetchScreen(params: ScreenParams = {}): Promise<ScreenResult> {
   const qs = new URLSearchParams()
@@ -70,6 +75,11 @@ export async function fetchScreen(params: ScreenParams = {}): Promise<ScreenResu
   if (params.max_dte !== undefined) qs.set('max_dte', String(params.max_dte))
   if (params.min_market_cap !== undefined) qs.set('min_market_cap', String(params.min_market_cap))
   if (params.max_pe !== undefined) qs.set('max_pe', String(params.max_pe))
+  if (params.max_beta !== undefined) qs.set('max_beta', String(params.max_beta))
+  if (params.min_roe !== undefined) qs.set('min_roe', String(params.min_roe))
+  if (params.max_peg !== undefined) qs.set('max_peg', String(params.max_peg))
+  if (params.sectors) qs.set('sectors', params.sectors)
+  if (params.max_analyst_rating !== undefined) qs.set('max_analyst_rating', String(params.max_analyst_rating))
   const res = await fetch(`${API_BASE}/api/screen?${qs}`, { cache: 'no-store', credentials: 'include' })
   if (!res.ok) throw new Error(`Screen fetch failed: ${res.status}`)
   const rows: ScreenerRow[] = await res.json()

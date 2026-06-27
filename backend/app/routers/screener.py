@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import time
+
 from fastapi import APIRouter, Depends, Query, Response
 from pydantic import BaseModel
 
@@ -12,21 +14,18 @@ from app.screener.ranker import RankedContract, rank_contracts
 router = APIRouter(prefix="/api", tags=["screener"])
 
 DEFAULT_UNIVERSE = [
-    "AAPL",
-    "MSFT",
-    "GOOGL",
-    "AMZN",
-    "META",
-    "NVDA",
-    "TSLA",
-    "JPM",
-    "JNJ",
-    "XOM",
-    "HD",
-    "WMT",
+    # Mega-cap tech (high option liquidity)
+    "AAPL", "MSFT", "GOOGL", "AMZN", "META", "NVDA", "TSLA",
+    # Financials
+    "JPM", "BAC", "V",
+    # Healthcare
+    "JNJ", "UNH", "ABBV",
+    # Consumer
+    "WMT", "HD", "COST", "KO",
+    # Energy
+    "XOM", "CVX",
+    # Other
     "DIS",
-    "PFE",
-    "COST",
 ]
 
 
@@ -143,7 +142,9 @@ def screen(
     )
     rows: list[ScreenerRow] = []
 
-    for ticker in ticker_list:
+    for i, ticker in enumerate(ticker_list):
+        if i > 0:
+            time.sleep(1.5)  # pace requests — Yahoo Finance rate-limits hard bursts
         try:
             quote = provider.get_quote(ticker)
         except Exception:

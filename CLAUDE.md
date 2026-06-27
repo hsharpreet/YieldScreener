@@ -125,3 +125,50 @@ Two optional Notion automations (git works without either):
 - Frontend: TypeScript, components small and composable, Tailwind. The default screener view is clean; detail lives in the click-to-expand accordion row.
 - Secrets in `.env` (gitignored). Never commit keys.
 - Small, reversible changes. If unsure, prefer the safer path and leave a note in the Build Updates Log.
+
+---
+
+## 9. Current site structure (as of 2026-06-26)
+
+| Route | Component | Notes |
+|---|---|---|
+| `/` | `src/app/page.tsx` | Marketing landing page — will be replaced by claude.ai/design output |
+| `/screener` | `src/app/screener/page.tsx` → `ScreenerPage` | Main app — keep all logic here |
+| `/login` | `src/app/login/page.tsx` | Auth |
+| `/signup` | `src/app/signup/page.tsx` | Auth + disclaimer text |
+| `/account` | `src/app/account/page.tsx` | Tier display, upgrade CTA |
+
+NavBar: `src/components/NavBar.tsx` — Logo→/, Screener, Pricing, Account, Login/Signup
+
+---
+
+## 10. Data layer notes (yfinance rate limiting)
+
+yfinance hits `query2.finance.yahoo.com` and gets 429 errors when > ~20 requests/minute burst.
+
+**Mitigations in place:**
+- `get_quote()` Redis-cached 30 min (was uncached)
+- `get_call_options()` Redis-cached 15 min
+- Redis volume is persistent (`redis_data` Docker volume — survives restarts)
+- Startup cache pre-warmer: daemon thread fetches all 20 default tickers at 3s gaps on app startup
+- Inter-ticker delay in screener endpoint: 1.5s
+- Retry on 429: 2s then 4s backoff in `_fetch_quote()`
+- `DEFAULT_UNIVERSE` = 20 tickers (trimmed from 35)
+
+**Real fix at launch:** swap `YFinanceProvider` for `MarketDataProvider` (marketdata.app or Tradier). The `DataProvider` ABC is ready — one module swap.
+
+---
+
+## 11. Phase 3 — next session task (design integration)
+
+Harry is getting a landing page design from **claude.ai/design**. On next session start:
+
+1. Receive design package (React code or screenshots) from Harry
+2. Integrate as new `src/app/page.tsx` — replace the placeholder landing page
+3. Wire design's Login / Sign Up / Account CTAs to `/login`, `/signup`, `/account`
+4. The `/screener` route and all backend code stays unchanged
+5. After design merge: add Greeks/IV Rank columns to ScreenerTable, then deploy to Hostinger VPS (CC-23)
+
+**How Harry provides the design:** claude.ai/design → generate/build landing page → Export or Share → copy React/HTML → paste into chat. Screenshots also work (Claude Code reads images).
+
+**Do NOT start VPS deployment until design is merged and Harry approves.**
