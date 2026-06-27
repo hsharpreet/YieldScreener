@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:#0a1628;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  ::selection{background:rgba(0,212,170,0.28)}
+  @keyframes drift{0%{transform:translateY(14px)}50%{transform:translateY(-16px)}100%{transform:translateY(14px)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes tickerScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)}}
+  @keyframes glowPulse{0%,100%{opacity:.55}50%{opacity:.9}}
+  @keyframes revealUp{from{opacity:0}to{opacity:1}}
+  @keyframes modalPop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+  @keyframes overlayFade{from{opacity:0}to{opacity:1}}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" style="font-family:'Inter',system-ui,sans-serif;background:#0a1628;color:#e8eef5;overflow-x:hidden">
+
+  <!-- ============ HERO ============ -->
+  <section style="position:relative;overflow:hidden;background:#0a1628">
+    <div style="position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(58% 50% at 18% 8%, rgba(64,86,210,0.22), transparent 60%),radial-gradient(50% 50% at 88% 0%, rgba(0,212,170,0.16), transparent 58%),radial-gradient(60% 60% at 70% 70%, rgba(108,74,196,0.18), transparent 62%)"></div>
+    <div style="position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.5;background:linear-gradient(180deg, transparent 60%, #0a1628 100%)"></div>
+    {{ floatLayer }}
+
+    <!-- nav -->
+    <nav style="position:relative;z-index:4;max-width:1180px;margin:0 auto;padding:22px clamp(20px,5vw,48px);display:flex;align-items:center;justify-content:space-between;gap:24px">
+      <div style="display:flex;align-items:center;gap:11px">
+        <div style="display:flex;align-items:flex-end;gap:3px;height:22px">
+          <div style="width:5px;height:11px;background:#00d4aa;border-radius:1.5px"></div>
+          <div style="width:5px;height:18px;background:#00d4aa;border-radius:1.5px;opacity:.8"></div>
+          <div style="width:5px;height:23px;background:#00d4aa;border-radius:1.5px;opacity:.6"></div>
+        </div>
+        <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:19px;color:#fff;letter-spacing:-0.02em">YieldScreener</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:30px;font-size:14.5px">
+        <a href="#how" style="color:#9fb2c8;text-decoration:none;font-weight:500" style-hover="color:#fff;text-decoration:none;font-weight:500">How it works</a>
+        <a href="#metrics" style="color:#9fb2c8;text-decoration:none;font-weight:500" style-hover="color:#fff;text-decoration:none;font-weight:500">Metrics</a>
+        <a href="#pricing" style="color:#9fb2c8;text-decoration:none;font-weight:500" style-hover="color:#fff;text-decoration:none;font-weight:500">Pricing</a>
+        <sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;gap:16px">
+            <span onClick="{{ openLogin }}" style="cursor:pointer;color:#cfdcec;font-weight:600;font-size:14px" style-hover="cursor:pointer;color:#fff;font-weight:600;font-size:14px">Log in</span>
+            <span onClick="{{ openSignup }}" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;background:#00d4aa;color:#04221b;font-weight:700;font-size:14px;padding:9px 16px;border-radius:9px;box-shadow:0 10px 24px -12px rgba(0,212,170,0.7);transition:transform .18s" style-hover="cursor:pointer;display:inline-flex;align-items:center;gap:8px;background:#0adfb4;color:#04221b;font-weight:700;font-size:14px;padding:9px 16px;border-radius:9px;box-shadow:0 14px 30px -12px rgba(0,212,170,0.85);transform:translateY(-1px)">Create account</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ false }}">
+          <div style="position:relative">
+            <div onClick="{{ toggleMenu }}" style="cursor:pointer;display:flex;align-items:center;gap:10px;background:rgba(120,160,200,0.08);border:1px solid rgba(120,160,200,0.2);padding:6px 12px 6px 6px;border-radius:100px">
+              <span style="width:30px;height:30px;border-radius:50%;background:#00d4aa;color:#04221b;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:13px">{{ userInitial }}</span>
+              <span style="color:#fff;font-weight:600;font-size:14px">{{ userName }}</span>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="opacity:.6"><path d="M3 4.5L6 7.5l3-3" stroke="#cfdcec" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;right:0;top:52px;width:264px;background:#0c1c30;border:1px solid rgba(120,160,200,0.2);border-radius:14px;box-shadow:0 24px 50px -16px rgba(0,0,0,0.7);padding:16px;z-index:20;animation:modalPop .2s ease both">
+                <div style="font-size:13px;color:#76889e">Signed in as</div>
+                <div style="font-size:14px;color:#fff;font-weight:600;margin-top:2px;word-break:break-all">{{ userEmail }}</div>
+                <div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:rgba(0,212,170,0.12);border:1px solid rgba(0,212,170,0.35);color:#00d4aa;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:100px">{{ userPlan }} plan</div>
+                <div style="height:1px;background:rgba(120,160,200,0.14);margin:14px 0"></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#9fb2c8"><span>Saved screeners</span><span style="color:#fff;font-weight:700">{{ savedCount }} / {{ savedLimit }}</span></div>
+                <a href="#" style="display:flex;align-items:center;gap:9px;margin-top:14px;background:#00d4aa;color:#04221b;text-decoration:none;font-weight:700;font-size:14px;padding:11px 14px;border-radius:10px;justify-content:center">Open Screener
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M3 8h9M8.5 4.5L12 8l-3.5 3.5" stroke="#04221b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </a>
+                <div onClick="{{ logout }}" style="cursor:pointer;text-align:center;margin-top:8px;color:#9fb2c8;font-size:13.5px;font-weight:600;padding:9px" style-hover="cursor:pointer;text-align:center;margin-top:8px;color:#fff;font-size:13.5px;font-weight:600;padding:9px">Log out</div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </nav>
+
+    <!-- hero body -->
+    <div style="position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:clamp(40px,6vw,84px) clamp(20px,5vw,48px) clamp(72px,9vw,118px);display:flex;flex-wrap:wrap;gap:clamp(40px,5vw,64px);align-items:center">
+
+      <div style="flex:1 1 460px;min-width:300px">
+        <div style="display:inline-flex;align-items:center;gap:9px;background:rgba(120,160,200,0.08);border:1px solid rgba(120,160,200,0.18);padding:7px 14px;border-radius:100px;font-size:13px;color:#aebfd2;font-weight:500;animation:fadeUp .7s ease both">
+          <span style="width:7px;height:7px;border-radius:50%;background:#00d4aa;box-shadow:0 0 10px #00d4aa;animation:pulseDot 2.4s ease-in-out infinite"></span>
+          Covered-call income screener
+        </div>
+        <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(38px,5.6vw,66px);line-height:1.04;letter-spacing:-0.03em;color:#fff;margin:22px 0 0;animation:fadeUp .7s ease both;animation-delay:.08s">Monthly Income from<br>Stocks You'd Hold <span style="color:#00d4aa">Anyway.</span></h1>
+        <p style="font-size:clamp(16px,2vw,19px);line-height:1.6;color:#9fb2c8;margin:22px 0 0;max-width:480px;animation:fadeUp .7s ease both;animation-delay:.16s">Filter for quality. Write covered calls. Pocket the premium — on a portfolio you'd want to own with or without the options.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:34px;animation:fadeUp .7s ease both;animation-delay:.24s">
+          <a href="#" onClick="{{ onOpenScreener }}" style="cursor:pointer;display:inline-flex;align-items:center;gap:9px;background:#00d4aa;color:#04221b;text-decoration:none;font-weight:700;font-size:15.5px;padding:15px 26px;border-radius:11px;box-shadow:0 14px 34px -10px rgba(0,212,170,0.6);transition:transform .18s,box-shadow .18s" style-hover="display:inline-flex;align-items:center;gap:9px;background:#0adfb4;color:#04221b;text-decoration:none;font-weight:700;font-size:15.5px;padding:15px 26px;border-radius:11px;box-shadow:0 20px 44px -10px rgba(0,212,170,0.75);transform:translateY(-2px)">Open Screener
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h9M8.5 4.5L12 8l-3.5 3.5" stroke="#04221b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="#how" style="display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,0.04);border:1px solid rgba(160,190,220,0.22);color:#dce6f1;text-decoration:none;font-weight:600;font-size:15.5px;padding:15px 24px;border-radius:11px;transition:background .18s,border-color .18s" style-hover="display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,0.09);border:1px solid rgba(160,190,220,0.4);color:#fff;text-decoration:none;font-weight:600;font-size:15.5px;padding:15px 24px;border-radius:11px">See how it works</a>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;margin-top:26px;font-size:13px;color:#76889e;animation:fadeUp .7s ease both;animation-delay:.32s">
+          <span>A research &amp; education tool</span><span style="opacity:.4">•</span><span>You stay in control</span><span style="opacity:.4">•</span><span>Not investment advice</span>
+        </div>
+      </div>
+
+      <!-- mock screener table -->
+      <div style="flex:1 1 470px;min-width:300px;position:relative;animation:fadeUp .9s ease both;animation-delay:.28s">
+        <div style="position:absolute;inset:-10% -4% -16% -4%;z-index:0;background:radial-gradient(58% 56% at 64% 26%, rgba(0,212,170,0.26), transparent 70%);filter:blur(26px);animation:glowPulse 5s ease-in-out infinite"></div>
+        <div style="position:relative;z-index:1;background:#0c1c30;border:1px solid rgba(120,160,200,0.18);border-radius:16px;box-shadow:0 36px 80px -24px rgba(0,0,0,0.7);overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(120,160,200,0.12)">
+            <div style="display:flex;align-items:center;gap:9px">
+              <span style="width:8px;height:8px;border-radius:50%;background:#00d4aa;box-shadow:0 0 8px #00d4aa"></span>
+              <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:13.5px;color:#cfdcec">Income Screen · 30–45 DTE</span>
+            </div>
+            <div style="display:flex;gap:7px">
+              <span style="font-size:11px;color:#8aa;padding:4px 9px;border:1px solid rgba(120,160,200,0.16);border-radius:7px;color:#9fb2c8">IV &lt; 45</span>
+              <span style="font-size:11px;padding:4px 9px;border:1px solid rgba(0,212,170,0.3);border-radius:7px;color:#00d4aa;background:rgba(0,212,170,0.08)">Yield ↓</span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1.15fr .85fr .9fr 1fr .95fr;gap:6px;padding:11px 18px;border-bottom:1px solid rgba(120,160,200,0.1);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:#6f8298;font-weight:600">
+            <span>Symbol</span><span style="text-align:right">Last</span><span style="text-align:right">Net Cr</span><span style="text-align:right">Static Yld</span><span style="text-align:right">If-Called</span>
+          </div>
+          <div data-rows>
+            <div style="display:grid;grid-template-columns:1.15fr .85fr .9fr 1fr .95fr;gap:6px;padding:13px 18px;align-items:center;border-left:2px solid #00d4aa;background:rgba(0,212,170,0.05)">
+              <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:#fff;font-size:14px">AAPL</span><span style="text-align:right;color:#aebfd2;font-size:13px">198.40</span><span style="text-align:right;color:#cfdcec;font-size:13px;font-weight:600">$248</span><span style="text-align:right;color:#00d4aa;font-weight:700;font-size:14px">4.2%</span><span style="text-align:right;color:#aebfd2;font-size:13px">5.6%</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1.15fr .85fr .9fr 1fr .95fr;gap:6px;padding:13px 18px;align-items:center;border-left:2px solid transparent">
+              <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:#fff;font-size:14px">MSFT</span><span style="text-align:right;color:#aebfd2;font-size:13px">421.10</span><span style="text-align:right;color:#cfdcec;font-size:13px;font-weight:600">$362</span><span style="text-align:right;color:#00d4aa;font-weight:700;font-size:14px">3.9%</span><span style="text-align:right;color:#aebfd2;font-size:13px">5.1%</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1.15fr .85fr .9fr 1fr .95fr;gap:6px;padding:13px 18px;align-items:center;border-left:2px solid transparent;background:rgba(120,160,200,0.03)">
+              <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:#fff;font-size:14px">JPM</span><span style="text-align:right;color:#aebfd2;font-size:13px">201.75</span><span style="text-align:right;color:#cfdcec;font-size:13px;font-weight:600">$198</span><span style="text-align:right;color:#00d4aa;font-weight:700;font-size:14px">4.7%</span><span style="text-align:right;color:#aebfd2;font-size:13px">6.0%</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1.15fr .85fr .9fr 1fr .95fr;gap:6px;padding:13px 18px;align-items:center;border-left:2px solid transparent">
+              <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:#fff;font-size:14px">KO</span><span style="text-align:right;color:#aebfd2;font-size:13px">62.30</span><span style="text-align:right;color:#cfdcec;font-size:13px;font-weight:600">$74</span><span style="text-align:right;color:#00d4aa;font-weight:700;font-size:14px">5.3%</span><span style="text-align:right;color:#aebfd2;font-size:13px">6.8%</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1.15fr .85fr .9fr 1fr .95fr;gap:6px;padding:13px 18px;align-items:center;border-left:2px solid transparent;background:rgba(120,160,200,0.03)">
+              <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:#fff;font-size:14px">NVDA</span><span style="text-align:right;color:#aebfd2;font-size:13px">124.60</span><span style="text-align:right;color:#cfdcec;font-size:13px;font-weight:600">$410</span><span style="text-align:right;color:#00d4aa;font-weight:700;font-size:14px">8.1%</span><span style="text-align:right;color:#aebfd2;font-size:13px">9.7%</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1.15fr .85fr .9fr 1fr .95fr;gap:6px;padding:13px 18px;align-items:center;border-left:2px solid transparent">
+              <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;color:#fff;font-size:14px">COST</span><span style="text-align:right;color:#aebfd2;font-size:13px">880.20</span><span style="text-align:right;color:#cfdcec;font-size:13px;font-weight:600">$520</span><span style="text-align:right;color:#00d4aa;font-weight:700;font-size:14px">2.9%</span><span style="text-align:right;color:#aebfd2;font-size:13px">4.3%</span>
+            </div>
+          </div>
+          <div style="position:absolute;left:0;right:0;bottom:0;height:128px;background:linear-gradient(to bottom, rgba(12,28,48,0) 0%, rgba(12,28,48,0.85) 55%, #0c1c30 92%);z-index:2;pointer-events:none"></div>
+          <div style="position:absolute;left:0;right:0;bottom:14px;text-align:center;z-index:3;font-size:12px;color:#6f8298">+ 142 more matches</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TICKER TAPE ============ -->
+  <div style="background:#060f1c;border-top:1px solid rgba(120,160,200,0.1);border-bottom:1px solid rgba(120,160,200,0.1);overflow:hidden;padding:15px 0;position:relative">
+    <div style="display:flex;width:max-content;animation:tickerScroll 42s linear infinite">
+      <div data-strip style="display:flex;align-items:center;gap:38px;padding-right:38px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14.5px">
+        <span style="color:#cfdcec;font-weight:700">AAPL <span style="color:#00d4aa">3.2%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">NVDA <span style="color:#00d4aa">8.1%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">MSFT <span style="color:#00d4aa">2.9%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">JPM <span style="color:#00d4aa">4.7%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">KO <span style="color:#00d4aa">5.3%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">COST <span style="color:#00d4aa">2.9%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">XOM <span style="color:#00d4aa">4.4%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">PFE <span style="color:#00d4aa">6.1%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">V <span style="color:#00d4aa">2.1%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">AMD <span style="color:#00d4aa">7.2%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">WMT <span style="color:#00d4aa">3.4%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">MO <span style="color:#00d4aa">9.2%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:38px;padding-right:38px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14.5px">
+        <span style="color:#cfdcec;font-weight:700">AAPL <span style="color:#00d4aa">3.2%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">NVDA <span style="color:#00d4aa">8.1%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">MSFT <span style="color:#00d4aa">2.9%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">JPM <span style="color:#00d4aa">4.7%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">KO <span style="color:#00d4aa">5.3%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">COST <span style="color:#00d4aa">2.9%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">XOM <span style="color:#00d4aa">4.4%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">PFE <span style="color:#00d4aa">6.1%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">V <span style="color:#00d4aa">2.1%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">AMD <span style="color:#00d4aa">7.2%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">WMT <span style="color:#00d4aa">3.4%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+        <span style="color:#cfdcec;font-weight:700">MO <span style="color:#00d4aa">9.2%</span></span><span style="color:rgba(120,160,200,.3)">|</span>
+      </div>
+    </div>
+    <div style="position:absolute;left:0;top:0;bottom:0;width:110px;background:linear-gradient(to right,#060f1c,transparent);pointer-events:none"></div>
+    <div style="position:absolute;right:0;top:0;bottom:0;width:110px;background:linear-gradient(to left,#060f1c,transparent);pointer-events:none"></div>
+  </div>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section id="how" style="background:#ffffff;color:#0a1628;padding:clamp(72px,9vw,120px) clamp(20px,5vw,48px)">
+    <div style="max-width:1100px;margin:0 auto">
+      <div data-reveal style="animation:revealUp .85s ease both;animation-timeline:view();animation-range:entry 0% cover 28%;text-align:center;max-width:620px;margin:0 auto">
+        <div style="font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#00b894">How it works</div>
+        <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(28px,4vw,44px);letter-spacing:-0.02em;margin:14px 0 0;line-height:1.08">Three steps to a covered-call income plan</h2>
+        <p style="font-size:17px;color:#5a6b7e;line-height:1.6;margin:16px 0 0">No options PhD required. Screen, evaluate, and place trades on names you already trust.</p>
+      </div>
+
+      <div style="position:relative;margin-top:60px">
+        <div style="position:absolute;top:40px;left:16%;right:16%;height:2px;background:linear-gradient(90deg,rgba(0,184,148,.15),rgba(0,184,148,.55),rgba(0,184,148,.15));z-index:0"></div>
+        <div style="position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:32px;justify-content:center">
+          <div data-reveal style="animation:revealUp .85s ease both;animation-timeline:view();animation-range:entry 0% cover 28%;flex:1 1 240px;min-width:230px;max-width:320px;text-align:center">
+            <div style="width:80px;height:80px;border-radius:50%;margin:0 auto;background:#0a1628;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:28px;color:#00d4aa;border:3px solid #fff;box-shadow:0 0 0 2px rgba(0,212,170,.4),0 12px 30px -10px rgba(10,22,40,.4)">1</div>
+            <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:20px;margin:22px 0 0;color:#0a1628">Filter for quality</h3>
+            <p style="font-size:15px;color:#5a6b7e;line-height:1.6;margin:10px 0 0">Start from a universe of liquid, fundamentally sound stocks — screen by sector, dividend, beta, and balance-sheet health.</p>
+          </div>
+          <div data-reveal data-reveal-delay="120" style="animation:revealUp .85s ease both;animation-timeline:view();animation-range:entry 0% cover 28%;flex:1 1 240px;min-width:230px;max-width:320px;text-align:center">
+            <div style="width:80px;height:80px;border-radius:50%;margin:0 auto;background:#0a1628;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:28px;color:#00d4aa;border:3px solid #fff;box-shadow:0 0 0 2px rgba(0,212,170,.4),0 12px 30px -10px rgba(10,22,40,.4)">2</div>
+            <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:20px;margin:22px 0 0;color:#0a1628">Rank the call options</h3>
+            <p style="font-size:15px;color:#5a6b7e;line-height:1.6;margin:10px 0 0">We score every viable strike on static yield, downside cushion, and if-called return — so the best risk/reward floats to the top.</p>
+          </div>
+          <div data-reveal data-reveal-delay="240" style="animation:revealUp .85s ease both;animation-timeline:view();animation-range:entry 0% cover 28%;flex:1 1 240px;min-width:230px;max-width:320px;text-align:center">
+            <div style="width:80px;height:80px;border-radius:50%;margin:0 auto;background:#0a1628;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:28px;color:#00d4aa;border:3px solid #fff;box-shadow:0 0 0 2px rgba(0,212,170,.4),0 12px 30px -10px rgba(10,22,40,.4)">3</div>
+            <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:20px;margin:22px 0 0;color:#0a1628">Pocket the premium</h3>
+            <p style="font-size:15px;color:#5a6b7e;line-height:1.6;margin:10px 0 0">Write the call, collect cash up front, and track your positions. Roll or let it get called — either way you keep the credit.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ METRIC CARDS ============ -->
+  <section id="metrics" style="background:#f4f8fb;color:#0a1628;padding:clamp(72px,9vw,120px) clamp(20px,5vw,48px)">
+    <div style="max-width:1140px;margin:0 auto">
+      <div data-reveal style="animation:revealUp .85s ease both;animation-timeline:view();animation-range:entry 0% cover 28%;text-align:center;max-width:640px;margin:0 auto">
+        <div style="font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#00b894">What you'll see</div>
+        <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(28px,4vw,44px);letter-spacing:-0.02em;margin:14px 0 0;line-height:1.08">Every number that decides the trade</h2>
+        <p style="font-size:17px;color:#5a6b7e;line-height:1.6;margin:16px 0 0">Plain-English metrics on each candidate — no Greeks decoder ring needed.</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:22px;margin-top:54px">
+
+        <div data-reveal style="animation:revealUp .85s ease both;animation-timeline:view();animation-range:entry 0% cover 28%;background:#fff;border:1px solid #e5edf4;border-radius:16px;padding:28px 26px;box-shadow:0 1px 2px rgba(10,22,40,.04)" style-hover="background:#fff;border:1px solid #e5edf4;border-radius:16px;padding:28px 26px;box-shadow:0 20px 40px -16px rgba(10,22,40,.22);transform:translateY(-6px);transition:transform .25s ease,box-shadow .25s ease">
+          <div style="width:46px;height:46px;border-radius:12px;background:rgba(0,212,170,.12);display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:22px;color:#00b894">$</div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:42px;letter-spacing:-0.02em;color:#0a1628;margin-top:22px;line-height:1">{{ ncDisp }}</div>
+          <div style="font-weight:700;font-size:15px;margin-top:8px;color:#0a1628">Net Credit</div>
+          <p style="font-size:13.5px;color:#5a6b7e;line-height:1.55;margin:7px 0 0">Cash premium collected up front, per contract, after fees.</p>
+        </div>
+
+        <div data-reveal data-reveal-delay="90" style="animation:revealUp .85s ease both;animation-timeline:view();animation-range:entry 0% cover 28%;background:#fff;border:1px solid #e5edf4;border-radius:16px;padding:28px 26px;box-shadow:0 1px 2px rgba(10,22,40,.04)" style-hover="background:#fff;border:1px solid #e5edf4;border-radius:16px;padding:28px 26px;box-shadow:0 20px 40px -16px rgba(10,22,40,.22);transform:translateY(-6px);transition:transform .25s ease,box-shadow .25s ease">
+          <div style="width:46px;height:46px;border-radius:12px;background:rgba(0,212,170,.12);display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:22px;color:#00b894">%</div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:42px;letter-spacing:-0.02em;color:#0a1628;margin-top:22px;line-height:1">{{ syDisp }}</div>
+          <div style="font-weight:700;font-size:15px;margin-top:8px;color:#0a1628">Static Yield</div>
+          <p style="font-size:13.5px;color:#5a6b7e;line-height:1.55;margin:7px 0 0">Income earned if the stock simply stays flat to expiration.</p>
+        </div>
+
+        <div data-reveal data-reveal-delay="180" style="animation:revealUp .85s ease both;animation-timeline:view();animation-range:entry 0% cover 28%;background:#fff;border:1px solid #e5edf4;border-radius:16px;padding:28px 26px;box-shadow:0 1px 2px rgba(10,22,40,.04)" style-hover="background:#fff;border:1px solid #e5edf4;border-radius:16px;padding:28px 26px;box-shadow:0 20px 40px -16px rgba(10,22,40,.22);transform:translateY(-6px);transition:transform .25s ease,box-shadow .25s ease">
+          <div style="width:46px;height:46px;border-radius:12px;background:rgba(0,212,170,.12);display:flex;align-items:center;justify-content:center">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 3v12M6 10.5l5 5 5-5" stroke="#00b894" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:42px;letter-spacing:-0.02em;color:#0a1628;margin-top:22px;line-height:1">{{ dcDisp }}</div>
+          <div style="font-weight:700;font-size:15px;margin-top:8px;color:#0a1628">Downside Cushion</div>
+          <p style="font-size:13.5px;color:#5a6b7e;line-height:1.55;margin:7px 0 0">How far the stock can fall before the trade loses money.</p>
+        </div>
+
+        <div data-reveal data-reveal-delay="270" style="animation:revealUp .85s ease both;animation-timeline:view();animation-range:entry 0% cover 28%;background:#fff;border:1px solid #e5edf4;border-radius:16px;padding:28px 26px;box-shadow:0 1px 2px rgba(10,22,40,.04)" style-hover="background:#fff;border:1px solid #e5edf4;border-radius:16px;padding:28px 26px;box-shadow:0 20px 40px -16px rgba(10,22,40,.22);transform:translateY(-6px);transition:transform .25s ease,box-shadow .25s ease">
+          <div style="width:46px;height:46px;border-radius:12px;background:rgba(0,212,170,.12);display:flex;align-items:center;justify-content:center">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M5 17L17 5M9 5h8v8" stroke="#00b894" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:42px;letter-spacing:-0.02em;color:#0a1628;margin-top:22px;line-height:1">{{ icDisp }}</div>
+          <div style="font-weight:700;font-size:15px;margin-top:8px;color:#0a1628">If-Called Return</div>
+          <p style="font-size:13.5px;color:#5a6b7e;line-height:1.55;margin:7px 0 0">Total return if shares get called away at the strike price.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PRICING ============ -->
+  <section id="pricing" style="background:#fff;color:#0a1628;padding:clamp(72px,9vw,120px) clamp(20px,5vw,48px)">
+    <div style="max-width:880px;margin:0 auto">
+      <div data-reveal style="animation:revealUp .85s ease both;animation-timeline:view();animation-range:entry 0% cover 28%;text-align:center;margin:0 auto 52px">
+        <div style="font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#00b894">Pricing</div>
+        <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(28px,4vw,44px);letter-spacing:-0.02em;margin:14px 0 0;line-height:1.08">Start free. Upgrade when it pays for itself.</h2>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:24px;align-items:stretch">
+        <!-- free -->
+        <div data-reveal style="animation:revealUp .85s ease both;animation-timeline:view();animation-range:entry 0% cover 28%;background:#fff;border:1px solid #e2eaf2;border-radius:18px;padding:34px 30px;display:flex;flex-direction:column">
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:18px">Free</div>
+          <p style="font-size:14px;color:#5a6b7e;margin:6px 0 0">For getting your first covered call on.</p>
+          <div style="margin:22px 0 0;display:flex;align-items:flex-end;gap:6px">
+            <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:46px;letter-spacing:-0.02em;line-height:1">$0</span>
+            <span style="color:#5a6b7e;font-size:15px;padding-bottom:8px">/ forever</span>
+          </div>
+          <a href="#" onClick="{{ onOpenScreener }}" style="cursor:pointer;margin:24px 0 28px;display:block;text-align:center;background:#0a1628;color:#fff;text-decoration:none;font-weight:600;font-size:15px;padding:13px;border-radius:11px;transition:background .2s" style-hover="margin:24px 0 28px;display:block;text-align:center;background:#16263d;color:#fff;text-decoration:none;font-weight:600;font-size:15px;padding:13px;border-radius:11px">Open Screener</a>
+          <div style="display:flex;flex-direction:column;gap:13px;font-size:14.5px;color:#33485e">
+            <div style="display:flex;gap:11px;align-items:flex-start"><svg width="18" height="18" viewBox="0 0 16 16" style="flex:none;margin-top:1px"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="#00b894" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited screening</div>
+            <div style="display:flex;gap:11px;align-items:flex-start"><svg width="18" height="18" viewBox="0 0 16 16" style="flex:none;margin-top:1px"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="#00b894" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>End-of-day &amp; delayed data</div>
+            <div style="display:flex;gap:11px;align-items:flex-start"><svg width="18" height="18" viewBox="0 0 16 16" style="flex:none;margin-top:1px"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="#00b894" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>3 saved screens</div>
+            <div style="display:flex;gap:11px;align-items:flex-start"><svg width="18" height="18" viewBox="0 0 16 16" style="flex:none;margin-top:1px"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="#00b894" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Core income metrics</div>
+          </div>
+        </div>
+
+        <!-- pro -->
+        <div data-reveal data-reveal-delay="120" style="animation:revealUp .85s ease both;animation-timeline:view();animation-range:entry 0% cover 28%;position:relative;background:linear-gradient(180deg,#0c1c30,#0a1628);border:1.5px solid #00d4aa;border-radius:18px;padding:34px 30px;display:flex;flex-direction:column;box-shadow:0 30px 60px -24px rgba(0,212,170,.35)">
+          <div style="position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:#00d4aa;color:#04221b;font-weight:700;font-size:12px;letter-spacing:.03em;padding:6px 15px;border-radius:100px;white-space:nowrap">★ Most Popular</div>
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:18px;color:#fff">Pro</div>
+          <p style="font-size:14px;color:#9fb2c8;margin:6px 0 0">Real-time data and the full toolkit.</p>
+          <div style="margin:22px 0 0;display:flex;align-items:flex-end;gap:6px">
+            <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:46px;letter-spacing:-0.02em;line-height:1;color:#fff">$29</span>
+            <span style="color:#9fb2c8;font-size:15px;padding-bottom:8px">/ month</span>
+          </div>
+          <div style="margin:24px 0 28px;display:flex;align-items:center;justify-content:center;gap:9px;background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.4);color:#00d4aa;font-weight:700;font-size:15px;padding:13px;border-radius:11px;cursor:not-allowed">
+            <span style="width:8px;height:8px;border-radius:50%;background:#00d4aa;box-shadow:0 0 8px #00d4aa;animation:pulseDot 2s ease-in-out infinite"></span>
+            Coming Soon
+          </div>
+          <div style="display:flex;flex-direction:column;gap:13px;font-size:14.5px;color:#cfdcec">
+            <div style="display:flex;gap:11px;align-items:flex-start"><svg width="18" height="18" viewBox="0 0 16 16" style="flex:none;margin-top:1px"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="#00d4aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Real-time quotes &amp; chains</div>
+            <div style="display:flex;gap:11px;align-items:flex-start"><svg width="18" height="18" viewBox="0 0 16 16" style="flex:none;margin-top:1px"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="#00d4aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Unlimited saved screens</div>
+            <div style="display:flex;gap:11px;align-items:flex-start"><svg width="18" height="18" viewBox="0 0 16 16" style="flex:none;margin-top:1px"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="#00d4aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Advanced Greeks &amp; IV filters</div>
+            <div style="display:flex;gap:11px;align-items:flex-start"><svg width="18" height="18" viewBox="0 0 16 16" style="flex:none;margin-top:1px"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="#00d4aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Roll alerts &amp; assignment watch</div>
+            <div style="display:flex;gap:11px;align-items:flex-start"><svg width="18" height="18" viewBox="0 0 16 16" style="flex:none;margin-top:1px"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="#00d4aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>CSV &amp; broker export</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DISCLAIMER ============ -->
+  <div style="background:#fdf3e0;border-top:1px solid #f0dcb4;border-bottom:1px solid #f0dcb4;padding:22px clamp(20px,5vw,48px)">
+    <div style="max-width:1000px;margin:0 auto;display:flex;gap:15px;align-items:flex-start">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="flex:none;margin-top:1px"><path d="M12 3L1.5 21h21L12 3z" stroke="#b07d18" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9.5v5M12 17.5v.5" stroke="#b07d18" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <p style="font-size:13px;line-height:1.6;color:#7a5a18;margin:0">
+        <strong style="color:#5e4410">For educational purposes only — not investment advice.</strong> Options trading involves substantial risk and is not suitable for all investors. Writing covered calls caps upside and does not protect against losses below your cost basis. All figures shown are illustrative mock data, not live quotes or recommendations. Past performance does not guarantee future results. Consult a licensed financial professional before trading.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer style="background:#060f1c;color:#9fb2c8;padding:clamp(54px,7vw,80px) clamp(20px,5vw,48px) 36px">
+    <div style="max-width:1140px;margin:0 auto;display:flex;flex-wrap:wrap;gap:48px;justify-content:space-between">
+      <div style="flex:1 1 280px;max-width:340px">
+        <div style="display:flex;align-items:center;gap:11px">
+          <div style="display:flex;align-items:flex-end;gap:3px;height:22px">
+            <div style="width:5px;height:11px;background:#00d4aa;border-radius:1.5px"></div>
+            <div style="width:5px;height:18px;background:#00d4aa;border-radius:1.5px;opacity:.8"></div>
+            <div style="width:5px;height:23px;background:#00d4aa;border-radius:1.5px;opacity:.6"></div>
+          </div>
+          <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:18px;color:#fff;letter-spacing:-0.02em">YieldScreener</span>
+        </div>
+        <p style="font-size:14px;line-height:1.6;color:#76889e;margin:16px 0 0">Income screening for self-directed investors who take their money seriously.</p>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:48px">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:#fff;text-transform:uppercase;letter-spacing:.06em">Product</div>
+          <a href="#how" style="color:#9fb2c8;text-decoration:none;font-size:14px" style-hover="color:#00d4aa;text-decoration:none;font-size:14px">How it works</a>
+          <a href="#metrics" style="color:#9fb2c8;text-decoration:none;font-size:14px" style-hover="color:#00d4aa;text-decoration:none;font-size:14px">Metrics</a>
+          <a href="#pricing" style="color:#9fb2c8;text-decoration:none;font-size:14px" style-hover="color:#00d4aa;text-decoration:none;font-size:14px">Pricing</a>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:#fff;text-transform:uppercase;letter-spacing:.06em">Company</div>
+          <a href="#" style="color:#9fb2c8;text-decoration:none;font-size:14px" style-hover="color:#00d4aa;text-decoration:none;font-size:14px">About</a>
+          <a href="#" style="color:#9fb2c8;text-decoration:none;font-size:14px" style-hover="color:#00d4aa;text-decoration:none;font-size:14px">Blog</a>
+          <a href="#" style="color:#9fb2c8;text-decoration:none;font-size:14px" style-hover="color:#00d4aa;text-decoration:none;font-size:14px">Contact</a>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:#fff;text-transform:uppercase;letter-spacing:.06em">Legal</div>
+          <a href="#" style="color:#9fb2c8;text-decoration:none;font-size:14px" style-hover="color:#00d4aa;text-decoration:none;font-size:14px">Terms</a>
+          <a href="#" style="color:#9fb2c8;text-decoration:none;font-size:14px" style-hover="color:#00d4aa;text-decoration:none;font-size:14px">Privacy</a>
+          <a href="#" style="color:#9fb2c8;text-decoration:none;font-size:14px" style-hover="color:#00d4aa;text-decoration:none;font-size:14px">Disclosures</a>
+        </div>
+      </div>
+    </div>
+    <div style="max-width:1140px;margin:44px auto 0;padding-top:24px;border-top:1px solid rgba(120,160,200,0.12);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:#5d6f85">© 2026 YieldScreener. All rights reserved.</span>
+      <span style="font-size:12.5px;color:#5d6f85">Not a broker-dealer. Mock data shown for demonstration.</span>
+    </div>
+  </footer>
+
+  <!-- ============ AUTH MODAL ============ -->
+  <sc-if value="{{ authOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(4,9,18,0.72);backdrop-filter:blur(6px);animation:overlayFade .2s ease both">
+      <div onClick="{{ stop }}" style="position:relative;width:100%;max-width:412px;background:#0c1c30;border:1px solid rgba(120,160,200,0.18);border-radius:20px;box-shadow:0 40px 90px -20px rgba(0,0,0,0.8);padding:34px 32px;animation:modalPop .25s ease both">
+        <div onClick="{{ closeAuth }}" style="position:absolute;top:16px;right:16px;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#76889e" style-hover="position:absolute;top:16px;right:16px;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;background:rgba(120,160,200,0.1)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px">
+          <div style="display:flex;align-items:flex-end;gap:2.5px;height:18px">
+            <div style="width:4px;height:9px;background:#00d4aa;border-radius:1px"></div>
+            <div style="width:4px;height:14px;background:#00d4aa;border-radius:1px;opacity:.8"></div>
+            <div style="width:4px;height:18px;background:#00d4aa;border-radius:1px;opacity:.6"></div>
+          </div>
+          <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:16px;color:#fff">YieldScreener</span>
+        </div>
+        <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:24px;color:#fff;margin:22px 0 0;letter-spacing:-0.01em">{{ authTitle }}</h3>
+        <p style="font-size:14px;color:#9fb2c8;margin:6px 0 0">{{ authSubtitle }}</p>
+
+        <div style="display:flex;flex-direction:column;gap:13px;margin-top:24px">
+          <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ true }}">
+            <label style="display:block">
+              <span style="font-size:12.5px;font-weight:600;color:#9fb2c8;letter-spacing:.02em">Full name</span>
+              <input value="{{ formName }}" onInput="{{ onName }}" placeholder="Alex Carter" style="margin-top:7px;width:100%;background:#0a1628;border:1px solid rgba(120,160,200,0.22);border-radius:10px;padding:12px 14px;color:#fff;font-size:14.5px;font-family:'Inter',sans-serif;outline:none" />
+            </label>
+          </sc-if>
+          <label style="display:block">
+            <span style="font-size:12.5px;font-weight:600;color:#9fb2c8;letter-spacing:.02em">Email</span>
+            <input value="{{ formEmail }}" onInput="{{ onEmail }}" type="email" placeholder="you@email.com" style="margin-top:7px;width:100%;background:#0a1628;border:1px solid rgba(120,160,200,0.22);border-radius:10px;padding:12px 14px;color:#fff;font-size:14.5px;font-family:'Inter',sans-serif;outline:none" />
+          </label>
+          <label style="display:block">
+            <span style="font-size:12.5px;font-weight:600;color:#9fb2c8;letter-spacing:.02em">Password</span>
+            <input value="{{ formPassword }}" onInput="{{ onPassword }}" type="password" placeholder="••••••••" style="margin-top:7px;width:100%;background:#0a1628;border:1px solid rgba(120,160,200,0.22);border-radius:10px;padding:12px 14px;color:#fff;font-size:14.5px;font-family:'Inter',sans-serif;outline:none" />
+          </label>
+          <sc-if value="{{ authError }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12.5px;color:#ff8a8a">{{ authError }}</div>
+          </sc-if>
+          <div onClick="{{ submitAuth }}" style="cursor:pointer;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;background:#00d4aa;color:#04221b;font-weight:700;font-size:15px;padding:13px;border-radius:11px;box-shadow:0 14px 30px -12px rgba(0,212,170,0.6)" style-hover="cursor:pointer;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;background:#0adfb4;color:#04221b;font-weight:700;font-size:15px;padding:13px;border-radius:11px;box-shadow:0 18px 38px -12px rgba(0,212,170,0.8)">{{ authCta }}</div>
+        </div>
+
+        <div style="margin-top:18px;text-align:center;font-size:13.5px;color:#9fb2c8">
+          {{ authSwitchText }} <span onClick="{{ switchMode }}" style="cursor:pointer;color:#00d4aa;font-weight:700">{{ authSwitchCta }}</span>
+        </div>
+        <p style="margin:18px 0 0;font-size:11.5px;line-height:1.5;color:#5d6f85;text-align:center">YieldScreener is an educational research tool, not investment advice. By continuing you agree to our Terms &amp; Privacy Policy.</p>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900},&quot;showFloatingTickers&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Hero&quot;},&quot;floatDensity&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:30,&quot;min&quot;:0,&quot;max&quot;:30,&quot;step&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Hero&quot;},&quot;enableCountUp&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Animation&quot;}}">
+class Component extends DCLogic {
+  state = {
+    user: null,
+    authOpen: false,
+    authMode: 'signup',
+    menuOpen: false,
+    form: { name: '', email: '', password: '' },
+    error: '',
+    counts: { nc: 0, sy: 0, dc: 0, ic: 0 },
+  };
+
+  renderVals() {
+    const showFloat = this.props.showFloatingTickers ?? true;
+    const density = this.props.floatDensity ?? 18;
+    const s = this.state;
+    const u = s.user;
+    const c = s.counts;
+    const isSignup = s.authMode === 'signup';
+    const plan = u ? (u.plan || 'Free') : 'Free';
+    return {
+      rootRef: (el) => { if (el) this.root = el; },
+      floatLayer: showFloat ? this.getFloatLayer(density) : null,
+      ncDisp: '$' + Math.round(c.nc),
+      syDisp: c.sy.toFixed(1) + '%',
+      dcDisp: c.dc.toFixed(1) + '%',
+      icDisp: c.ic.toFixed(1) + '%',
+      loggedIn: !!u,
+      loggedOut: !u,
+      userName: u ? u.name : '',
+      userInitial: u ? (u.name || u.email || '?').trim().charAt(0).toUpperCase() : '',
+      userEmail: u ? u.email : '',
+      userPlan: plan,
+      savedCount: u ? (u.saved == null ? 2 : u.saved) : 0,
+      savedLimit: plan === 'Pro' ? '\u221E' : 3,
+      menuOpen: s.menuOpen,
+      authOpen: s.authOpen,
+      isSignup: isSignup,
+      authTitle: isSignup ? 'Create your account' : 'Welcome back',
+      authSubtitle: isSignup ? 'Save screeners and pick up where you left off.' : 'Log in to reach your saved screeners and filters.',
+      authCta: isSignup ? 'Create account' : 'Log in',
+      authSwitchText: isSignup ? 'Already have an account?' : "Don't have an account?",
+      authSwitchCta: isSignup ? 'Log in' : 'Create account',
+      authError: s.error,
+      formName: s.form.name,
+      formEmail: s.form.email,
+      formPassword: s.form.password,
+      openSignup: () => this.openAuth('signup'),
+      openLogin: () => this.openAuth('login'),
+      closeAuth: () => this.setState({ authOpen: false, error: '' }),
+      switchMode: () => this.setState({ authMode: isSignup ? 'login' : 'signup', error: '' }),
+      submitAuth: () => this.submitAuth(),
+      onName: (e) => this.setForm('name', e.target.value),
+      onEmail: (e) => this.setForm('email', e.target.value),
+      onPassword: (e) => this.setForm('password', e.target.value),
+      toggleMenu: (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.setState(st => ({ menuOpen: !st.menuOpen })); },
+      logout: () => this.logout(),
+      onOpenScreener: (e) => { if (e && e.preventDefault) e.preventDefault(); if (!this.state.user) this.openAuth('signup'); },
+      stop: (e) => { if (e && e.stopPropagation) e.stopPropagation(); },
+    };
+  }
+
+  getFloatLayer(n) {
+    if (!this._floatCache || this._floatN !== n) { this._floatCache = this.buildFloatLayer(n); this._floatN = n; }
+    return this._floatCache;
+  }
+
+  buildFloatLayer(n) {
+    const pool = ['AAPL','NVDA','+4.2%','MSFT','JPM','8.1%','KO','+3.6%','SPY','XOM','2.9%','$248','+4.7%','AMD','COST','5.3%','V','+2.1%','WMT','+6.8%','TLT','3.4%','GLD','7.8%','PFE','MO','+5.1%','T','9.2%','$410'];
+    const items = [];
+    for (let i = 0; i < n; i++) {
+      const txt = pool[i % pool.length];
+      const top = (i * 61 + 11) % 96;
+      const left = (i * 43 + 5) % 94;
+      const size = 13 + ((i * 7) % 22);
+      const dur = 14 + ((i * 5) % 16);
+      const delay = -((i * 3) % 18);
+      const hot = txt.indexOf('%') >= 0 || txt.indexOf('$') >= 0;
+      items.push(React.createElement('span', {
+        key: i,
+        style: {
+          position: 'absolute',
+          top: top + '%',
+          left: left + '%',
+          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontWeight: 700,
+          fontSize: size + 'px',
+          letterSpacing: '0.04em',
+          color: hot ? 'rgba(0,212,170,0.08)' : 'rgba(170,200,235,0.055)',
+          whiteSpace: 'nowrap',
+          animation: 'drift ' + dur + 's ease-in-out ' + delay + 's infinite',
+          willChange: 'transform',
+        }
+      }, txt));
+    }
+    return React.createElement('div', {
+      style: { position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 1 }
+    }, items);
+  }
+
+  componentDidMount() {
+    try {
+      const raw = localStorage.getItem('ys_auth');
+      if (raw) { const u = JSON.parse(raw); if (u && u.email) this.setState({ user: u }); }
+    } catch (e) {}
+    this._docClick = () => { if (this.state.menuOpen) this.setState({ menuOpen: false }); };
+    document.addEventListener('click', this._docClick);
+    requestAnimationFrame(() => this.startCounts());
+  }
+
+  componentWillUnmount() {
+    if (this._docClick) document.removeEventListener('click', this._docClick);
+    if (this._countTimer) clearTimeout(this._countTimer);
+  }
+
+  openAuth(mode) { this.setState({ authOpen: true, authMode: mode, error: '', menuOpen: false }); }
+
+  setForm(field, val) { this.setState(st => ({ form: Object.assign({}, st.form, { [field]: val }), error: '' })); }
+
+  submitAuth() {
+    const { name, email, password } = this.state.form;
+    if (!email || !/.+@.+\..+/.test(email)) { this.setState({ error: 'Enter a valid email address.' }); return; }
+    if (!password || password.length < 6) { this.setState({ error: 'Password must be at least 6 characters.' }); return; }
+    if (this.state.authMode === 'signup' && !name.trim()) { this.setState({ error: 'Please enter your name.' }); return; }
+    const fallback = email.split('@')[0].replace(/[^a-z]/gi, ' ').trim();
+    const user = { name: (name.trim() || fallback || 'Investor'), email: email.trim(), plan: 'Free', saved: 2 };
+    try { localStorage.setItem('ys_auth', JSON.stringify(user)); } catch (e) {}
+    this.setState({ user: user, authOpen: false, menuOpen: false, error: '', form: { name: '', email: '', password: '' } });
+  }
+
+  logout() {
+    try { localStorage.removeItem('ys_auth'); } catch (e) {}
+    this.setState({ user: null, menuOpen: false });
+  }
+
+  startCounts() {
+    if (!(this.props.enableCountUp ?? true)) { this.setState({ counts: { nc: 248, sy: 4.2, dc: 7.8, ic: 5.6 } }); return; }
+    const scope = this.root || document;
+    const anchor = scope.querySelector('#metrics');
+    const check = () => {
+      if (this._countStarted) return;
+      const vh = window.innerHeight || 800;
+      const top = anchor ? anchor.getBoundingClientRect().top : 0;
+      if (!anchor || top < vh * 0.85) { this._countStarted = true; this.runCount(); }
+      else { this._countTimer = setTimeout(check, 180); }
+    };
+    check();
+  }
+
+  runCount() {
+    const targets = { nc: 248, sy: 4.2, dc: 7.8, ic: 5.6 };
+    const dur = 1500, start = performance.now();
+    const tick = (now) => {
+      const t = Math.min((now - start) / dur, 1);
+      const e = 1 - Math.pow(1 - t, 3);
+      this.setState({ counts: { nc: targets.nc * e, sy: targets.sy * e, dc: targets.dc * e, ic: targets.ic * e } });
+      if (t < 1) requestAnimationFrame(tick); else this.setState({ counts: targets });
+    };
+    requestAnimationFrame(tick);
+  }
+}
+</script>
+</body>
+</html>

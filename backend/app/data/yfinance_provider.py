@@ -15,7 +15,7 @@ _redis: redis_lib.Redis | None = None
 
 QUOTE_TTL = 1800      # 30-minute cache for fundamental quotes
 CHAIN_TTL = 900       # 15-minute cache for option chains
-_INTER_REQUEST_DELAY = 0.25  # seconds between yfinance HTTP calls
+_INTER_EXPIRY_DELAY = 0.4   # seconds between option_chain() calls for each expiry
 
 
 def _get_redis() -> redis_lib.Redis:
@@ -54,7 +54,7 @@ class YFinanceProvider(DataProvider):
         return quote
 
     def _fetch_quote(self, ticker: str) -> StockQuote:
-        """Fetch fundamental quote from yfinance with one retry on 429."""
+        """Fetch fundamental quote from yfinance with retry on 429."""
         for attempt in range(3):
             try:
                 info = yf.Ticker(ticker).info
@@ -136,12 +136,21 @@ class YFinanceProvider(DataProvider):
         except Exception:
             earnings_date = None
 
-        contracts: list[OptionContract] = []
+        # Filter expiry dates to those within the DTE window before fetching chains.
+        # This avoids unnecessary HTTP calls for out-of-range expiries.
+        valid_expiries: list[tuple[str, int]] = []
         for exp_str in t.options:
             exp = datetime.date.fromisoformat(exp_str)
             dte = (exp - today).days
-            if not (min_dte <= dte <= max_dte):
-                continue
+            if min_dte <= dte <= max_dte:
+                valid_expiries.append((exp_str, dte))
+
+        contracts: list[OptionContract] = []
+        for idx, (exp_str, dte) in enumerate(valid_expiries):
+            # Pace calls to Yahoo Finance — never fire them back-to-back.
+            if idx > 0:
+                time.sleep(_INTER_EXPIRY_DELAY)
+
             try:
                 chain = t.option_chain(exp_str).calls
             except Exception:

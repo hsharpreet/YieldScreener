@@ -69,60 +69,69 @@ export default function ScreenerPage() {
   }
 
   return (
-    <div className="flex flex-col h-full min-h-screen">
+    <div className="flex flex-col min-h-screen" style={{ background: '#0f1724' }}>
       <DisclaimerBanner />
-      <div className="flex flex-1">
-        <FilterRail
-          params={params}
-          onChange={setParams}
-          onRun={load}
-          watchlistMode={watchlistMode}
-          onWatchlistModeChange={setWatchlistMode}
-        />
-        <main className="flex-1 p-6 overflow-auto">
-          <div className="mb-4">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-xl font-semibold text-gray-900">Covered Call Screener</h1>
-              <span className="inline-flex items-center gap-1 border border-gray-300 rounded-full px-2.5 py-0.5 text-xs text-gray-500 bg-gray-50">
-                &#127482;&#127480; USA Markets
-              </span>
+
+      {/* Page header */}
+      <div className="px-6 pt-5 pb-3" style={{ background: '#0a1628', borderBottom: '1px solid #1a2438' }}>
+        <div className="flex items-center gap-3 flex-wrap">
+          <h1 className="text-lg font-semibold text-white tracking-tight">Covered Call Screener</h1>
+          <span className="inline-flex items-center gap-1 border border-[#2a3a58] rounded-full px-2.5 py-0.5 text-xs text-gray-400" style={{ background: '#1a2438' }}>
+            USA Markets
+          </span>
+          <span className="text-xs text-gray-500">
+            Quality stocks ranked by best covered call yield.{' '}
+            <span className="text-gray-600">Annualized figures are illustrative only.</span>
+          </span>
+        </div>
+      </div>
+
+      {/* Filter bar */}
+      <FilterRail
+        params={params}
+        onChange={setParams}
+        onRun={load}
+        watchlistMode={watchlistMode}
+        onWatchlistModeChange={setWatchlistMode}
+      />
+
+      {/* Table area */}
+      <main className="flex-1 px-4 py-4 overflow-auto">
+        {loading && (
+          <div className="py-12 text-center">
+            <div className="text-gray-500 text-sm">Screening stocks across US markets...</div>
+            <div className="mt-4 space-y-2 max-w-5xl mx-auto">
+              {[1, 2, 3, 4, 5].map(i => (
+                <div
+                  key={i}
+                  className="h-10 rounded animate-pulse"
+                  style={{ background: '#111c2d', opacity: 1 - i * 0.12 }}
+                />
+              ))}
             </div>
-            <p className="text-sm text-gray-500 mt-1">
-              Quality stocks ranked by best available covered call yield.{' '}
-              <span className="font-medium">Annualized figures are illustrative only.</span>
+          </div>
+        )}
+
+        {error && !loading && (
+          <div className="py-12 text-center">
+            <div className="text-4xl mb-4 text-gray-600">?</div>
+            <p className="text-gray-300 font-medium">No stocks matched your filters.</p>
+            <p className="text-gray-500 text-sm mt-1">
+              Try relaxing the criteria — reduce min market cap, widen the DTE range, or remove optional filters.
             </p>
           </div>
+        )}
 
-          {loading && (
-            <div className="py-12 text-center">
-              <div className="text-gray-400 text-sm">Screening stocks across US markets&#x2026;</div>
-              <div className="mt-4 space-y-2">
-                {[1, 2, 3, 4, 5].map(i => (
-                  <div key={i} className="h-10 bg-gray-100 rounded animate-pulse mx-auto max-w-4xl" />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {error && !loading && (
-            <div className="py-12 text-center">
-              <div className="text-gray-400 text-4xl mb-4">&#128269;</div>
-              <p className="text-gray-700 font-medium">No stocks matched your filters.</p>
-              <p className="text-gray-500 text-sm mt-1">Try relaxing the criteria — reduce min market cap, widen the DTE range, or remove optional filters.</p>
-            </div>
-          )}
-
-          {!loading && !error && (
-            <ScreenerTable
-              rows={rows}
-              tier={tier}
-              total={total}
-              watchlist={watchlist}
-              onWatchlistToggle={handleWatchlistToggle}
-            />
-          )}
-        </main>
-      </div>
+        {!loading && !error && (
+          <ScreenerTable
+            rows={rows}
+            tier={tier}
+            total={total}
+            watchlist={watchlist}
+            onWatchlistToggle={handleWatchlistToggle}
+          />
+        )}
+      </main>
     </div>
   )
 }
