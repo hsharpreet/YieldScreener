@@ -13,7 +13,7 @@ from app.data.provider import DataProvider, OptionContract, StockQuote
 
 _redis: redis_lib.Redis | None = None
 
-QUOTE_TTL = 300       # 5-minute cache for fundamental quotes
+QUOTE_TTL = 1800      # 30-minute cache for fundamental quotes
 CHAIN_TTL = 900       # 15-minute cache for option chains
 _INTER_REQUEST_DELAY = 0.25  # seconds between yfinance HTTP calls
 

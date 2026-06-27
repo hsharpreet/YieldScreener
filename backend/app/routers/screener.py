@@ -14,20 +14,18 @@ from app.screener.ranker import RankedContract, rank_contracts
 router = APIRouter(prefix="/api", tags=["screener"])
 
 DEFAULT_UNIVERSE = [
-    # Mega-cap tech
-    "AAPL", "MSFT", "GOOGL", "AMZN", "META", "NVDA", "TSLA", "ORCL", "AMD", "ADBE",
+    # Mega-cap tech (high option liquidity)
+    "AAPL", "MSFT", "GOOGL", "AMZN", "META", "NVDA", "TSLA",
     # Financials
-    "JPM", "BAC", "V", "MA", "GS", "BLK",
+    "JPM", "BAC", "V",
     # Healthcare
-    "JNJ", "UNH", "PFE", "ABBV", "MRK",
-    # Consumer staples & discretionary
-    "WMT", "HD", "COST", "MCD", "KO", "PEP", "NKE",
+    "JNJ", "UNH", "ABBV",
+    # Consumer
+    "WMT", "HD", "COST", "KO",
     # Energy
     "XOM", "CVX",
-    # Communication & media
-    "DIS", "NFLX", "CMCSA",
     # Other
-    "CRM", "INTC",
+    "DIS",
 ]
 
 
@@ -146,7 +144,7 @@ def screen(
 
     for i, ticker in enumerate(ticker_list):
         if i > 0:
-            time.sleep(0.25)  # pace requests to avoid Yahoo Finance 429s
+            time.sleep(1.5)  # pace requests — Yahoo Finance rate-limits hard bursts
         try:
             quote = provider.get_quote(ticker)
         except Exception:
