@@ -64,7 +64,7 @@ export default function ScreenerTable({ rows, tier, total, watchlist, onWatchlis
   const visibleCols = ALL_COLS.filter(col => visibleColKeys.has(col.colKey))
   const showStrikeExpiry = visibleColKeys.has('strike_expiry')
 
-  // Total header columns: visible data cols + Strike/Expiry (if visible) + watchlist star
+  // colspan for accordion: visible data cols + strike/expiry (if shown) + watchlist col
   const colSpanCount = visibleCols.length + (showStrikeExpiry ? 1 : 0) + 1
 
   const sorted = [...rows].sort((a, b) => {
@@ -140,6 +140,8 @@ export default function ScreenerTable({ rows, tier, total, watchlist, onWatchlis
                 onWatchlistToggle={onWatchlistToggle}
                 colSpanCount={colSpanCount}
                 isEven={idx % 2 === 0}
+                visibleColKeys={visibleColKeys}
+                showStrikeExpiry={showStrikeExpiry}
               />
             ))}
             {tier === 'free' && total > rows.length && (

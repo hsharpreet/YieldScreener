@@ -20,88 +20,108 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <span className="font-semibold text-gray-800">{ticker}</span>
-        <span className="text-gray-500 text-sm">{name}</span>
-        <span className="text-gray-400 text-sm">· current price {usd(price)}</span>
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="font-semibold text-white">{ticker}</span>
+        {name && <span className="text-sm" style={{ color: '#6a8ab0' }}>{name}</span>}
+        <span className="text-sm" style={{ color: '#3a5070' }}>&#xB7; {usd(price)}</span>
         {contract.earnings_within_dte && (
-          <span className="ml-2 inline-flex items-center gap-1 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-0.5">
+          <span
+            className="inline-flex items-center gap-1 text-xs font-medium rounded px-2 py-0.5"
+            style={{ color: '#f59e0b', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)' }}
+          >
             &#9888; Earnings before {contract.expiry}
           </span>
         )}
       </div>
 
-      {/* Scenario comparison */}
+      {/* Contract summary */}
       <div>
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-          Best call: ${contract.strike} strike · expires {contract.expiry} · {contract.dte} DTE · premium {usd(contract.premium)}
+        <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#3a5070' }}>
+          Best call: ${contract.strike} strike &middot; expires {contract.expiry} &middot; {contract.dte} DTE &middot; premium {usd(contract.premium)}
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <MetricCard
             label="Net Credit"
             value={usd(m.net_credit)}
             sub="per 100 shares"
-            tooltip="Premium × 100 shares — cash received upfront when you sell the call."
+            tooltip="Premium x 100 shares — cash received upfront when you sell the call."
           />
           <MetricCard
             label="Breakeven"
             value={usd(m.breakeven)}
             sub={`cushion ${pct(m.downside_cushion)}`}
-            tooltip="Stock price at which you break even = current price − premium."
+            tooltip="Stock price at which you break even = current price minus premium."
           />
           <MetricCard
             label="If Flat (not called)"
             value={pct(m.static_yield)}
             sub={`${pct(m.annualized_static)} ann. (illus.)`}
             highlight
-            tooltip="Return if the option expires worthless and you keep the shares. = premium ÷ price."
+            tooltip="Return if the option expires worthless and you keep the shares. = premium / price."
           />
           <MetricCard
             label="If Called (assigned)"
             value={pct(m.if_called_return)}
             sub={`${pct(m.annualized_if_called)} ann. (illus.)`}
             highlight
-            tooltip="Return if assigned at the strike price. Includes both premium and any capital gain/loss."
+            tooltip="Return if assigned at the strike price. Includes both premium and any capital gain or loss."
           />
         </div>
       </div>
 
       {/* Option chain mini-table */}
       <div>
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Available contracts (7–60 DTE)</p>
+        <p className="text-[11px] font-semibold uppercase tracking-widest mb-2" style={{ color: '#3a5070' }}>
+          Available contracts (7&#x2013;60 DTE)
+        </p>
         {chainLoading ? (
-          <p className="text-xs text-gray-400">Loading chain&#x2026;</p>
+          <p className="text-xs" style={{ color: '#3a5070' }}>Loading chain...</p>
         ) : chain.length === 0 ? (
-          <p className="text-xs text-gray-400">No liquid contracts found.</p>
+          <p className="text-xs" style={{ color: '#3a5070' }}>No liquid contracts found.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="text-xs w-full">
+          <div className="overflow-x-auto rounded" style={{ border: '1px solid #1a2d4a' }}>
+            <table className="text-xs w-full" style={{ background: '#0a1628' }}>
               <thead>
-                <tr className="text-gray-500 border-b border-gray-200">
-                  <th className="text-left pb-1 pr-3">Expiry</th>
-                  <th className="text-left pb-1 pr-3">DTE</th>
-                  <th className="text-left pb-1 pr-3">Strike</th>
-                  <th className="text-left pb-1 pr-3">Premium</th>
-                  <th className="text-left pb-1 pr-3">Static%</th>
-                  <th className="text-left pb-1 pr-3">Ann.Static&#x2020;</th>
-                  <th className="text-left pb-1">Earn.&#9888;</th>
+                <tr style={{ borderBottom: '1px solid #1a2d4a' }}>
+                  {['Expiry', 'DTE', 'Strike', 'Premium', 'Static %', 'Ann. Static †', 'Earn.'].map(h => (
+                    <th
+                      key={h}
+                      className="text-left px-3 py-2 font-semibold uppercase tracking-widest text-[10px] whitespace-nowrap"
+                      style={{ color: '#3a5070' }}
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
-                {chain.slice(0, 15).map((c, i) => (
-                  <tr key={i} className={c.expiry === contract.expiry && c.strike === contract.strike ? 'bg-blue-50 font-medium' : ''}>
-                    <td className="py-1 pr-3">{c.expiry}</td>
-                    <td className="py-1 pr-3">{c.dte}</td>
-                    <td className="py-1 pr-3">${c.strike}</td>
-                    <td className="py-1 pr-3">{usd(c.premium)}</td>
-                    <td className="py-1 pr-3">{pct(c.metrics.static_yield)}</td>
-                    <td className="py-1 pr-3">{pct(c.metrics.annualized_static)}</td>
-                    <td className="py-1">{c.earnings_within_dte ? '⚠' : ''}</td>
-                  </tr>
-                ))}
+              <tbody>
+                {chain.slice(0, 15).map((c, i) => {
+                  const isBest = c.expiry === contract.expiry && c.strike === contract.strike
+                  return (
+                    <tr
+                      key={i}
+                      style={{
+                        background: isBest ? 'rgba(0,212,170,0.08)' : i % 2 === 0 ? '#0d1929' : '#0a1628',
+                        borderBottom: '1px solid #162030',
+                      }}
+                    >
+                      <td className="px-3 py-1.5" style={{ color: isBest ? '#00d4aa' : '#8a9ab0' }}>{c.expiry}</td>
+                      <td className="px-3 py-1.5 tabular-nums" style={{ color: '#6a8ab0' }}>{c.dte}</td>
+                      <td className="px-3 py-1.5 tabular-nums font-medium" style={{ color: '#8a9ab0' }}>${c.strike}</td>
+                      <td className="px-3 py-1.5 tabular-nums" style={{ color: '#8a9ab0' }}>{usd(c.premium)}</td>
+                      <td className="px-3 py-1.5 tabular-nums" style={{ color: '#00d4aa' }}>{pct(c.metrics.static_yield)}</td>
+                      <td className="px-3 py-1.5 tabular-nums font-medium" style={{ color: '#00d4aa' }}>{pct(c.metrics.annualized_static)}</td>
+                      <td className="px-3 py-1.5 text-center" style={{ color: '#f59e0b' }}>
+                        {c.earnings_within_dte ? '⚠' : ''}
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
-            <p className="text-xs text-gray-400 mt-1">&#x2020; Illustrative. Assumes perfect repetition for 365 days.</p>
+            <p className="text-[11px] px-3 py-1.5" style={{ color: '#2a4060', borderTop: '1px solid #162030' }}>
+              &#x2020; Illustrative. Assumes perfect repetition for 365 days.
+            </p>
           </div>
         )}
       </div>
