@@ -1,21 +1,46 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Contract, fetchContracts } from '@/lib/api'
 import MetricCard from './MetricCard'
 
 function pct(n: number) { return `${(n * 100).toFixed(2)}%` }
 function usd(n: number) { return `$${n.toFixed(2)}` }
 
+const POLL_INTERVAL_MS = 30_000  // refresh every 30 s while accordion is open
+
 interface Props { ticker: string; price: number; name: string; contract: Contract }
 
 export default function AccordionDetail({ ticker, price, name, contract }: Props) {
   const [chain, setChain] = useState<Contract[]>([])
   const [chainLoading, setChainLoading] = useState(true)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  const [secondsAgo, setSecondsAgo] = useState(0)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const m = contract.metrics
 
+  async function refresh() {
+    const data = await fetchContracts(ticker, 7, 60)
+    setChain(data)
+    setChainLoading(false)
+    setLastUpdated(new Date())
+    setSecondsAgo(0)
+  }
+
+  // Initial load + poll while open
   useEffect(() => {
-    fetchContracts(ticker, 7, 60).then(data => { setChain(data); setChainLoading(false) })
-  }, [ticker])
+    refresh()
+    timerRef.current = setInterval(refresh, POLL_INTERVAL_MS)
+    return () => { if (timerRef.current) clearInterval(timerRef.current) }
+  }, [ticker]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Count-up "X s ago" ticker
+  useEffect(() => {
+    if (!lastUpdated) return
+    const t = setInterval(() => {
+      setSecondsAgo(Math.floor((Date.now() - lastUpdated.getTime()) / 1000))
+    }, 1000)
+    return () => clearInterval(t)
+  }, [lastUpdated])
 
   return (
     <div className="space-y-5">
@@ -30,6 +55,11 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
             style={{ color: '#f59e0b', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.25)' }}
           >
             &#9888; Earnings before {contract.expiry}
+          </span>
+        )}
+        {lastUpdated && !chainLoading && (
+          <span className="ml-auto text-[10px] tabular-nums" style={{ color: '#2a4060' }}>
+            updated {secondsAgo}s ago · refreshes every 30s
           </span>
         )}
       </div>
@@ -120,7 +150,7 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
               </tbody>
             </table>
             <p className="text-[11px] px-3 py-1.5" style={{ color: '#2a4060', borderTop: '1px solid #162030' }}>
-              &#x2020; Illustrative. Assumes perfect repetition for 365 days.
+              &#x2020; Illustrative. Assumes perfect repetition for 365 days. Data is 15-min delayed.
             </p>
           </div>
         )}

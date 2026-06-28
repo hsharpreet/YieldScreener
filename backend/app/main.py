@@ -1,12 +1,8 @@
-import threading
-import time
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.routers import auth, billing, health, screener, screeners, watchlist
-from app.routers.screener import DEFAULT_UNIVERSE
 
 app = FastAPI(
     title="Yield Screener API",
@@ -14,7 +10,7 @@ app = FastAPI(
         "Quality-first covered-call screener. "
         "Educational information, not investment advice."
     ),
-    version="0.2.0",
+    version="0.3.0",
 )
 
 app.add_middleware(
@@ -32,37 +28,11 @@ app.include_router(screeners.router)
 app.include_router(watchlist.router)
 app.include_router(billing.router)
 
-
-def _warm_cache() -> None:
-    """Background thread: pre-fetches quotes AND option chains for the default
-    universe into Redis so the first user request reads from cache, not Yahoo.
-
-    Uses a 3-second gap between tickers (quotes), then a further 3-second gap
-    before the option chain for the same ticker, keeping burst rate well under
-    Yahoo Finance's ~20 req/min threshold.
-    """
-    time.sleep(5)  # Let the server fully start before making outbound requests.
-    from app.data.yfinance_provider import YFinanceProvider
-    provider = YFinanceProvider()
-
-    for i, ticker in enumerate(DEFAULT_UNIVERSE):
-        if i > 0:
-            time.sleep(3)  # pace between tickers
-        try:
-            provider.get_quote(ticker)
-        except Exception:
-            pass
-
-        time.sleep(3)  # gap before fetching option chains for the same ticker
-
-        try:
-            # Warm the default DTE window (21–45) that the screener uses.
-            provider.get_call_options(ticker, min_dte=21, max_dte=45)
-        except Exception:
-            pass
-
-
-@app.on_event("startup")
-async def startup_event() -> None:
-    t = threading.Thread(target=_warm_cache, daemon=True)
-    t.start()
+# No startup warm cache.
+# Reason: firing 21+ yfinance requests at startup races with the first user
+# request and bursts Yahoo Finance → corrupts the shared crumb → all subsequent
+# calls fail with 429 regardless of rate limiting.
+# Instead: the global _yf_gate semaphore in yfinance_provider.py serialises all
+# outbound Yahoo calls to ≤1 per 0.6 s. Redis caches results so the SECOND
+# screener run is instant. First run takes ~25 s for 21 tickers — acceptable
+# until the yfinance → marketdata.app swap (DataProvider ABC is ready).

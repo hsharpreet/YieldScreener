@@ -260,8 +260,6 @@ export default function FilterRail({ params, onChange, onRun, watchlistMode, onW
 
   // ── DTE manual inputs state ───────────────────────────────────────────────
 
-  const dtePresetActive = DTE_PRESETS.some(p => p.min === params.min_dte && p.max === params.max_dte)
-
   return (
     <div className="w-full" style={{ background: '#0f1724' }}>
       {/* Filter bar */}

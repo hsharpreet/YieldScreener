@@ -1,0 +1,589 @@
+﻿timestamp,object,message
+2026-06-27T01:03:01.893Z,frontend,[internal] load build definition from Dockerfile
+2026-06-27T01:03:01.893Z,frontend,[internal] load build definition from Dockerfile
+2026-06-27T01:03:01.899Z,frontend,transferring (443 bytes)
+2026-06-27T01:03:01.910Z,frontend,[internal] load metadata for docker.io/library/node:22-alpine
+2026-06-27T01:03:02.244Z,frontend,[internal] load .dockerignore
+2026-06-27T01:03:02.244Z,frontend,[internal] load .dockerignore
+2026-06-27T01:03:02.267Z,frontend,[internal] load build context
+2026-06-27T01:03:02.267Z,frontend,[deps 1/4] FROM docker.io/library/node:22-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2
+2026-06-27T01:03:02.306Z,frontend,[internal] load build context
+2026-06-27T01:03:02.306Z,frontend,[deps 2/4] WORKDIR /app
+2026-06-27T01:03:02.306Z,frontend,resolve docker.io/library/node:22-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2
+2026-06-27T01:03:02.773Z,frontend,transferring (1617940 bytes)
+2026-06-27T01:03:02.801Z,frontend,[deps 3/4] COPY package.json ./
+2026-06-27T01:03:02.801Z,frontend,[deps 4/4] RUN npm install
+2026-06-27T01:03:02.801Z,frontend,[builder 3/5] COPY --from=deps /app/node_modules ./node_modules
+2026-06-27T01:03:02.801Z,frontend,[builder 4/5] COPY . .
+2026-06-27T01:03:02.801Z,frontend,[builder 5/5] RUN npm run build
+2026-06-27T01:03:02.802Z,frontend,[runner 3/4] COPY --from=builder /app/.next/standalone ./
+2026-06-27T01:03:14.453Z,frontend,[internal] load build definition from Dockerfile
+2026-06-27T01:03:14.453Z,frontend,[internal] load build definition from Dockerfile
+2026-06-27T01:03:14.453Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T01:03:14.454Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T01:03:14.460Z,frontend,transferring (443 bytes)
+2026-06-27T01:03:14.461Z,backend,transferring (229 bytes)
+2026-06-27T01:03:14.475Z,frontend,[internal] load metadata for docker.io/library/node:22-alpine
+2026-06-27T01:03:14.477Z,backend,[internal] load metadata for docker.io/library/python:3.12-slim
+2026-06-27T01:03:14.646Z,backend,[internal] load .dockerignore
+2026-06-27T01:03:14.646Z,backend,[internal] load .dockerignore
+2026-06-27T01:03:14.648Z,frontend,[internal] load .dockerignore
+2026-06-27T01:03:14.648Z,frontend,[internal] load .dockerignore
+2026-06-27T01:03:14.666Z,backend,[1/5] FROM docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T01:03:14.666Z,backend,[internal] load build context
+2026-06-27T01:03:14.667Z,backend,[internal] load build context
+2026-06-27T01:03:14.671Z,frontend,[internal] load build context
+2026-06-27T01:03:14.671Z,frontend,[deps 1/4] FROM docker.io/library/node:22-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2
+2026-06-27T01:03:14.701Z,backend,resolve docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T01:03:14.704Z,frontend,[internal] load build context
+2026-06-27T01:03:14.704Z,frontend,[deps 2/4] WORKDIR /app
+2026-06-27T01:03:14.704Z,frontend,resolve docker.io/library/node:22-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2
+2026-06-27T01:03:14.889Z,backend,transferring (817391 bytes)
+2026-06-27T01:03:14.908Z,backend,[2/5] WORKDIR /app
+2026-06-27T01:03:14.908Z,backend,[3/5] COPY requirements.txt .
+2026-06-27T01:03:14.908Z,backend,[4/5] RUN pip install --no-cache-dir -r requirements.txt
+2026-06-27T01:03:14.908Z,backend,[5/5] COPY . .
+2026-06-27T01:03:14.911Z,backend,exporting to image
+2026-06-27T01:03:14.912Z,backend,exporting layers
+2026-06-27T01:03:14.915Z,backend,exporting manifest sha256:4637784b92025ca171b3dbcfc2403e7134691d6e82c84138f656cb91992faee9
+2026-06-27T01:03:14.918Z,backend,exporting config sha256:c84b1d120ec0b819574bb4f22099972349852f7b5c5208fda74b89ae0306166e
+2026-06-27T01:03:14.963Z,backend,exporting attestation manifest sha256:50f0a8b4c8289ca66f5ec237545c66a251ebc9dd788b0de8bcca11e47a9d78c8
+2026-06-27T01:03:14.978Z,backend,exporting manifest list sha256:fcff5f165a65579718469dab34dee1b04163c995a2ac120a606812c34ed591d9
+2026-06-27T01:03:14.981Z,backend,naming to docker.io/library/yieldscreener-backend:latest
+2026-06-27T01:03:14.989Z,backend,unpacking to docker.io/library/yieldscreener-backend:latest
+2026-06-27T01:03:15.181Z,frontend,transferring (1617940 bytes)
+2026-06-27T01:03:15.206Z,frontend,[deps 3/4] COPY package.json ./
+2026-06-27T01:03:15.206Z,frontend,[deps 4/4] RUN npm install
+2026-06-27T01:03:15.206Z,frontend,[builder 3/5] COPY --from=deps /app/node_modules ./node_modules
+2026-06-27T01:03:15.206Z,frontend,[builder 4/5] COPY . .
+2026-06-27T01:03:15.206Z,frontend,[builder 5/5] RUN npm run build
+2026-06-27T01:03:15.206Z,frontend,[runner 3/4] COPY --from=builder /app/.next/standalone ./
+2026-06-27T01:30:22.621Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T01:30:22.621Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T01:30:22.628Z,backend,transferring (229 bytes)
+2026-06-27T01:30:22.639Z,backend,[internal] load metadata for docker.io/library/python:3.12-slim
+2026-06-27T01:30:23.360Z,backend,[internal] load .dockerignore
+2026-06-27T01:30:23.360Z,backend,[internal] load .dockerignore
+2026-06-27T01:30:23.386Z,backend,[1/5] FROM docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T01:30:23.386Z,backend,[internal] load build context
+2026-06-27T01:30:23.387Z,backend,[internal] load build context
+2026-06-27T01:30:23.419Z,backend,resolve docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T01:30:23.647Z,backend,transferring (817391 bytes)
+2026-06-27T01:30:23.664Z,backend,[2/5] WORKDIR /app
+2026-06-27T01:30:23.664Z,backend,[3/5] COPY requirements.txt .
+2026-06-27T01:30:23.664Z,backend,[4/5] RUN pip install --no-cache-dir -r requirements.txt
+2026-06-27T01:30:23.664Z,backend,[5/5] COPY . .
+2026-06-27T01:30:23.666Z,backend,exporting to image
+2026-06-27T01:30:23.668Z,backend,exporting layers
+2026-06-27T01:30:23.671Z,backend,exporting manifest sha256:4637784b92025ca171b3dbcfc2403e7134691d6e82c84138f656cb91992faee9
+2026-06-27T01:30:23.673Z,backend,exporting config sha256:c84b1d120ec0b819574bb4f22099972349852f7b5c5208fda74b89ae0306166e
+2026-06-27T01:30:23.717Z,backend,exporting attestation manifest sha256:229d902cb82c2ff30656899e743a7de9da7ad8ce9f7c2a68686ed7aefc72c5d2
+2026-06-27T01:30:23.732Z,backend,exporting manifest list sha256:f48a8906d0253dbc1e153ae39b7f44fdad014ec1a3c7835861d0892c418a0307
+2026-06-27T01:30:23.734Z,backend,naming to docker.io/library/yieldscreener-backend:latest
+2026-06-27T01:30:23.741Z,backend,unpacking to docker.io/library/yieldscreener-backend:latest
+2026-06-27T01:30:29.688Z,frontend,
+2026-06-27T01:30:29.688Z,frontend,> yield-screener-frontend@0.1.0 build
+2026-06-27T01:30:29.688Z,frontend,> next build
+2026-06-27T01:30:30.235Z,frontend,Attention: Next.js now collects completely anonymous telemetry regarding usage.
+2026-06-27T01:30:30.235Z,frontend,This information is used to shape Next.js' roadmap and prioritize features.
+2026-06-27T01:30:30.235Z,frontend,"You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:"
+2026-06-27T01:30:30.235Z,frontend,https://nextjs.org/telemetry
+2026-06-27T01:30:30.304Z,frontend,▲ Next.js 15.5.19
+2026-06-27T01:30:30.304Z,frontend,
+2026-06-27T01:30:30.349Z,frontend,Creating an optimized production build ...
+2026-06-27T01:30:35.514Z,frontend,✓ Compiled successfully in 3.4s
+2026-06-27T01:30:35.519Z,frontend,Linting and checking validity of types ...
+2026-06-27T01:30:36.937Z,frontend,Collecting page data ...
+2026-06-27T01:30:37.706Z,frontend,Generating static pages (0/6) ...
+2026-06-27T01:30:38.093Z,frontend,Generating static pages (1/6)
+2026-06-27T01:30:38.093Z,frontend,Generating static pages (2/6)
+2026-06-27T01:30:38.093Z,frontend,Generating static pages (4/6)
+2026-06-27T01:30:38.093Z,frontend,✓ Generating static pages (6/6)
+2026-06-27T01:30:38.428Z,frontend,Finalizing page optimization ...
+2026-06-27T01:30:38.428Z,frontend,Collecting build traces ...
+2026-06-27T01:30:46.525Z,frontend,
+2026-06-27T01:30:46.527Z,frontend,Route (app)                                 Size  First Load JS
+2026-06-27T01:30:46.527Z,frontend,┌ ○ /                                    6.44 kB         109 kB
+2026-06-27T01:30:46.527Z,frontend,├ ○ /_not-found                            991 B         103 kB
+2026-06-27T01:30:46.527Z,frontend,├ ○ /login                               2.07 kB         104 kB
+2026-06-27T01:30:46.527Z,frontend,└ ○ /signup                              2.15 kB         105 kB
+2026-06-27T01:30:46.527Z,frontend,"'+ First Load JS shared by all             102 kB"
+2026-06-27T01:30:46.527Z,frontend,├ chunks/255-98a0bdaa30757bda.js       46.2 kB
+2026-06-27T01:30:46.527Z,frontend,├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB
+2026-06-27T01:30:46.527Z,frontend,└ other shared chunks (total)          1.92 kB
+2026-06-27T01:30:46.527Z,frontend,○  (Static)  prerendered as static content
+2026-06-27T01:30:46.557Z,frontend,npm notice
+2026-06-27T01:30:46.557Z,frontend,npm notice New major version of npm available! 10.9.8 -> 11.17.0
+2026-06-27T01:30:46.557Z,frontend,npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.17.0
+2026-06-27T01:30:46.557Z,frontend,npm notice To update run: npm install -g npm@11.17.0
+2026-06-27T01:30:46.557Z,frontend,npm notice
+2026-06-27T02:16:03.226Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T02:16:03.226Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T02:16:03.234Z,backend,transferring (229 bytes)
+2026-06-27T02:16:03.252Z,backend,[internal] load metadata for docker.io/library/python:3.12-slim
+2026-06-27T02:16:03.769Z,backend,[internal] load .dockerignore
+2026-06-27T02:16:03.769Z,backend,[internal] load .dockerignore
+2026-06-27T02:16:03.792Z,backend,[1/5] FROM docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T02:16:03.792Z,backend,[internal] load build context
+2026-06-27T02:16:03.792Z,backend,[internal] load build context
+2026-06-27T02:16:03.825Z,backend,resolve docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T02:16:04.041Z,backend,transferring (817391 bytes)
+2026-06-27T02:16:04.058Z,backend,[2/5] WORKDIR /app
+2026-06-27T02:16:04.058Z,backend,[3/5] COPY requirements.txt .
+2026-06-27T02:16:04.058Z,backend,[4/5] RUN pip install --no-cache-dir -r requirements.txt
+2026-06-27T02:16:04.058Z,backend,[5/5] COPY . .
+2026-06-27T02:16:04.061Z,backend,exporting to image
+2026-06-27T02:16:04.063Z,backend,exporting layers
+2026-06-27T02:16:04.066Z,backend,exporting manifest sha256:4637784b92025ca171b3dbcfc2403e7134691d6e82c84138f656cb91992faee9
+2026-06-27T02:16:04.068Z,backend,exporting config sha256:c84b1d120ec0b819574bb4f22099972349852f7b5c5208fda74b89ae0306166e
+2026-06-27T02:16:04.111Z,backend,exporting attestation manifest sha256:4833f7043b84df333c0096b8c938940ba9a2a8e1b89810256877f6fac1f13d26
+2026-06-27T02:16:04.125Z,backend,exporting manifest list sha256:af42a606d8b4875870d9078432db2fad3297b0e82e5752b8321dcfc170b52bcd
+2026-06-27T02:16:04.129Z,backend,naming to docker.io/library/yieldscreener-backend:latest
+2026-06-27T02:16:04.137Z,backend,unpacking to docker.io/library/yieldscreener-backend:latest
+2026-06-27T02:16:09.823Z,frontend,
+2026-06-27T02:16:09.823Z,frontend,> yield-screener-frontend@0.1.0 build
+2026-06-27T02:16:09.823Z,frontend,> next build
+2026-06-27T02:16:10.406Z,frontend,Attention: Next.js now collects completely anonymous telemetry regarding usage.
+2026-06-27T02:16:10.406Z,frontend,This information is used to shape Next.js' roadmap and prioritize features.
+2026-06-27T02:16:10.406Z,frontend,"You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:"
+2026-06-27T02:16:10.406Z,frontend,https://nextjs.org/telemetry
+2026-06-27T02:16:10.478Z,frontend,▲ Next.js 15.5.19
+2026-06-27T02:16:10.479Z,frontend,
+2026-06-27T02:16:10.541Z,frontend,Creating an optimized production build ...
+2026-06-27T02:16:15.370Z,frontend,✓ Compiled successfully in 3.3s
+2026-06-27T02:16:15.373Z,frontend,Linting and checking validity of types ...
+2026-06-27T02:16:16.792Z,frontend,Collecting page data ...
+2026-06-27T02:16:17.499Z,frontend,Generating static pages (0/6) ...
+2026-06-27T02:16:17.876Z,frontend,Generating static pages (1/6)
+2026-06-27T02:16:17.876Z,frontend,Generating static pages (2/6)
+2026-06-27T02:16:17.876Z,frontend,Generating static pages (4/6)
+2026-06-27T02:16:17.876Z,frontend,✓ Generating static pages (6/6)
+2026-06-27T02:16:18.203Z,frontend,Finalizing page optimization ...
+2026-06-27T02:16:18.203Z,frontend,Collecting build traces ...
+2026-06-27T02:16:26.635Z,frontend,
+2026-06-27T02:16:26.637Z,frontend,Route (app)                                 Size  First Load JS
+2026-06-27T02:16:26.637Z,frontend,┌ ○ /                                    6.81 kB         109 kB
+2026-06-27T02:16:26.637Z,frontend,├ ○ /_not-found                            991 B         103 kB
+2026-06-27T02:16:26.637Z,frontend,├ ○ /login                               2.08 kB         104 kB
+2026-06-27T02:16:26.637Z,frontend,└ ○ /signup                              2.17 kB         105 kB
+2026-06-27T02:16:26.637Z,frontend,"'+ First Load JS shared by all             102 kB"
+2026-06-27T02:16:26.637Z,frontend,├ chunks/255-98a0bdaa30757bda.js       46.2 kB
+2026-06-27T02:16:26.637Z,frontend,├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB
+2026-06-27T02:16:26.637Z,frontend,└ other shared chunks (total)          1.92 kB
+2026-06-27T02:16:26.637Z,frontend,○  (Static)  prerendered as static content
+2026-06-27T02:16:26.666Z,frontend,npm notice
+2026-06-27T02:16:26.666Z,frontend,npm notice New major version of npm available! 10.9.8 -> 11.17.0
+2026-06-27T02:16:26.666Z,frontend,npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.17.0
+2026-06-27T02:16:26.666Z,frontend,npm notice To update run: npm install -g npm@11.17.0
+2026-06-27T02:16:26.666Z,frontend,npm notice
+2026-06-27T02:33:15.246Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T02:33:15.246Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T02:33:15.253Z,backend,transferring (229 bytes)
+2026-06-27T02:33:15.266Z,backend,[internal] load metadata for docker.io/library/python:3.12-slim
+2026-06-27T02:33:15.770Z,backend,[internal] load .dockerignore
+2026-06-27T02:33:15.771Z,backend,[internal] load .dockerignore
+2026-06-27T02:33:15.789Z,backend,[1/5] FROM docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T02:33:15.789Z,backend,[internal] load build context
+2026-06-27T02:33:15.789Z,backend,[internal] load build context
+2026-06-27T02:33:15.828Z,backend,resolve docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T02:33:16.050Z,backend,transferring (823797 bytes)
+2026-06-27T02:33:16.079Z,backend,[2/5] WORKDIR /app
+2026-06-27T02:33:16.079Z,backend,[3/5] COPY requirements.txt .
+2026-06-27T02:33:16.079Z,backend,[4/5] RUN pip install --no-cache-dir -r requirements.txt
+2026-06-27T02:33:16.079Z,backend,[5/5] COPY . .
+2026-06-27T02:33:18.566Z,backend,exporting to image
+2026-06-27T02:33:22.308Z,frontend,
+2026-06-27T02:33:22.308Z,frontend,> yield-screener-frontend@0.1.0 build
+2026-06-27T02:33:22.308Z,frontend,> next build
+2026-06-27T02:33:22.483Z,backend,exporting layers
+2026-06-27T02:33:22.499Z,backend,exporting manifest sha256:ef2cda2ee1b01b8710360c062bb27bba455823467b6d840862c48ad045b25aef
+2026-06-27T02:33:22.512Z,backend,exporting config sha256:9b58c6a1daa6caa74d6d1d613cf03f2a683158c3de9ea20b9a0dad52587413f7
+2026-06-27T02:33:22.556Z,backend,exporting attestation manifest sha256:25d9a6afce27f9948bca45b3ff67de036d164dc9a184021b5799f7e26ff14595
+2026-06-27T02:33:22.571Z,backend,exporting manifest list sha256:410fd9df24f2ed30bf46cd902432b12f5f230f8e3f769affb088135d2a625d5e
+2026-06-27T02:33:22.574Z,backend,naming to docker.io/library/yieldscreener-backend:latest
+2026-06-27T02:33:22.912Z,frontend,Attention: Next.js now collects completely anonymous telemetry regarding usage.
+2026-06-27T02:33:22.912Z,frontend,This information is used to shape Next.js' roadmap and prioritize features.
+2026-06-27T02:33:22.912Z,frontend,"You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:"
+2026-06-27T02:33:22.912Z,frontend,https://nextjs.org/telemetry
+2026-06-27T02:33:22.912Z,frontend,
+2026-06-27T02:33:22.995Z,frontend,▲ Next.js 15.5.19
+2026-06-27T02:33:22.995Z,frontend,
+2026-06-27T02:33:23.064Z,frontend,Creating an optimized production build ...
+2026-06-27T02:33:23.412Z,backend,unpacking to docker.io/library/yieldscreener-backend:latest
+2026-06-27T02:33:28.489Z,frontend,✓ Compiled successfully in 3.8s
+2026-06-27T02:33:28.494Z,frontend,Linting and checking validity of types ...
+2026-06-27T02:33:30.049Z,frontend,Collecting page data ...
+2026-06-27T02:33:30.869Z,frontend,Generating static pages (0/8) ...
+2026-06-27T02:33:31.311Z,frontend,Generating static pages (2/8)
+2026-06-27T02:33:31.311Z,frontend,Generating static pages (4/8)
+2026-06-27T02:33:31.311Z,frontend,Generating static pages (6/8)
+2026-06-27T02:33:31.311Z,frontend,✓ Generating static pages (8/8)
+2026-06-27T02:33:31.656Z,frontend,Finalizing page optimization ...
+2026-06-27T02:33:31.656Z,frontend,Collecting build traces ...
+2026-06-27T02:33:41.010Z,frontend,
+2026-06-27T02:33:41.012Z,frontend,Route (app)                                 Size  First Load JS
+2026-06-27T02:33:41.012Z,frontend,┌ ○ /                                      162 B         106 kB
+2026-06-27T02:33:41.012Z,frontend,├ ○ /_not-found                            991 B         103 kB
+2026-06-27T02:33:41.012Z,frontend,├ ○ /account                             1.93 kB         108 kB
+2026-06-27T02:33:41.012Z,frontend,├ ○ /login                               2.08 kB         104 kB
+2026-06-27T02:33:41.012Z,frontend,├ ○ /screener                            7.04 kB         109 kB
+2026-06-27T02:33:41.012Z,frontend,└ ○ /signup                              2.17 kB         105 kB
+2026-06-27T02:33:41.012Z,frontend,"'+ First Load JS shared by all             102 kB"
+2026-06-27T02:33:41.012Z,frontend,├ chunks/255-98a0bdaa30757bda.js       46.2 kB
+2026-06-27T02:33:41.012Z,frontend,├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB
+2026-06-27T02:33:41.012Z,frontend,└ other shared chunks (total)          1.92 kB
+2026-06-27T02:33:41.012Z,frontend,○  (Static)  prerendered as static content
+2026-06-27T02:33:41.045Z,frontend,npm notice
+2026-06-27T02:33:41.045Z,frontend,npm notice New major version of npm available! 10.9.8 -> 11.17.0
+2026-06-27T02:33:41.045Z,frontend,npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.17.0
+2026-06-27T02:33:41.045Z,frontend,npm notice To update run: npm install -g npm@11.17.0
+2026-06-27T02:33:41.045Z,frontend,npm notice
+2026-06-27T02:42:25.526Z,frontend,[internal] load build definition from Dockerfile
+2026-06-27T02:42:25.526Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T02:42:25.527Z,frontend,[internal] load build definition from Dockerfile
+2026-06-27T02:42:25.527Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T02:42:25.534Z,backend,transferring (229 bytes)
+2026-06-27T02:42:25.545Z,frontend,transferring (553 bytes)
+2026-06-27T02:42:25.546Z,backend,[internal] load metadata for docker.io/library/python:3.12-slim
+2026-06-27T02:42:25.556Z,frontend,[internal] load metadata for docker.io/library/node:22-alpine
+2026-06-27T02:42:26.030Z,backend,[internal] load .dockerignore
+2026-06-27T02:42:26.030Z,backend,[internal] load .dockerignore
+2026-06-27T02:42:26.037Z,frontend,[internal] load .dockerignore
+2026-06-27T02:42:26.037Z,frontend,[internal] load .dockerignore
+2026-06-27T02:42:26.053Z,backend,[1/5] FROM docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T02:42:26.054Z,backend,[internal] load build context
+2026-06-27T02:42:26.056Z,backend,[internal] load build context
+2026-06-27T02:42:26.060Z,frontend,[internal] load build context
+2026-06-27T02:42:26.060Z,frontend,[deps 1/4] FROM docker.io/library/node:22-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2
+2026-06-27T02:42:26.088Z,backend,resolve docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T02:42:26.093Z,frontend,[internal] load build context
+2026-06-27T02:42:26.093Z,frontend,resolve docker.io/library/node:22-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2
+2026-06-27T02:42:26.312Z,backend,transferring (831126 bytes)
+2026-06-27T02:42:26.330Z,backend,[2/5] WORKDIR /app
+2026-06-27T02:42:26.330Z,backend,[3/5] COPY requirements.txt .
+2026-06-27T02:42:26.330Z,backend,[4/5] RUN pip install --no-cache-dir -r requirements.txt
+2026-06-27T02:42:26.330Z,backend,[5/5] COPY . .
+2026-06-27T02:42:26.602Z,frontend,transferring (1618102 bytes)
+2026-06-27T02:42:26.625Z,frontend,[deps 2/4] WORKDIR /app
+2026-06-27T02:42:26.625Z,frontend,[deps 3/4] COPY package.json ./
+2026-06-27T02:42:26.625Z,frontend,[deps 4/4] RUN npm install
+2026-06-27T02:42:26.625Z,frontend,[builder 3/5] COPY --from=deps /app/node_modules ./node_modules
+2026-06-27T02:42:26.625Z,frontend,[builder 4/5] COPY . .
+2026-06-27T02:42:26.625Z,frontend,[builder 5/5] RUN npm run build
+2026-06-27T02:42:26.625Z,frontend,[runner 3/5] COPY --from=builder /app/.next/standalone ./
+2026-06-27T02:42:26.625Z,frontend,[runner 4/5] COPY --from=builder /app/.next/static ./.next/static
+2026-06-27T02:42:26.625Z,frontend,[runner 5/5] COPY --from=builder /app/public ./public
+2026-06-27T02:42:26.628Z,frontend,exporting to image
+2026-06-27T02:42:26.630Z,frontend,exporting layers
+2026-06-27T02:42:26.633Z,frontend,exporting manifest sha256:c7435933e7cd8e2876da0c9434931b0b0b6a5804578698d0382bfaa043e0b6de
+2026-06-27T02:42:26.636Z,frontend,exporting config sha256:14d1352effc10833406565959a79415949d8d3a60d3d9f21df22e19bdff42fda
+2026-06-27T02:42:26.682Z,frontend,exporting attestation manifest sha256:a5b325caf5144a04d320ac73c49670886417e527c285d2b13ee9890004cef0ba
+2026-06-27T02:42:26.697Z,frontend,exporting manifest list sha256:ace56baf52850a948459693dc90206ea1beea04854b23232af57395b1f02ef19
+2026-06-27T02:42:26.700Z,frontend,naming to docker.io/library/yieldscreener-frontend:latest
+2026-06-27T02:42:26.707Z,frontend,unpacking to docker.io/library/yieldscreener-frontend:latest
+2026-06-27T02:42:28.548Z,backend,exporting to image
+2026-06-27T02:42:32.427Z,backend,exporting layers
+2026-06-27T02:42:32.441Z,backend,exporting manifest sha256:e775259278a29537c52742b4dbdc070cee538ae4bb8c8bfc59981d73bf5fb483
+2026-06-27T02:42:32.456Z,backend,exporting config sha256:fbc6a55d0933e37ba012317e2a7d927014bd0b41d4e49078aadca027c5bb3d3c
+2026-06-27T02:42:32.499Z,backend,exporting attestation manifest sha256:1de8b0dbcc1eae3e24265c80f75d89184b6f7b8d21ac824a28033821d5341c05
+2026-06-27T02:42:32.513Z,backend,exporting manifest list sha256:69547fbe2e54f890a49a0d7e6ce89f97bfb0d80845d74f70cb342d3caf81a61d
+2026-06-27T02:42:32.516Z,backend,naming to docker.io/library/yieldscreener-backend:latest
+2026-06-27T02:42:33.288Z,backend,unpacking to docker.io/library/yieldscreener-backend:latest
+2026-06-27T02:43:17.351Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T02:43:17.351Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T02:43:17.357Z,backend,transferring (229 bytes)
+2026-06-27T02:43:17.366Z,backend,[internal] load metadata for docker.io/library/python:3.12-slim
+2026-06-27T02:43:17.648Z,backend,[internal] load .dockerignore
+2026-06-27T02:43:17.648Z,backend,[internal] load .dockerignore
+2026-06-27T02:43:17.664Z,backend,[1/5] FROM docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T02:43:17.665Z,backend,[internal] load build context
+2026-06-27T02:43:17.665Z,backend,[internal] load build context
+2026-06-27T02:43:17.692Z,backend,resolve docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T02:43:17.889Z,backend,transferring (817391 bytes)
+2026-06-27T02:43:17.909Z,backend,[2/5] WORKDIR /app
+2026-06-27T02:43:17.909Z,backend,[3/5] COPY requirements.txt .
+2026-06-27T02:43:17.909Z,backend,[4/5] RUN pip install --no-cache-dir -r requirements.txt
+2026-06-27T02:43:17.909Z,backend,[5/5] COPY . .
+2026-06-27T02:43:17.912Z,backend,exporting to image
+2026-06-27T02:43:17.913Z,backend,exporting layers
+2026-06-27T02:43:17.916Z,backend,exporting manifest sha256:e775259278a29537c52742b4dbdc070cee538ae4bb8c8bfc59981d73bf5fb483
+2026-06-27T02:43:17.918Z,backend,exporting config sha256:fbc6a55d0933e37ba012317e2a7d927014bd0b41d4e49078aadca027c5bb3d3c
+2026-06-27T02:43:17.964Z,backend,exporting attestation manifest sha256:0f1d31f5b0f6cf501f37ee8344b85dbca703bdc348906f7f0fb754c16dba1c69
+2026-06-27T02:43:17.980Z,backend,exporting manifest list sha256:e631283bd67476f5480d8a153b72e21d6020ab63bafe51404c3f5ce9ee026fdb
+2026-06-27T02:43:17.982Z,backend,naming to docker.io/library/yieldscreener-backend:latest
+2026-06-27T02:43:17.990Z,backend,unpacking to docker.io/library/yieldscreener-backend:latest
+2026-06-27T02:43:58.778Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T02:43:58.778Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T02:43:58.778Z,frontend,[internal] load build definition from Dockerfile
+2026-06-27T02:43:58.778Z,frontend,[internal] load build definition from Dockerfile
+2026-06-27T02:43:58.784Z,backend,transferring (229 bytes)
+2026-06-27T02:43:58.794Z,frontend,transferring (553 bytes)
+2026-06-27T02:43:58.795Z,backend,[internal] load metadata for docker.io/library/python:3.12-slim
+2026-06-27T02:43:58.803Z,frontend,[internal] load metadata for docker.io/library/node:22-alpine
+2026-06-27T02:43:59.044Z,frontend,[internal] load .dockerignore
+2026-06-27T02:43:59.044Z,frontend,[internal] load .dockerignore
+2026-06-27T02:43:59.064Z,frontend,[internal] load build context
+2026-06-27T02:43:59.064Z,frontend,[deps 1/4] FROM docker.io/library/node:22-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2
+2026-06-27T02:43:59.069Z,backend,[internal] load .dockerignore
+2026-06-27T02:43:59.069Z,backend,[internal] load .dockerignore
+2026-06-27T02:43:59.087Z,backend,[1/5] FROM docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T02:43:59.087Z,backend,[internal] load build context
+2026-06-27T02:43:59.087Z,backend,[internal] load build context
+2026-06-27T02:43:59.088Z,frontend,resolve docker.io/library/node:22-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2
+2026-06-27T02:43:59.090Z,frontend,[internal] load build context
+2026-06-27T02:43:59.114Z,backend,resolve docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T02:43:59.308Z,backend,transferring (817391 bytes)
+2026-06-27T02:43:59.327Z,backend,[2/5] WORKDIR /app
+2026-06-27T02:43:59.327Z,backend,[3/5] COPY requirements.txt .
+2026-06-27T02:43:59.327Z,backend,[4/5] RUN pip install --no-cache-dir -r requirements.txt
+2026-06-27T02:43:59.327Z,backend,[5/5] COPY . .
+2026-06-27T02:43:59.329Z,backend,exporting to image
+2026-06-27T02:43:59.332Z,backend,exporting layers
+2026-06-27T02:43:59.335Z,backend,exporting manifest sha256:e775259278a29537c52742b4dbdc070cee538ae4bb8c8bfc59981d73bf5fb483
+2026-06-27T02:43:59.337Z,backend,exporting config sha256:fbc6a55d0933e37ba012317e2a7d927014bd0b41d4e49078aadca027c5bb3d3c
+2026-06-27T02:43:59.382Z,backend,exporting attestation manifest sha256:fad66322d2b9d536b6319943838f67999a1539cbcce8d0d971f627f55e636226
+2026-06-27T02:43:59.397Z,backend,exporting manifest list sha256:ae58bb7a67db5c4062b7e1c3ebf29e6c7bb6a11657cd7677fabed7cdef6ec378
+2026-06-27T02:43:59.399Z,backend,naming to docker.io/library/yieldscreener-backend:latest
+2026-06-27T02:43:59.407Z,backend,unpacking to docker.io/library/yieldscreener-backend:latest
+2026-06-27T02:43:59.576Z,frontend,transferring (1618102 bytes)
+2026-06-27T02:43:59.603Z,frontend,[deps 2/4] WORKDIR /app
+2026-06-27T02:43:59.603Z,frontend,[deps 3/4] COPY package.json ./
+2026-06-27T02:43:59.603Z,frontend,[deps 4/4] RUN npm install
+2026-06-27T02:43:59.603Z,frontend,[builder 3/5] COPY --from=deps /app/node_modules ./node_modules
+2026-06-27T02:43:59.603Z,frontend,[builder 4/5] COPY . .
+2026-06-27T02:43:59.603Z,frontend,[builder 5/5] RUN npm run build
+2026-06-27T02:43:59.603Z,frontend,[runner 3/5] COPY --from=builder /app/.next/standalone ./
+2026-06-27T02:43:59.603Z,frontend,[runner 4/5] COPY --from=builder /app/.next/static ./.next/static
+2026-06-27T02:43:59.603Z,frontend,[runner 5/5] COPY --from=builder /app/public ./public
+2026-06-27T02:43:59.606Z,frontend,exporting to image
+2026-06-27T02:43:59.608Z,frontend,exporting layers
+2026-06-27T02:43:59.610Z,frontend,exporting manifest sha256:c7435933e7cd8e2876da0c9434931b0b0b6a5804578698d0382bfaa043e0b6de
+2026-06-27T02:43:59.612Z,frontend,exporting config sha256:14d1352effc10833406565959a79415949d8d3a60d3d9f21df22e19bdff42fda
+2026-06-27T02:43:59.661Z,frontend,exporting attestation manifest sha256:f56b30d196c26737686b9f5951d71e57d0dc806ebf5bfa597c8d8933c936de67
+2026-06-27T02:43:59.676Z,frontend,exporting manifest list sha256:b845b23b1779c0a0eb9b45d4c06b11e8b74865688004c7d6838636b6cdc0bbfc
+2026-06-27T02:43:59.678Z,frontend,naming to docker.io/library/yieldscreener-frontend:latest
+2026-06-27T02:43:59.686Z,frontend,unpacking to docker.io/library/yieldscreener-frontend:latest
+2026-06-27T02:55:47.004Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T02:55:47.004Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T02:55:47.004Z,frontend,[internal] load build definition from Dockerfile
+2026-06-27T02:55:47.004Z,frontend,[internal] load build definition from Dockerfile
+2026-06-27T02:55:47.011Z,frontend,transferring (553 bytes)
+2026-06-27T02:55:47.022Z,backend,transferring (229 bytes)
+2026-06-27T02:55:47.023Z,frontend,[internal] load metadata for docker.io/library/node:22-alpine
+2026-06-27T02:55:47.033Z,backend,[internal] load metadata for docker.io/library/python:3.12-slim
+2026-06-27T02:55:47.539Z,backend,[internal] load .dockerignore
+2026-06-27T02:55:47.539Z,backend,[internal] load .dockerignore
+2026-06-27T02:55:47.541Z,frontend,[internal] load .dockerignore
+2026-06-27T02:55:47.541Z,frontend,[internal] load .dockerignore
+2026-06-27T02:55:47.561Z,backend,[1/5] FROM docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T02:55:47.561Z,backend,[internal] load build context
+2026-06-27T02:55:47.562Z,backend,[internal] load build context
+2026-06-27T02:55:47.566Z,frontend,[internal] load build context
+2026-06-27T02:55:47.566Z,frontend,[deps 1/4] FROM docker.io/library/node:22-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2
+2026-06-27T02:55:47.594Z,backend,resolve docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T02:55:47.598Z,frontend,resolve docker.io/library/node:22-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2
+2026-06-27T02:55:47.599Z,frontend,[internal] load build context
+2026-06-27T02:55:47.830Z,backend,transferring (832686 bytes)
+2026-06-27T02:55:47.859Z,backend,[2/5] WORKDIR /app
+2026-06-27T02:55:47.859Z,backend,[3/5] COPY requirements.txt .
+2026-06-27T02:55:47.859Z,backend,[4/5] RUN pip install --no-cache-dir -r requirements.txt
+2026-06-27T02:55:47.859Z,backend,[5/5] COPY . .
+2026-06-27T02:55:48.126Z,frontend,transferring (1618102 bytes)
+2026-06-27T02:55:48.148Z,frontend,[deps 2/4] WORKDIR /app
+2026-06-27T02:55:48.148Z,frontend,[deps 3/4] COPY package.json ./
+2026-06-27T02:55:48.148Z,frontend,[deps 4/4] RUN npm install
+2026-06-27T02:55:48.148Z,frontend,[builder 3/5] COPY --from=deps /app/node_modules ./node_modules
+2026-06-27T02:55:48.148Z,frontend,[builder 4/5] COPY . .
+2026-06-27T02:55:48.148Z,frontend,[builder 5/5] RUN npm run build
+2026-06-27T02:55:48.148Z,frontend,[runner 3/5] COPY --from=builder /app/.next/standalone ./
+2026-06-27T02:55:48.148Z,frontend,[runner 4/5] COPY --from=builder /app/.next/static ./.next/static
+2026-06-27T02:55:48.148Z,frontend,[runner 5/5] COPY --from=builder /app/public ./public
+2026-06-27T02:55:48.150Z,frontend,exporting to image
+2026-06-27T02:55:48.152Z,frontend,exporting layers
+2026-06-27T02:55:48.155Z,frontend,exporting manifest sha256:c7435933e7cd8e2876da0c9434931b0b0b6a5804578698d0382bfaa043e0b6de
+2026-06-27T02:55:48.158Z,frontend,exporting config sha256:14d1352effc10833406565959a79415949d8d3a60d3d9f21df22e19bdff42fda
+2026-06-27T02:55:48.203Z,frontend,exporting attestation manifest sha256:1fb1ffe84712ce2c4da855574ddd4aba785bc99a0cd4c31d4bf96d08c0a3d8a9
+2026-06-27T02:55:48.218Z,frontend,exporting manifest list sha256:26e2e71ba39fefab9b6c1898e2c8c5ed87ac12625ad69932c3b17cf21d4d6bc1
+2026-06-27T02:55:48.220Z,frontend,naming to docker.io/library/yieldscreener-frontend:latest
+2026-06-27T02:55:48.227Z,frontend,unpacking to docker.io/library/yieldscreener-frontend:latest
+2026-06-27T02:55:50.230Z,backend,exporting to image
+2026-06-27T02:55:54.140Z,backend,exporting layers
+2026-06-27T02:55:54.155Z,backend,exporting manifest sha256:b164dffe02aaf1e42fae6c5d547f582f59fb7aeeeb9bd81581ff012091780c07
+2026-06-27T02:55:54.169Z,backend,exporting config sha256:c7647a6af03c55f161abbe58e4188ba163a373ec7821e2c9f2bdbf59cc30bd8f
+2026-06-27T02:55:54.214Z,backend,exporting attestation manifest sha256:69ca7e45b4f0decc99236c4ae68a1bb16ac9178a4fc9b45e017b695f5b4e97cf
+2026-06-27T02:55:54.229Z,backend,exporting manifest list sha256:757f9a6db04b217718bf0c25e2276a09dd777a2d581f5a374648aabe75b5b82c
+2026-06-27T02:55:54.232Z,backend,naming to docker.io/library/yieldscreener-backend:latest
+2026-06-27T02:55:55.012Z,backend,unpacking to docker.io/library/yieldscreener-backend:latest
+2026-06-27T03:01:15.469Z,frontend,[internal] load build definition from Dockerfile
+2026-06-27T03:01:15.469Z,frontend,[internal] load build definition from Dockerfile
+2026-06-27T03:01:15.469Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T03:01:15.469Z,backend,[internal] load build definition from Dockerfile
+2026-06-27T03:01:15.478Z,frontend,transferring (553 bytes)
+2026-06-27T03:01:15.486Z,backend,transferring (229 bytes)
+2026-06-27T03:01:15.494Z,frontend,[internal] load metadata for docker.io/library/node:22-alpine
+2026-06-27T03:01:15.499Z,backend,[internal] load metadata for docker.io/library/python:3.12-slim
+2026-06-27T03:01:15.976Z,backend,[internal] load .dockerignore
+2026-06-27T03:01:15.976Z,backend,[internal] load .dockerignore
+2026-06-27T03:01:15.996Z,frontend,[internal] load .dockerignore
+2026-06-27T03:01:15.996Z,frontend,[internal] load .dockerignore
+2026-06-27T03:01:15.996Z,backend,[1/5] FROM docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T03:01:15.996Z,backend,[internal] load build context
+2026-06-27T03:01:15.996Z,backend,[internal] load build context
+2026-06-27T03:01:16.018Z,frontend,[deps 1/4] FROM docker.io/library/node:22-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2
+2026-06-27T03:01:16.018Z,frontend,[internal] load build context
+2026-06-27T03:01:16.024Z,backend,resolve docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-27T03:01:16.045Z,frontend,[internal] load build context
+2026-06-27T03:01:16.045Z,frontend,resolve docker.io/library/node:22-alpine@sha256:16e22a550f3863206a3f701448c45f7912c6896a62de43add43bb9c86130c3e2
+2026-06-27T03:01:16.225Z,backend,transferring (817391 bytes)
+2026-06-27T03:01:16.243Z,backend,[2/5] WORKDIR /app
+2026-06-27T03:01:16.243Z,backend,[3/5] COPY requirements.txt .
+2026-06-27T03:01:16.243Z,backend,[4/5] RUN pip install --no-cache-dir -r requirements.txt
+2026-06-27T03:01:16.243Z,backend,[5/5] COPY . .
+2026-06-27T03:01:16.246Z,backend,exporting to image
+2026-06-27T03:01:16.248Z,backend,exporting layers
+2026-06-27T03:01:16.251Z,backend,exporting manifest sha256:b164dffe02aaf1e42fae6c5d547f582f59fb7aeeeb9bd81581ff012091780c07
+2026-06-27T03:01:16.253Z,backend,exporting config sha256:c7647a6af03c55f161abbe58e4188ba163a373ec7821e2c9f2bdbf59cc30bd8f
+2026-06-27T03:01:16.299Z,backend,exporting attestation manifest sha256:37b29dda8e00668cfa13b2d544d76657ad3efc791c59ff41891436f6b968eb0e
+2026-06-27T03:01:16.313Z,backend,exporting manifest list sha256:d834f4ee36514e8efa1d97f0c99752fd87e426e929c20add7d7dcb7caace92db
+2026-06-27T03:01:16.316Z,backend,naming to docker.io/library/yieldscreener-backend:latest
+2026-06-27T03:01:16.324Z,backend,unpacking to docker.io/library/yieldscreener-backend:latest
+2026-06-27T03:01:16.523Z,frontend,transferring (1618102 bytes)
+2026-06-27T03:01:16.551Z,frontend,[deps 2/4] WORKDIR /app
+2026-06-27T03:01:16.551Z,frontend,[deps 3/4] COPY package.json ./
+2026-06-27T03:01:16.551Z,frontend,[deps 4/4] RUN npm install
+2026-06-27T03:01:16.551Z,frontend,[builder 3/5] COPY --from=deps /app/node_modules ./node_modules
+2026-06-27T03:01:16.551Z,frontend,[builder 4/5] COPY . .
+2026-06-27T03:01:16.551Z,frontend,[builder 5/5] RUN npm run build
+2026-06-27T03:01:16.551Z,frontend,[runner 3/5] COPY --from=builder /app/.next/standalone ./
+2026-06-27T03:01:16.551Z,frontend,[runner 4/5] COPY --from=builder /app/.next/static ./.next/static
+2026-06-27T03:01:16.551Z,frontend,[runner 5/5] COPY --from=builder /app/public ./public
+2026-06-27T03:01:16.554Z,frontend,exporting to image
+2026-06-27T03:01:16.555Z,frontend,exporting layers
+2026-06-27T03:01:16.558Z,frontend,exporting manifest sha256:c7435933e7cd8e2876da0c9434931b0b0b6a5804578698d0382bfaa043e0b6de
+2026-06-27T03:01:16.560Z,frontend,exporting config sha256:14d1352effc10833406565959a79415949d8d3a60d3d9f21df22e19bdff42fda
+2026-06-27T03:01:16.620Z,frontend,exporting attestation manifest sha256:a6f9349b125b80e60617c0e082526548f3ec2e762e62935b80930628c43a897e
+2026-06-27T03:01:16.636Z,frontend,exporting manifest list sha256:3bc57016b47e32129bd81fa7863b69535c2ab673c35529051746312faa38d934
+2026-06-27T03:01:16.639Z,frontend,naming to docker.io/library/yieldscreener-frontend:latest
+2026-06-27T03:01:16.647Z,frontend,unpacking to docker.io/library/yieldscreener-frontend:latest
+2026-06-28T01:18:17.865Z,backend,[internal] load build definition from Dockerfile
+2026-06-28T01:18:17.865Z,backend,[internal] load build definition from Dockerfile
+2026-06-28T01:18:17.886Z,backend,transferring (229 bytes)
+2026-06-28T01:18:17.905Z,backend,[internal] load metadata for docker.io/library/python:3.12-slim
+2026-06-28T01:18:18.497Z,backend,[internal] load .dockerignore
+2026-06-28T01:18:18.497Z,backend,[internal] load .dockerignore
+2026-06-28T01:18:18.520Z,backend,[1/5] FROM docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-28T01:18:18.520Z,backend,[internal] load build context
+2026-06-28T01:18:18.520Z,backend,[internal] load build context
+2026-06-28T01:18:18.600Z,backend,resolve docker.io/library/python:3.12-slim@sha256:6c4dd321d176d61ea848dc8c73a4f7dbae8f70e0ee48bb411ea2f045b599fa8e
+2026-06-28T01:18:19.056Z,backend,transferring (827134 bytes)
+2026-06-28T01:18:19.072Z,backend,[2/5] WORKDIR /app
+2026-06-28T01:18:19.072Z,backend,[3/5] COPY requirements.txt .
+2026-06-28T01:18:19.072Z,backend,[4/5] RUN pip install --no-cache-dir -r requirements.txt
+2026-06-28T01:18:19.072Z,backend,[5/5] COPY . .
+2026-06-28T01:18:21.832Z,backend,exporting to image
+2026-06-28T01:18:25.843Z,backend,exporting layers
+2026-06-28T01:18:25.868Z,backend,exporting manifest sha256:b444aabfad68e52b5593c96df4f008fa8f78e999cc377e5f483fa1b91cb2c8a5
+2026-06-28T01:18:25.886Z,backend,exporting config sha256:9fee26192317691819216983b8e50f16a599d5758d905b8ffe09e199e8033d2c
+2026-06-28T01:18:25.933Z,backend,exporting attestation manifest sha256:968d0d32e4174acc49d02f8074c12319e4490a3963aba280a97800a61a50d84a
+2026-06-28T01:18:25.952Z,backend,exporting manifest list sha256:90831e3d43e24a69674133c572167ff0f946af18db17996271984c380f12bc3a
+2026-06-28T01:18:25.954Z,backend,naming to docker.io/library/yieldscreener-backend:latest
+2026-06-28T01:18:26.419Z,frontend,
+2026-06-28T01:18:26.419Z,frontend,> yield-screener-frontend@0.1.0 build
+2026-06-28T01:18:26.419Z,frontend,> next build
+2026-06-28T01:18:26.839Z,backend,unpacking to docker.io/library/yieldscreener-backend:latest
+2026-06-28T01:18:27.200Z,frontend,Attention: Next.js now collects completely anonymous telemetry regarding usage.
+2026-06-28T01:18:27.200Z,frontend,This information is used to shape Next.js' roadmap and prioritize features.
+2026-06-28T01:18:27.200Z,frontend,"You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:"
+2026-06-28T01:18:27.200Z,frontend,https://nextjs.org/telemetry
+2026-06-28T01:18:27.200Z,frontend,
+2026-06-28T01:18:27.333Z,frontend,▲ Next.js 15.5.19
+2026-06-28T01:18:27.458Z,frontend,Creating an optimized production build ...
+2026-06-28T01:18:32.950Z,frontend,✓ Compiled successfully in 3.9s
+2026-06-28T01:18:32.956Z,frontend,Linting and checking validity of types ...
+2026-06-28T01:18:34.292Z,frontend,
+2026-06-28T01:18:34.292Z,frontend,./src/app/layout.tsx
+2026-06-28T01:18:34.292Z,frontend,18:9  Warning: Custom fonts not added in `pages/_document.js` will only load for a single page. This is discouraged. See: https://nextjs.org/docs/messages/no-page-custom-font  @next/next/no-page-custom-font
+2026-06-28T01:18:34.292Z,frontend,
+2026-06-28T01:18:34.292Z,frontend,./src/components/screener/FilterRail.tsx
+2026-06-28T01:18:34.292Z,frontend,263:9  Warning: 'dtePresetActive' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+2026-06-28T01:18:34.292Z,frontend,
+2026-06-28T01:18:34.292Z,frontend,info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+2026-06-28T01:18:34.837Z,frontend,Collecting page data ...
+2026-06-28T01:18:35.655Z,frontend,Generating static pages (0/8) ...
+2026-06-28T01:18:36.101Z,frontend,Generating static pages (2/8)
+2026-06-28T01:18:36.101Z,frontend,Generating static pages (4/8)
+2026-06-28T01:18:36.101Z,frontend,Generating static pages (6/8)
+2026-06-28T01:18:36.101Z,frontend,✓ Generating static pages (8/8)
+2026-06-28T01:18:36.448Z,frontend,Finalizing page optimization ...
+2026-06-28T01:18:36.448Z,frontend,Collecting build traces ...
+2026-06-28T01:18:45.370Z,frontend,
+2026-06-28T01:18:45.372Z,frontend,Route (app)                                 Size  First Load JS
+2026-06-28T01:18:45.372Z,frontend,┌ ○ /                                    8.02 kB         114 kB
+2026-06-28T01:18:45.372Z,frontend,├ ○ /_not-found                            991 B         103 kB
+2026-06-28T01:18:45.372Z,frontend,├ ○ /account                             1.94 kB         108 kB
+2026-06-28T01:18:45.372Z,frontend,├ ○ /login                                2.1 kB         104 kB
+2026-06-28T01:18:45.372Z,frontend,├ ○ /screener                            10.3 kB         113 kB
+2026-06-28T01:18:45.372Z,frontend,└ ○ /signup                              2.18 kB         105 kB
+2026-06-28T01:18:45.372Z,frontend,"'+ First Load JS shared by all             102 kB"
+2026-06-28T01:18:45.372Z,frontend,├ chunks/255-98a0bdaa30757bda.js       46.2 kB
+2026-06-28T01:18:45.372Z,frontend,├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB
+2026-06-28T01:18:45.372Z,frontend,└ other shared chunks (total)          1.92 kB
+2026-06-28T01:18:45.372Z,frontend,
+2026-06-28T01:18:45.372Z,frontend,
+2026-06-28T01:18:45.372Z,frontend,○  (Static)  prerendered as static content
+2026-06-28T01:18:45.404Z,frontend,npm notice
+2026-06-28T01:18:45.404Z,frontend,npm notice New major version of npm available! 10.9.8 -> 11.17.0
+2026-06-28T01:18:45.404Z,frontend,npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.17.0
+2026-06-28T01:18:45.404Z,frontend,npm notice To update run: npm install -g npm@11.17.0
+2026-06-28T01:18:45.404Z,frontend,npm notice
+2026-06-28T01:18:48.659Z,yieldscreener/db,
+2026-06-28T01:18:48.659Z,yieldscreener/db,PostgreSQL Database directory appears to contain a database; Skipping initialization
+2026-06-28T01:18:48.659Z,yieldscreener/db,
+2026-06-28T01:18:48.704Z,yieldscreener/db,"2026-06-28 01:18:48.703 UTC [1] LOG:  starting PostgreSQL 16.14 on x86_64-pc-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit"
+2026-06-28T01:18:48.704Z,yieldscreener/db,"2026-06-28 01:18:48.704 UTC [1] LOG:  listening on IPv4 address ""0.0.0.0"", port 5432"
+2026-06-28T01:18:48.704Z,yieldscreener/db,"2026-06-28 01:18:48.704 UTC [1] LOG:  listening on IPv6 address ""::"", port 5432"
+2026-06-28T01:18:48.708Z,yieldscreener/db,"2026-06-28 01:18:48.708 UTC [1] LOG:  listening on Unix socket ""/var/run/postgresql/.s.PGSQL.5432"""
+2026-06-28T01:18:48.714Z,yieldscreener/db,2026-06-28 01:18:48.714 UTC [29] LOG:  database system was shut down at 2026-06-27 03:01:42 UTC
+2026-06-28T01:18:48.721Z,yieldscreener/db,2026-06-28 01:18:48.721 UTC [1] LOG:  database system is ready to accept connections
+2026-06-28T01:18:54.617Z,yieldscreener/frontend,   ▲ Next.js 15.5.19
+2026-06-28T01:18:54.617Z,yieldscreener/frontend,   - Local:        http://169becfca65a:3000
+2026-06-28T01:18:54.617Z,yieldscreener/frontend,   - Network:      http://169becfca65a:3000
+2026-06-28T01:18:54.617Z,yieldscreener/frontend,
+2026-06-28T01:18:54.617Z,yieldscreener/frontend, ✓ Starting...
+2026-06-28T01:18:54.674Z,yieldscreener/frontend, ✓ Ready in 64ms
+2026-06-28T01:18:54.877Z,yieldscreener/backend,INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+2026-06-28T01:18:54.877Z,yieldscreener/backend,INFO  [alembic.runtime.migration] Will assume transactional DDL.
+2026-06-28T01:18:56.123Z,yieldscreener/backend,INFO:     Started server process [8]
+2026-06-28T01:18:56.123Z,yieldscreener/backend,INFO:     Waiting for application startup.
+2026-06-28T01:18:56.123Z,yieldscreener/backend,INFO:     Application startup complete.
+2026-06-28T01:18:56.124Z,yieldscreener/backend,INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2026-06-28T01:19:02.080Z,yieldscreener/backend,"INFO:     172.18.0.5:40130 - ""GET /api/auth/me HTTP/1.1"" 401 Unauthorized"
+2026-06-28T01:19:02.954Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AAPL?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=AAPL&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:02.956Z,yieldscreener/backend,/usr/local/lib/python3.12/site-packages/yfinance/scrapers/quote.py:677: Pandas4Warning: Timestamp.utcnow is deprecated and will be removed in a future version. Use Timestamp.now('UTC') instead.
+2026-06-28T01:19:02.956Z,yieldscreener/backend,"  start = pd.Timestamp.utcnow().floor(""D"") - datetime.timedelta(days=365 // 2)"
+2026-06-28T01:19:02.956Z,yieldscreener/backend,/usr/local/lib/python3.12/site-packages/yfinance/scrapers/quote.py:679: Pandas4Warning: Timestamp.utcnow is deprecated and will be removed in a future version. Use Timestamp.now('UTC') instead.
+2026-06-28T01:19:02.956Z,yieldscreener/backend,"  end = pd.Timestamp.utcnow().ceil(""D"")"
+2026-06-28T01:19:06.505Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AAPL?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=AAPL&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:06.931Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AAPL?modules=calendarEvents&corsDomain=finance.yahoo.com&formatted=false&symbol=AAPL&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:08.552Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/MSFT?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=MSFT&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:10.998Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/MSFT?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=MSFT&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:11.428Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/GOOGL?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=GOOGL&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:14.121Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AMZN?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=AMZN&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:14.562Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/MSFT?modules=calendarEvents&corsDomain=finance.yahoo.com&formatted=false&symbol=MSFT&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:17.009Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/META?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=META&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:18.904Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/GOOGL?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=GOOGL&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:19.672Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/NVDA?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=NVDA&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:22.183Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/TSLA?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=TSLA&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:22.610Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/GOOGL?modules=calendarEvents&corsDomain=finance.yahoo.com&formatted=false&symbol=GOOGL&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:24.673Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/JPM?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=JPM&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:26.687Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AMZN?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=AMZN&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:27.329Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/BAC?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=BAC&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:29.934Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/V?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=V&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:30.335Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/AMZN?modules=calendarEvents&corsDomain=finance.yahoo.com&formatted=false&symbol=AMZN&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:32.474Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/JNJ?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=JNJ&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:34.446Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/META?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=META&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:35.138Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/UNH?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=UNH&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:36.003Z,yieldscreener/frontend,Failed to proxy http://backend:8000/api/screen?min_dte=7&max_dte=60 [Error: socket hang up] { code: 'ECONNRESET' }
+2026-06-28T01:19:36.003Z,yieldscreener/frontend,[Error: socket hang up] { code: 'ECONNRESET' }
+2026-06-28T01:19:37.882Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/ABBV?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=ABBV&crumb=Edge%3A+Too+Many+Requests
+2026-06-28T01:19:38.341Z,yieldscreener/backend,429 Client Error: Too Many Requests for url: https://query2.finance.yahoo.com/v10/finance/quoteSummary/META?modules=calendarEvents&corsDomain=finance.yahoo.com&formatted=false&symbol=META&crumb=Edge%3A+Too+Many+Requests

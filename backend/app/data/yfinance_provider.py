@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import datetime
 import json
+import threading
 import time
 
 import pandas as pd
@@ -14,8 +15,22 @@ from app.data.provider import DataProvider, OptionContract, StockQuote
 _redis: redis_lib.Redis | None = None
 
 QUOTE_TTL = 1800      # 30-minute cache for fundamental quotes
-CHAIN_TTL = 900       # 15-minute cache for option chains
-_INTER_EXPIRY_DELAY = 0.4   # seconds between option_chain() calls for each expiry
+CHAIN_TTL = 120       # 2-minute cache for option chains (enables live-ish accordion polling)
+
+# ── Global Yahoo Finance rate limiter ─────────────────────────────────────────
+# Only ONE thread may fire a yfinance HTTP request at a time, and we enforce a
+# minimum 0.6-second gap between calls. This prevents the burst that corrupts
+# the shared yfinance crumb and causes every request to fail with 429.
+_yf_gate = threading.Semaphore(1)
+_yf_last_call_lock = threading.Lock()
+_yf_last_call: float = 0.0
+_YF_MIN_INTERVAL = 0.6  # seconds between Yahoo Finance HTTP requests
+
+# ── Per-ticker fetch locks ─────────────────────────────────────────────────────
+# Prevents two threads from fetching the same ticker simultaneously.
+# The second caller waits, then reads the result the first caller put in Redis.
+_ticker_locks: dict[str, threading.Lock] = {}
+_ticker_locks_guard = threading.Lock()
 
 
 def _get_redis() -> redis_lib.Redis:
@@ -23,6 +38,26 @@ def _get_redis() -> redis_lib.Redis:
     if _redis is None:
         _redis = redis_lib.from_url(settings.REDIS_URL, decode_responses=True)
     return _redis
+
+
+def _ticker_lock(key: str) -> threading.Lock:
+    with _ticker_locks_guard:
+        if key not in _ticker_locks:
+            _ticker_locks[key] = threading.Lock()
+        return _ticker_locks[key]
+
+
+def _yf_call(fn, *args, **kwargs):
+    """Execute a yfinance call through the rate limiter. Serialises all outbound
+    Yahoo Finance HTTP requests to ≤1 per 0.6 s across the entire process."""
+    global _yf_last_call
+    with _yf_gate:
+        with _yf_last_call_lock:
+            gap = time.time() - _yf_last_call
+            if gap < _YF_MIN_INTERVAL:
+                time.sleep(_YF_MIN_INTERVAL - gap)
+            _yf_last_call = time.time()
+        return fn(*args, **kwargs)
 
 
 def _row_float(row: pd.Series, key: str) -> float | None:
@@ -33,31 +68,44 @@ def _row_float(row: pd.Series, key: str) -> float | None:
 class YFinanceProvider(DataProvider):
 
     def get_quote(self, ticker: str) -> StockQuote:
-        """Return fundamental quote, reading from Redis cache when available."""
-        cache_key = f"quote:{ticker}"
+        """Return fundamental quote, reading from Redis cache first.
+
+        Uses a per-ticker lock so only one thread fetches a cold ticker;
+        the second caller waits then reads the cache the first caller populated.
+        """
+        cached = self._read_quote_cache(ticker)
+        if cached:
+            return cached
+
+        with _ticker_lock(f"quote:{ticker}"):
+            # Double-check: another thread may have populated cache while we waited.
+            cached = self._read_quote_cache(ticker)
+            if cached:
+                return cached
+            return self._fetch_and_cache_quote(ticker)
+
+    def _read_quote_cache(self, ticker: str) -> StockQuote | None:
         try:
-            r = _get_redis()
-            cached = r.get(cache_key)
+            cached = _get_redis().get(f"quote:{ticker}")
             if cached:
                 return StockQuote(**json.loads(cached))
         except Exception:
             pass
+        return None
 
+    def _fetch_and_cache_quote(self, ticker: str) -> StockQuote:
         quote = self._fetch_quote(ticker)
-
         try:
-            r = _get_redis()
-            r.setex(cache_key, QUOTE_TTL, json.dumps(quote.__dict__))
+            _get_redis().setex(f"quote:{ticker}", QUOTE_TTL, json.dumps(quote.__dict__))
         except Exception:
             pass
-
         return quote
 
     def _fetch_quote(self, ticker: str) -> StockQuote:
-        """Fetch fundamental quote from yfinance with retry on 429."""
-        for attempt in range(3):
+        """One attempt (with one 429 retry) to fetch fundamentals from yfinance."""
+        for attempt in range(2):
             try:
-                info = yf.Ticker(ticker).info
+                info = _yf_call(lambda: yf.Ticker(ticker).info)
                 price = info.get("currentPrice") or info.get("regularMarketPrice") or 0.0
 
                 def _float(key: str) -> float | None:
@@ -82,12 +130,12 @@ class YFinanceProvider(DataProvider):
                     analyst_rating=_float("recommendationMean"),
                 )
             except Exception as exc:
-                if "429" in str(exc) and attempt < 2:
-                    time.sleep(2 ** (attempt + 1))  # 2s, 4s backoff
+                if "429" in str(exc) and attempt == 0:
+                    time.sleep(2)
                     continue
                 raise
 
-        raise RuntimeError(f"Failed to fetch quote for {ticker} after retries")
+        raise RuntimeError(f"Failed to fetch quote for {ticker}")
 
     def get_call_options(
         self,
@@ -95,25 +143,43 @@ class YFinanceProvider(DataProvider):
         min_dte: int = 21,
         max_dte: int = 45,
     ) -> list[OptionContract]:
-        """Return call contracts, reading from Redis cache when available."""
-        cache_key = f"option_chain:{ticker}:{min_dte}:{max_dte}"
+        """Return call contracts, reading from Redis cache first.
+
+        Short TTL (2 min) so the accordion detail view gets reasonably fresh
+        data when the frontend polls this endpoint every 30 seconds.
+        """
+        cache_key = f"chain:{ticker}:{min_dte}:{max_dte}"
+        cached = self._read_chain_cache(cache_key)
+        if cached is not None:
+            return cached
+
+        with _ticker_lock(cache_key):
+            cached = self._read_chain_cache(cache_key)
+            if cached is not None:
+                return cached
+            return self._fetch_and_cache_chain(ticker, min_dte, max_dte, cache_key)
+
+    def _read_chain_cache(self, cache_key: str) -> list[OptionContract] | None:
         try:
-            r = _get_redis()
-            cached = r.get(cache_key)
-            if cached:
-                raw_list: list[dict] = json.loads(cached)
-                return [OptionContract(**d) for d in raw_list]
+            raw = _get_redis().get(cache_key)
+            if raw:
+                return [OptionContract(**d) for d in json.loads(raw)]
         except Exception:
             pass
+        return None
 
+    def _fetch_and_cache_chain(
+        self,
+        ticker: str,
+        min_dte: int,
+        max_dte: int,
+        cache_key: str,
+    ) -> list[OptionContract]:
         contracts = self._fetch_call_options(ticker, min_dte, max_dte)
-
         try:
-            r = _get_redis()
-            r.setex(cache_key, CHAIN_TTL, json.dumps([c.__dict__ for c in contracts]))
+            _get_redis().setex(cache_key, CHAIN_TTL, json.dumps([c.__dict__ for c in contracts]))
         except Exception:
             pass
-
         return contracts
 
     def _fetch_call_options(
@@ -127,7 +193,7 @@ class YFinanceProvider(DataProvider):
 
         earnings_date: datetime.date | None = None
         try:
-            cal = t.calendar
+            cal = _yf_call(lambda: t.calendar)
             if cal is not None and "Earnings Date" in cal:
                 ed = cal["Earnings Date"]
                 if hasattr(ed, "__iter__"):
@@ -136,23 +202,23 @@ class YFinanceProvider(DataProvider):
         except Exception:
             earnings_date = None
 
-        # Filter expiry dates to those within the DTE window before fetching chains.
-        # This avoids unnecessary HTTP calls for out-of-range expiries.
+        # Filter to DTE window before fetching chains — avoids calls for out-of-range expiries.
+        try:
+            all_options = _yf_call(lambda: t.options)
+        except Exception:
+            return []
+
         valid_expiries: list[tuple[str, int]] = []
-        for exp_str in t.options:
+        for exp_str in all_options:
             exp = datetime.date.fromisoformat(exp_str)
             dte = (exp - today).days
             if min_dte <= dte <= max_dte:
                 valid_expiries.append((exp_str, dte))
 
         contracts: list[OptionContract] = []
-        for idx, (exp_str, dte) in enumerate(valid_expiries):
-            # Pace calls to Yahoo Finance — never fire them back-to-back.
-            if idx > 0:
-                time.sleep(_INTER_EXPIRY_DELAY)
-
+        for exp_str, dte in valid_expiries:
             try:
-                chain = t.option_chain(exp_str).calls
+                chain = _yf_call(lambda: t.option_chain(exp_str).calls)
             except Exception:
                 continue
 
@@ -175,7 +241,6 @@ class YFinanceProvider(DataProvider):
                     earnings_date is not None
                     and today < earnings_date <= (today + datetime.timedelta(days=dte))
                 )
-
                 current_iv_raw = row.get("impliedVolatility")
                 current_iv = float(current_iv_raw) if current_iv_raw is not None else None
                 if (
