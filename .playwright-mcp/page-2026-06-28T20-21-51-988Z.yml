@@ -1,0 +1,317 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - generic:
+          - generic: AAPL
+          - generic: NVDA
+          - generic: +4.2%
+          - generic: MSFT
+          - generic: JPM
+          - generic: 8.1%
+          - generic: KO
+          - generic: +3.6%
+          - generic: SPY
+          - generic: XOM
+          - generic: 2.9%
+          - generic: $248
+          - generic: +4.7%
+          - generic: AMD
+          - generic: COST
+          - generic: 5.3%
+          - generic: V
+          - generic: +2.1%
+          - generic: WMT
+          - generic: +6.8%
+          - generic: TLT
+        - navigation [ref=e5]:
+          - generic [ref=e11]: YieldScreener
+          - generic [ref=e12]:
+            - link "How it works" [ref=e13] [cursor=pointer]:
+              - /url: "#how"
+            - link "Metrics" [ref=e14] [cursor=pointer]:
+              - /url: "#metrics"
+            - link "Pricing" [ref=e15] [cursor=pointer]:
+              - /url: "#pricing"
+            - generic [ref=e16]:
+              - link "Log in" [ref=e17] [cursor=pointer]:
+                - /url: /login
+              - link "Create account" [ref=e18] [cursor=pointer]:
+                - /url: /signup
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - generic [ref=e21]: Covered-call income screener
+            - heading "Monthly Income from Stocks You'd Hold Anyway." [level=1] [ref=e23]:
+              - text: Monthly Income from
+              - text: Stocks You'd Hold Anyway.
+            - paragraph [ref=e24]: Filter for quality. Write covered calls. Pocket the premium — on a portfolio you'd want to own with or without the options.
+            - generic [ref=e25]:
+              - link "Open Screener" [ref=e26] [cursor=pointer]:
+                - /url: /screener
+                - text: Open Screener
+                - img [ref=e27]
+              - link "See how it works" [ref=e29] [cursor=pointer]:
+                - /url: "#how"
+            - generic [ref=e30]:
+              - generic [ref=e31]: A research & education tool
+              - generic [ref=e32]: •
+              - generic [ref=e33]: You stay in control
+              - generic [ref=e34]: •
+              - generic [ref=e35]: Not investment advice
+          - generic [ref=e38]:
+            - generic [ref=e39]:
+              - generic [ref=e42]: Income Screen · 30–45 DTE
+              - generic [ref=e43]:
+                - generic [ref=e44]: IV < 45
+                - generic [ref=e45]: Yield ↓
+            - generic [ref=e46]:
+              - generic [ref=e47]: Symbol
+              - generic [ref=e48]: Last
+              - generic [ref=e49]: Net Cr
+              - generic [ref=e50]: Static Yld
+              - generic [ref=e51]: If-Called
+            - generic [ref=e52]:
+              - generic [ref=e53]: AAPL
+              - generic [ref=e54]: "198.40"
+              - generic [ref=e55]: $248
+              - generic [ref=e56]: 4.2%
+              - generic [ref=e57]: 5.6%
+            - generic [ref=e58]:
+              - generic [ref=e59]: MSFT
+              - generic [ref=e60]: "421.10"
+              - generic [ref=e61]: $362
+              - generic [ref=e62]: 3.9%
+              - generic [ref=e63]: 5.1%
+            - generic [ref=e64]:
+              - generic [ref=e65]: JPM
+              - generic [ref=e66]: "201.75"
+              - generic [ref=e67]: $198
+              - generic [ref=e68]: 4.7%
+              - generic [ref=e69]: 6.0%
+            - generic [ref=e70]:
+              - generic [ref=e71]: KO
+              - generic [ref=e72]: "62.30"
+              - generic [ref=e73]: $74
+              - generic [ref=e74]: 5.3%
+              - generic [ref=e75]: 6.8%
+            - generic [ref=e76]:
+              - generic [ref=e77]: NVDA
+              - generic [ref=e78]: "124.60"
+              - generic [ref=e79]: $410
+              - generic [ref=e80]: 8.1%
+              - generic [ref=e81]: 9.7%
+            - generic [ref=e82]:
+              - generic [ref=e83]: COST
+              - generic [ref=e84]: "880.20"
+              - generic [ref=e85]: $520
+              - generic [ref=e86]: 2.9%
+              - generic [ref=e87]: 4.3%
+            - generic [ref=e88]: + 142 more matches
+      - generic [ref=e90]:
+        - generic [ref=e91]:
+          - generic [ref=e92]:
+            - generic [ref=e93]: AAPL 3.2%
+            - generic [ref=e94]: "|"
+          - generic [ref=e95]:
+            - generic [ref=e96]: NVDA 8.1%
+            - generic [ref=e97]: "|"
+          - generic [ref=e98]:
+            - generic [ref=e99]: MSFT 2.9%
+            - generic [ref=e100]: "|"
+          - generic [ref=e101]:
+            - generic [ref=e102]: JPM 4.7%
+            - generic [ref=e103]: "|"
+          - generic [ref=e104]:
+            - generic [ref=e105]: KO 5.3%
+            - generic [ref=e106]: "|"
+          - generic [ref=e107]:
+            - generic [ref=e108]: COST 2.9%
+            - generic [ref=e109]: "|"
+          - generic [ref=e110]:
+            - generic [ref=e111]: XOM 4.4%
+            - generic [ref=e112]: "|"
+          - generic [ref=e113]:
+            - generic [ref=e114]: PFE 6.1%
+            - generic [ref=e115]: "|"
+          - generic [ref=e116]:
+            - generic [ref=e117]: V 2.1%
+            - generic [ref=e118]: "|"
+          - generic [ref=e119]:
+            - generic [ref=e120]: AMD 7.2%
+            - generic [ref=e121]: "|"
+          - generic [ref=e122]:
+            - generic [ref=e123]: WMT 3.4%
+            - generic [ref=e124]: "|"
+          - generic [ref=e125]:
+            - generic [ref=e126]: MO 9.2%
+            - generic [ref=e127]: "|"
+        - generic [ref=e128]:
+          - generic [ref=e129]:
+            - generic [ref=e130]: AAPL 3.2%
+            - generic [ref=e131]: "|"
+          - generic [ref=e132]:
+            - generic [ref=e133]: NVDA 8.1%
+            - generic [ref=e134]: "|"
+          - generic [ref=e135]:
+            - generic [ref=e136]: MSFT 2.9%
+            - generic [ref=e137]: "|"
+          - generic [ref=e138]:
+            - generic [ref=e139]: JPM 4.7%
+            - generic [ref=e140]: "|"
+          - generic [ref=e141]:
+            - generic [ref=e142]: KO 5.3%
+            - generic [ref=e143]: "|"
+          - generic [ref=e144]:
+            - generic [ref=e145]: COST 2.9%
+            - generic [ref=e146]: "|"
+          - generic [ref=e147]:
+            - generic [ref=e148]: XOM 4.4%
+            - generic [ref=e149]: "|"
+          - generic [ref=e150]:
+            - generic [ref=e151]: PFE 6.1%
+            - generic [ref=e152]: "|"
+          - generic [ref=e153]:
+            - generic [ref=e154]: V 2.1%
+            - generic [ref=e155]: "|"
+          - generic [ref=e156]:
+            - generic [ref=e157]: AMD 7.2%
+            - generic [ref=e158]: "|"
+          - generic [ref=e159]:
+            - generic [ref=e160]: WMT 3.4%
+            - generic [ref=e161]: "|"
+          - generic [ref=e162]:
+            - generic [ref=e163]: MO 9.2%
+            - generic [ref=e164]: "|"
+      - generic [ref=e166]:
+        - generic [ref=e167]:
+          - generic [ref=e168]: How it works
+          - heading "Three steps to a covered-call income plan" [level=2] [ref=e169]
+          - paragraph [ref=e170]: No options PhD required. Screen, evaluate, and place trades on names you already trust.
+        - generic [ref=e173]:
+          - generic [ref=e174]:
+            - generic [ref=e175]: "1"
+            - heading "Filter for quality" [level=3] [ref=e176]
+            - paragraph [ref=e177]: Start from a universe of liquid, fundamentally sound stocks — screen by sector, dividend, beta, and balance-sheet health.
+          - generic [ref=e178]:
+            - generic [ref=e179]: "2"
+            - heading "Rank the call options" [level=3] [ref=e180]
+            - paragraph [ref=e181]: We score every viable strike on static yield, downside cushion, and if-called return — so the best risk/reward floats to the top.
+          - generic [ref=e182]:
+            - generic [ref=e183]: "3"
+            - heading "Pocket the premium" [level=3] [ref=e184]
+            - paragraph [ref=e185]: Write the call, collect cash up front, and track your positions. Roll or let it get called — either way you keep the credit.
+      - generic [ref=e187]:
+        - generic [ref=e188]:
+          - generic [ref=e189]: What you'll see
+          - heading "Every number that decides the trade" [level=2] [ref=e190]
+          - paragraph [ref=e191]: Plain-English metrics on each candidate — no Greeks decoder ring needed.
+        - generic [ref=e192]:
+          - generic [ref=e193]:
+            - generic [ref=e194]: $
+            - generic [ref=e195]: $0
+            - generic [ref=e196]: Net Credit
+            - paragraph [ref=e197]: Cash premium collected up front, per contract, after fees.
+          - generic [ref=e198]:
+            - generic [ref=e199]: "%"
+            - generic [ref=e200]: 0.0%
+            - generic [ref=e201]: Static Yield
+            - paragraph [ref=e202]: Income earned if the stock simply stays flat to expiration.
+          - generic [ref=e203]:
+            - generic [ref=e204]: ↓
+            - generic [ref=e205]: 0.0%
+            - generic [ref=e206]: Downside Cushion
+            - paragraph [ref=e207]: How far the stock can fall before the trade loses money.
+          - generic [ref=e208]:
+            - generic [ref=e209]: ↗
+            - generic [ref=e210]: 0.0%
+            - generic [ref=e211]: If-Called Return
+            - paragraph [ref=e212]: Total return if shares get called away at the strike price.
+      - generic [ref=e214]:
+        - generic [ref=e215]:
+          - generic [ref=e216]: Pricing
+          - heading "Start free. Upgrade when it pays for itself." [level=2] [ref=e217]
+        - generic [ref=e218]:
+          - generic [ref=e219]:
+            - generic [ref=e220]: Free
+            - paragraph [ref=e221]: For getting your first covered call on.
+            - generic [ref=e222]:
+              - generic [ref=e223]: $0
+              - generic [ref=e224]: / forever
+            - link "Open Screener" [ref=e225] [cursor=pointer]:
+              - /url: /screener
+            - generic [ref=e226]:
+              - generic [ref=e227]:
+                - img [ref=e228]
+                - text: Unlimited screening
+              - generic [ref=e230]:
+                - img [ref=e231]
+                - text: End-of-day & delayed data
+              - generic [ref=e233]:
+                - img [ref=e234]
+                - text: 3 saved screens
+              - generic [ref=e236]:
+                - img [ref=e237]
+                - text: Core income metrics
+          - generic [ref=e239]:
+            - generic [ref=e240]: ★ Most Popular
+            - generic [ref=e241]: Pro
+            - paragraph [ref=e242]: Real-time data and the full toolkit.
+            - generic [ref=e243]:
+              - generic [ref=e244]: $29
+              - generic [ref=e245]: / month
+            - generic [ref=e246]: Coming Soon
+            - generic [ref=e248]:
+              - generic [ref=e249]:
+                - img [ref=e250]
+                - text: Real-time quotes & chains
+              - generic [ref=e252]:
+                - img [ref=e253]
+                - text: Unlimited saved screens
+              - generic [ref=e255]:
+                - img [ref=e256]
+                - text: Advanced Greeks & IV filters
+              - generic [ref=e258]:
+                - img [ref=e259]
+                - text: Roll alerts & assignment watch
+              - generic [ref=e261]:
+                - img [ref=e262]
+                - text: CSV & broker export
+      - generic [ref=e265]:
+        - img [ref=e266]
+        - paragraph [ref=e268]:
+          - strong [ref=e269]: For educational purposes only — not investment advice.
+          - text: Options trading involves substantial risk and is not suitable for all investors. Writing covered calls caps upside and does not protect against losses below your cost basis. All figures shown are illustrative and not live quotes or recommendations. Past performance does not guarantee future results. Consult a licensed financial professional before trading.
+      - generic [ref=e270]:
+        - generic [ref=e271]:
+          - generic [ref=e272]:
+            - generic [ref=e278]: YieldScreener
+            - paragraph [ref=e279]: Income screening for self-directed investors who take their money seriously.
+          - generic [ref=e280]:
+            - generic [ref=e281]:
+              - generic [ref=e282]: Product
+              - link "How it works" [ref=e283] [cursor=pointer]:
+                - /url: "#how"
+              - link "Metrics" [ref=e284] [cursor=pointer]:
+                - /url: "#metrics"
+              - link "Pricing" [ref=e285] [cursor=pointer]:
+                - /url: "#pricing"
+            - generic [ref=e286]:
+              - generic [ref=e287]: App
+              - link "Screener" [ref=e288] [cursor=pointer]:
+                - /url: /screener
+              - link "Log in" [ref=e289] [cursor=pointer]:
+                - /url: /login
+              - link "Sign up" [ref=e290] [cursor=pointer]:
+                - /url: /signup
+            - generic [ref=e291]:
+              - generic [ref=e292]: Legal
+              - link "Terms" [ref=e293] [cursor=pointer]:
+                - /url: "#"
+              - link "Privacy" [ref=e294] [cursor=pointer]:
+                - /url: "#"
+              - link "Disclosures" [ref=e295] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=e296]:
+          - generic [ref=e297]: © 2026 YieldScreener. All rights reserved.
+          - generic [ref=e298]: Not a broker-dealer. Educational information, not investment advice.
+  - alert [ref=e299]

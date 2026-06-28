@@ -7,6 +7,7 @@ const DEFAULT_COLUMNS: ColumnDef[] = [
   { key: 'ticker', label: 'Symbol', visible: true },
   { key: 'name', label: 'Name', visible: true },
   { key: 'price', label: 'Price', visible: true },
+  { key: 'net_credit', label: 'Net Credit ($)', visible: true },
   { key: 'static_yield', label: 'Static Yield', visible: true },
   { key: 'ann_static', label: 'Ann. Static †', visible: true },
   { key: 'if_called', label: 'If-Called', visible: true },
@@ -16,7 +17,7 @@ const DEFAULT_COLUMNS: ColumnDef[] = [
   { key: 'strike_expiry', label: 'Strike / Expiry', visible: true },
 ]
 
-const STORAGE_KEY = 'ys_columns_v2'
+const STORAGE_KEY = 'ys_columns_v3'
 
 export function loadColumns(): ColumnDef[] {
   if (typeof window === 'undefined') return DEFAULT_COLUMNS

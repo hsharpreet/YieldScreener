@@ -80,6 +80,13 @@ export default function ScreenerRowComponent({
           </td>
         )}
 
+        {/* Net Credit */}
+        {show('net_credit') && (
+          <td className="px-3 py-2.5 text-sm tabular-nums font-semibold" style={{ color: '#00d4aa' }}>
+            {m ? `$${m.net_credit.toFixed(0)}` : '—'}
+          </td>
+        )}
+
         {/* Static Yield */}
         {show('static_yield') && (
           <td className="px-3 py-2.5 text-sm tabular-nums font-medium" style={{ color: '#00d4aa' }}>

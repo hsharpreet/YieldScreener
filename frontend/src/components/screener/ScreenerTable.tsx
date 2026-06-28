@@ -4,7 +4,7 @@ import { ScreenerRow } from '@/lib/api'
 import ScreenerRowComponent from './ScreenerRow'
 import ColumnCustomizer, { ColumnDef, loadColumns, saveColumns } from './ColumnCustomizer'
 
-type SortKey = 'ticker' | 'name' | 'price' | 'static_yield' | 'ann_static' | 'if_called' | 'ann_if_called' | 'cushion' | 'dte'
+type SortKey = 'ticker' | 'name' | 'price' | 'net_credit' | 'static_yield' | 'ann_static' | 'if_called' | 'ann_if_called' | 'cushion' | 'dte'
 
 interface ColDef { key: SortKey; label: string; title?: string; colKey: string }
 
@@ -12,6 +12,7 @@ const ALL_COLS: ColDef[] = [
   { key: 'ticker', label: 'Symbol', colKey: 'ticker' },
   { key: 'name', label: 'Name', colKey: 'name' },
   { key: 'price', label: 'Price', colKey: 'price' },
+  { key: 'net_credit', label: 'Net Credit ($)', title: 'Cash collected per contract = premium × 100 shares', colKey: 'net_credit' },
   { key: 'static_yield', label: 'Static Yield', title: 'Premium ÷ stock price — income if not called away', colKey: 'static_yield' },
   { key: 'ann_static', label: 'Ann. Static †', title: 'Illustrative annualized static yield (naive 365/DTE)', colKey: 'ann_static' },
   { key: 'if_called', label: 'If-Called', title: 'Return including capital gain if assigned at strike', colKey: 'if_called' },
@@ -27,6 +28,7 @@ function getValue(row: ScreenerRow, key: SortKey): number {
     case 'ticker': return 0
     case 'name': return 0
     case 'price': return row.price
+    case 'net_credit': return m.net_credit
     case 'static_yield': return m.static_yield
     case 'ann_static': return m.annualized_static
     case 'if_called': return m.if_called_return

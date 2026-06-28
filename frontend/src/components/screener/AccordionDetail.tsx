@@ -5,16 +5,31 @@ import MetricCard from './MetricCard'
 
 function pct(n: number) { return `${(n * 100).toFixed(2)}%` }
 function usd(n: number) { return `$${n.toFixed(2)}` }
+function netCredit(n: number) { return `$${(n).toFixed(0)}` }
 
 const POLL_INTERVAL_MS = 30_000  // refresh every 30 s while accordion is open
 
 interface Props { ticker: string; price: number; name: string; contract: Contract }
+
+// Sort: OTM first (strike ≥ price), grouped by expiry ascending, then strike ascending within expiry.
+// ITM contracts are appended at the end (sorted by strike desc so nearest-ATM ITM appears first).
+function sortChain(contracts: Contract[], price: number, showItm: boolean): Contract[] {
+  const otm = contracts
+    .filter(c => c.strike >= price)
+    .sort((a, b) => a.expiry.localeCompare(b.expiry) || a.strike - b.strike)
+  if (!showItm) return otm
+  const itm = contracts
+    .filter(c => c.strike < price)
+    .sort((a, b) => a.expiry.localeCompare(b.expiry) || b.strike - a.strike)
+  return [...otm, ...itm]
+}
 
 export default function AccordionDetail({ ticker, price, name, contract }: Props) {
   const [chain, setChain] = useState<Contract[]>([])
   const [chainLoading, setChainLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [secondsAgo, setSecondsAgo] = useState(0)
+  const [showItm, setShowItm] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const m = contract.metrics
 
@@ -101,59 +116,91 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
 
       {/* Option chain mini-table */}
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-widest mb-2" style={{ color: '#3a5070' }}>
-          Available contracts (7&#x2013;60 DTE)
-        </p>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: '#3a5070' }}>
+            Available contracts (7&#x2013;60 DTE) — OTM first, grouped by expiry
+          </p>
+          <button
+            onClick={() => setShowItm(s => !s)}
+            className="text-[10px] px-2 py-0.5 rounded border transition-colors"
+            style={{
+              color: showItm ? '#0a1628' : '#6a8ab0',
+              background: showItm ? '#00d4aa' : 'transparent',
+              borderColor: showItm ? '#00d4aa' : '#2a3a58',
+            }}
+          >
+            {showItm ? 'Hide ITM' : 'Show ITM'}
+          </button>
+        </div>
         {chainLoading ? (
           <p className="text-xs" style={{ color: '#3a5070' }}>Loading chain...</p>
         ) : chain.length === 0 ? (
           <p className="text-xs" style={{ color: '#3a5070' }}>No liquid contracts found.</p>
-        ) : (
-          <div className="overflow-x-auto rounded" style={{ border: '1px solid #1a2d4a' }}>
-            <table className="text-xs w-full" style={{ background: '#0a1628' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid #1a2d4a' }}>
-                  {['Expiry', 'DTE', 'Strike', 'Premium', 'Static %', 'Ann. Static †', 'Earn.'].map(h => (
-                    <th
-                      key={h}
-                      className="text-left px-3 py-2 font-semibold uppercase tracking-widest text-[10px] whitespace-nowrap"
-                      style={{ color: '#3a5070' }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {chain.slice(0, 15).map((c, i) => {
-                  const isBest = c.expiry === contract.expiry && c.strike === contract.strike
-                  return (
-                    <tr
-                      key={i}
-                      style={{
-                        background: isBest ? 'rgba(0,212,170,0.08)' : i % 2 === 0 ? '#0d1929' : '#0a1628',
-                        borderBottom: '1px solid #162030',
-                      }}
-                    >
-                      <td className="px-3 py-1.5" style={{ color: isBest ? '#00d4aa' : '#8a9ab0' }}>{c.expiry}</td>
-                      <td className="px-3 py-1.5 tabular-nums" style={{ color: '#6a8ab0' }}>{c.dte}</td>
-                      <td className="px-3 py-1.5 tabular-nums font-medium" style={{ color: '#8a9ab0' }}>${c.strike}</td>
-                      <td className="px-3 py-1.5 tabular-nums" style={{ color: '#8a9ab0' }}>{usd(c.premium)}</td>
-                      <td className="px-3 py-1.5 tabular-nums" style={{ color: '#00d4aa' }}>{pct(c.metrics.static_yield)}</td>
-                      <td className="px-3 py-1.5 tabular-nums font-medium" style={{ color: '#00d4aa' }}>{pct(c.metrics.annualized_static)}</td>
-                      <td className="px-3 py-1.5 text-center" style={{ color: '#f59e0b' }}>
-                        {c.earnings_within_dte ? '⚠' : ''}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-            <p className="text-[11px] px-3 py-1.5" style={{ color: '#2a4060', borderTop: '1px solid #162030' }}>
-              &#x2020; Illustrative. Assumes perfect repetition for 365 days. Data is 15-min delayed.
-            </p>
-          </div>
-        )}
+        ) : (() => {
+          const sorted = sortChain(chain, price, showItm)
+          let lastExpiry = ''
+          return (
+            <div className="overflow-x-auto rounded" style={{ border: '1px solid #1a2d4a' }}>
+              <table className="text-xs w-full" style={{ background: '#0a1628' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #1a2d4a' }}>
+                    {['Expiry / DTE', 'Strike', 'Net Credit', 'Premium', 'Static %', 'Ann. Static †', 'If-Called $', 'Earn.'].map(h => (
+                      <th
+                        key={h}
+                        className="text-left px-3 py-2 font-semibold uppercase tracking-widest text-[10px] whitespace-nowrap"
+                        style={{ color: '#3a5070' }}
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {sorted.map((c, i) => {
+                    const isBest = c.expiry === contract.expiry && c.strike === contract.strike
+                    const isItm = c.strike < price
+                    const showGroupHeader = c.expiry !== lastExpiry
+                    if (showGroupHeader) lastExpiry = c.expiry
+                    return [
+                      showGroupHeader && (
+                        <tr key={`hdr-${c.expiry}`} style={{ background: '#07101e', borderBottom: '1px solid #1a2d4a' }}>
+                          <td colSpan={8} className="px-3 py-1 text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#2a5070' }}>
+                            {c.expiry} &mdash; {c.dte} DTE
+                          </td>
+                        </tr>
+                      ),
+                      <tr
+                        key={i}
+                        style={{
+                          background: isBest ? 'rgba(0,212,170,0.08)' : i % 2 === 0 ? '#0d1929' : '#0a1628',
+                          borderBottom: '1px solid #162030',
+                          opacity: isItm ? 0.6 : 1,
+                        }}
+                      >
+                        <td className="px-3 py-1.5 tabular-nums" style={{ color: isBest ? '#00d4aa' : '#6a8ab0' }}>
+                          {isItm && <span className="mr-1 text-[9px] font-semibold" style={{ color: '#f59e0b' }}>ITM</span>}
+                          {c.expiry}
+                        </td>
+                        <td className="px-3 py-1.5 tabular-nums font-medium" style={{ color: isBest ? '#00d4aa' : '#8a9ab0' }}>${c.strike}</td>
+                        <td className="px-3 py-1.5 tabular-nums font-semibold" style={{ color: '#00d4aa' }}>{netCredit(c.metrics.net_credit)}</td>
+                        <td className="px-3 py-1.5 tabular-nums" style={{ color: '#6a8ab0' }}>{usd(c.premium)}</td>
+                        <td className="px-3 py-1.5 tabular-nums" style={{ color: '#00d4aa' }}>{pct(c.metrics.static_yield)}</td>
+                        <td className="px-3 py-1.5 tabular-nums font-medium" style={{ color: '#00d4aa' }}>{pct(c.metrics.annualized_static)}</td>
+                        <td className="px-3 py-1.5 tabular-nums" style={{ color: '#7eb8d4' }}>{netCredit(c.metrics.if_called_profit)}</td>
+                        <td className="px-3 py-1.5 text-center" style={{ color: '#f59e0b' }}>
+                          {c.earnings_within_dte ? '⚠' : ''}
+                        </td>
+                      </tr>
+                    ].filter(Boolean)
+                  })}
+                </tbody>
+              </table>
+              <p className="text-[11px] px-3 py-1.5" style={{ color: '#2a4060', borderTop: '1px solid #162030' }}>
+                Net Credit = premium &times; 100 shares (cash received). If-Called $ = total profit if assigned. &#x2020; Ann. figures illustrative. Data 15-min delayed.
+              </p>
+            </div>
+          )
+        })()}
       </div>
     </div>
   )
