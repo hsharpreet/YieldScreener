@@ -1,0 +1,326 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "YieldScreener" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e5]:
+        - link "Screener" [ref=e6] [cursor=pointer]:
+          - /url: /screener
+        - link "Pricing" [ref=e7] [cursor=pointer]:
+          - /url: /#pricing
+    - generic [ref=e76]:
+      - link "Sign in" [ref=e77] [cursor=pointer]:
+        - /url: /login
+      - link "Get Started" [ref=e78] [cursor=pointer]:
+        - /url: /signup
+  - main [ref=e8]:
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]: ⓘ
+        - generic [ref=e12]:
+          - strong [ref=e13]: Educational information only — not investment advice.
+          - text: Data is delayed ~15 minutes. Annualized figures are illustrative and assume identical trades repeat perfectly, which will not happen. Past covered-call yields do not guarantee future results.
+        - button "Dismiss" [ref=e14] [cursor=pointer]: ✕
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - heading "Covered Call Screener" [level=1] [ref=e17]
+          - generic [ref=e18]: USA Markets
+          - generic [ref=e79]: Data refreshes every 10 min · 15-min delayed
+        - paragraph [ref=e19]: Quality stocks ranked by best covered call yield. Annualized figures are illustrative only.
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - 'button "DTE: Standard" [ref=e24] [cursor=pointer]':
+            - text: "DTE: Standard"
+            - img [ref=e25]
+          - button "Mkt Cap" [ref=e28] [cursor=pointer]:
+            - text: Mkt Cap
+            - img [ref=e29]
+          - button "P/E Ratio" [ref=e32] [cursor=pointer]:
+            - text: P/E Ratio
+            - img [ref=e33]
+          - button "Beta" [ref=e36] [cursor=pointer]:
+            - text: Beta
+            - img [ref=e37]
+          - button "Sector" [ref=e40] [cursor=pointer]:
+            - text: Sector
+            - img [ref=e41]
+          - button "More Filters" [ref=e44] [cursor=pointer]:
+            - text: More Filters
+            - img [ref=e45]
+          - button "Saved" [ref=e48] [cursor=pointer]:
+            - img [ref=e49]
+            - text: Saved
+          - generic [ref=e55] [cursor=pointer]: WatchlistPro
+          - button "Reset" [ref=e56] [cursor=pointer]
+          - button "Run Screen" [ref=e57] [cursor=pointer]:
+            - img [ref=e58]
+            - text: Run Screen
+        - generic [ref=e61]:
+          - generic [ref=e62]: "Active:"
+          - generic [ref=e63]:
+            - text: "DTE: Standard"
+            - 'button "Remove DTE: Standard filter" [ref=e64] [cursor=pointer]': ✕
+      - main [ref=e65]:
+        - generic [ref=e80]:
+          - generic [ref=e81]:
+            - paragraph [ref=e82]: Showing 5 of 18 results (free tier)
+            - button "Columns" [ref=e84] [cursor=pointer]:
+              - img [ref=e85]
+              - text: Columns
+          - generic [ref=e87]:
+            - table [ref=e88]:
+              - rowgroup [ref=e89]:
+                - row "Symbol↕ Name↕ Price↕ Static Yield↕ Ann. Static †↓ If-Called↕ Ann. If-Called †↕ Cushion↕ DTE↕ Strike / Expiry Watchlist" [ref=e90]:
+                  - columnheader "Symbol↕" [ref=e91] [cursor=pointer]
+                  - columnheader "Name↕" [ref=e92] [cursor=pointer]
+                  - columnheader "Price↕" [ref=e93] [cursor=pointer]
+                  - columnheader "Static Yield↕" [ref=e94] [cursor=pointer]
+                  - columnheader "Ann. Static †↓" [ref=e95] [cursor=pointer]
+                  - columnheader "If-Called↕" [ref=e96] [cursor=pointer]
+                  - columnheader "Ann. If-Called †↕" [ref=e97] [cursor=pointer]
+                  - columnheader "Cushion↕" [ref=e98] [cursor=pointer]
+                  - columnheader "DTE↕" [ref=e99] [cursor=pointer]
+                  - columnheader "Strike / Expiry" [ref=e100]
+                  - columnheader "Watchlist" [ref=e101]:
+                    - generic [ref=e102]: Watchlist
+              - rowgroup [ref=e103]:
+                - row "MSFT Microsoft Corporation $371.36 13.10% 144.90% 1.96% 21.71% 13.10% 33 $330/2026-07-31 ★" [ref=e104] [cursor=pointer]:
+                  - cell "MSFT" [ref=e105]
+                  - cell "Microsoft Corporation" [ref=e106]
+                  - cell "$371.36" [ref=e107]
+                  - cell "13.10%" [ref=e108]
+                  - cell "144.90%" [ref=e109]
+                  - cell "1.96%" [ref=e110]
+                  - cell "21.71%" [ref=e111]
+                  - cell "13.10%" [ref=e112]
+                  - cell "33" [ref=e113]
+                  - cell "$330/2026-07-31" [ref=e114]:
+                    - generic [ref=e115]: $330
+                    - text: /2026-07-31
+                  - cell "★" [ref=e116]
+                - row [ref=e170]:
+                  - cell [ref=e171]:
+                    - generic [ref=e173]:
+                      - generic [ref=e174]:
+                        - generic [ref=e175]: MSFT
+                        - generic [ref=e176]: Microsoft Corporation
+                        - generic [ref=e177]: · $371.36
+                        - generic [ref=e178]: updated 1s ago · refreshes every 30s
+                      - generic [ref=e179]:
+                        - paragraph [ref=e180]: "Best call: $330 strike · expires 2026-07-31 · 33 DTE · premium $48.65"
+                        - generic [ref=e181]:
+                          - generic "Premium x 100 shares — cash received upfront when you sell the call." [ref=e182]:
+                            - paragraph [ref=e183]:
+                              - text: Net Credit
+                              - generic "Premium x 100 shares — cash received upfront when you sell the call." [ref=e184]: ⓘ
+                            - paragraph [ref=e185]: $4865.00
+                            - paragraph [ref=e186]: per 100 shares
+                          - generic "Stock price at which you break even = current price minus premium." [ref=e187]:
+                            - paragraph [ref=e188]:
+                              - text: Breakeven
+                              - generic "Stock price at which you break even = current price minus premium." [ref=e189]: ⓘ
+                            - paragraph [ref=e190]: $322.71
+                            - paragraph [ref=e191]: cushion 13.10%
+                          - generic "Return if the option expires worthless and you keep the shares. = premium / price." [ref=e192]:
+                            - paragraph [ref=e193]:
+                              - text: If Flat (not called)
+                              - generic "Return if the option expires worthless and you keep the shares. = premium / price." [ref=e194]: ⓘ
+                            - paragraph [ref=e195]: 13.10%
+                            - paragraph [ref=e196]: 144.90% ann. (illus.)
+                          - generic "Return if assigned at the strike price. Includes both premium and any capital gain or loss." [ref=e197]:
+                            - paragraph [ref=e198]:
+                              - text: If Called (assigned)
+                              - generic "Return if assigned at the strike price. Includes both premium and any capital gain or loss." [ref=e199]: ⓘ
+                            - paragraph [ref=e200]: 1.96%
+                            - paragraph [ref=e201]: 21.71% ann. (illus.)
+                      - generic [ref=e202]:
+                        - paragraph [ref=e203]: Available contracts (7–60 DTE)
+                        - generic [ref=e204]:
+                          - table [ref=e205]:
+                            - rowgroup [ref=e206]:
+                              - row "Expiry DTE Strike Premium Static % Ann. Static † Earn." [ref=e207]:
+                                - columnheader "Expiry" [ref=e208]
+                                - columnheader "DTE" [ref=e209]
+                                - columnheader "Strike" [ref=e210]
+                                - columnheader "Premium" [ref=e211]
+                                - columnheader "Static %" [ref=e212]
+                                - columnheader "Ann. Static †" [ref=e213]
+                                - columnheader "Earn." [ref=e214]
+                            - rowgroup [ref=e215]:
+                              - row "2026-07-17 19 $250 $123.00 33.12% 636.28%" [ref=e216]:
+                                - cell "2026-07-17" [ref=e217]
+                                - cell "19" [ref=e218]
+                                - cell "$250" [ref=e219]
+                                - cell "$123.00" [ref=e220]
+                                - cell "33.12%" [ref=e221]
+                                - cell "636.28%" [ref=e222]
+                                - cell [ref=e223]
+                              - row "2026-07-17 19 $300 $73.25 19.72% 378.92%" [ref=e224]:
+                                - cell "2026-07-17" [ref=e225]
+                                - cell "19" [ref=e226]
+                                - cell "$300" [ref=e227]
+                                - cell "$73.25" [ref=e228]
+                                - cell "19.72%" [ref=e229]
+                                - cell "378.92%" [ref=e230]
+                                - cell [ref=e231]
+                              - row "2026-07-17 19 $330 $44.50 11.98% 230.20%" [ref=e232]:
+                                - cell "2026-07-17" [ref=e233]
+                                - cell "19" [ref=e234]
+                                - cell "$330" [ref=e235]
+                                - cell "$44.50" [ref=e236]
+                                - cell "11.98%" [ref=e237]
+                                - cell "230.20%" [ref=e238]
+                                - cell [ref=e239]
+                              - row "2026-07-10 12 $350 $25.50 6.87% 208.86%" [ref=e240]:
+                                - cell "2026-07-10" [ref=e241]
+                                - cell "12" [ref=e242]
+                                - cell "$350" [ref=e243]
+                                - cell "$25.50" [ref=e244]
+                                - cell "6.87%" [ref=e245]
+                                - cell "208.86%" [ref=e246]
+                                - cell [ref=e247]
+                              - row "2026-07-17 19 $340 $35.48 9.55% 183.51%" [ref=e248]:
+                                - cell "2026-07-17" [ref=e249]
+                                - cell "19" [ref=e250]
+                                - cell "$340" [ref=e251]
+                                - cell "$35.48" [ref=e252]
+                                - cell "9.55%" [ref=e253]
+                                - cell "183.51%" [ref=e254]
+                                - cell [ref=e255]
+                              - row "2026-07-10 12 $355 $21.58 5.81% 176.71%" [ref=e256]:
+                                - cell "2026-07-10" [ref=e257]
+                                - cell "12" [ref=e258]
+                                - cell "$355" [ref=e259]
+                                - cell "$21.58" [ref=e260]
+                                - cell "5.81%" [ref=e261]
+                                - cell "176.71%" [ref=e262]
+                                - cell [ref=e263]
+                              - row "2026-07-17 19 $345 $31.30 8.43% 161.92%" [ref=e264]:
+                                - cell "2026-07-17" [ref=e265]
+                                - cell "19" [ref=e266]
+                                - cell "$345" [ref=e267]
+                                - cell "$31.30" [ref=e268]
+                                - cell "8.43%" [ref=e269]
+                                - cell "161.92%" [ref=e270]
+                                - cell [ref=e271]
+                              - row "2026-07-31 33 $330 $48.65 13.10% 144.90%" [ref=e272]:
+                                - cell "2026-07-31" [ref=e273]
+                                - cell "33" [ref=e274]
+                                - cell "$330" [ref=e275]
+                                - cell "$48.65" [ref=e276]
+                                - cell "13.10%" [ref=e277]
+                                - cell "144.90%" [ref=e278]
+                                - cell [ref=e279]
+                              - row "2026-07-10 12 $360 $17.68 4.76% 144.77%" [ref=e280]:
+                                - cell "2026-07-10" [ref=e281]
+                                - cell "12" [ref=e282]
+                                - cell "$360" [ref=e283]
+                                - cell "$17.68" [ref=e284]
+                                - cell "4.76%" [ref=e285]
+                                - cell "144.77%" [ref=e286]
+                                - cell [ref=e287]
+                              - row "2026-07-17 19 $350 $27.30 7.35% 141.22%" [ref=e288]:
+                                - cell "2026-07-17" [ref=e289]
+                                - cell "19" [ref=e290]
+                                - cell "$350" [ref=e291]
+                                - cell "$27.30" [ref=e292]
+                                - cell "7.35%" [ref=e293]
+                                - cell "141.22%" [ref=e294]
+                                - cell [ref=e295]
+                              - row "2026-08-21 54 $300 $76.95 20.72% 140.06%" [ref=e296]:
+                                - cell "2026-08-21" [ref=e297]
+                                - cell "54" [ref=e298]
+                                - cell "$300" [ref=e299]
+                                - cell "$76.95" [ref=e300]
+                                - cell "20.72%" [ref=e301]
+                                - cell "140.06%" [ref=e302]
+                                - cell [ref=e303]
+                              - row "2026-08-21 54 $310 $68.00 18.31% 123.77%" [ref=e304]:
+                                - cell "2026-08-21" [ref=e305]
+                                - cell "54" [ref=e306]
+                                - cell "$310" [ref=e307]
+                                - cell "$68.00" [ref=e308]
+                                - cell "18.31%" [ref=e309]
+                                - cell "123.77%" [ref=e310]
+                                - cell [ref=e311]
+                              - row "2026-07-17 19 $355 $23.70 6.38% 122.60%" [ref=e312]:
+                                - cell "2026-07-17" [ref=e313]
+                                - cell "19" [ref=e314]
+                                - cell "$355" [ref=e315]
+                                - cell "$23.70" [ref=e316]
+                                - cell "6.38%" [ref=e317]
+                                - cell "122.60%" [ref=e318]
+                                - cell [ref=e319]
+                              - row "2026-07-24 26 $350 $29.30 7.89% 110.76%" [ref=e320]:
+                                - cell "2026-07-24" [ref=e321]
+                                - cell "26" [ref=e322]
+                                - cell "$350" [ref=e323]
+                                - cell "$29.30" [ref=e324]
+                                - cell "7.89%" [ref=e325]
+                                - cell "110.76%" [ref=e326]
+                                - cell [ref=e327]
+                              - row "2026-08-21 54 $320 $59.67 16.07% 108.62%" [ref=e328]:
+                                - cell "2026-08-21" [ref=e329]
+                                - cell "54" [ref=e330]
+                                - cell "$320" [ref=e331]
+                                - cell "$59.67" [ref=e332]
+                                - cell "16.07%" [ref=e333]
+                                - cell "108.62%" [ref=e334]
+                                - cell [ref=e335]
+                          - paragraph [ref=e336]: † Illustrative. Assumes perfect repetition for 365 days. Data is 15-min delayed.
+                - row "AAPL Apple Inc. $281.20 — — — — — — — ★" [ref=e117] [cursor=pointer]:
+                  - cell "AAPL" [ref=e118]
+                  - cell "Apple Inc." [ref=e119]
+                  - cell "$281.20" [ref=e120]
+                  - cell "—" [ref=e121]
+                  - cell "—" [ref=e122]
+                  - cell "—" [ref=e123]
+                  - cell "—" [ref=e124]
+                  - cell "—" [ref=e125]
+                  - cell "—" [ref=e126]
+                  - cell "—" [ref=e127]
+                  - cell "★" [ref=e128]
+                - row "GOOGL Alphabet Inc. $336.10 — — — — — — — ★" [ref=e129] [cursor=pointer]:
+                  - cell "GOOGL" [ref=e130]
+                  - cell "Alphabet Inc." [ref=e131]
+                  - cell "$336.10" [ref=e132]
+                  - cell "—" [ref=e133]
+                  - cell "—" [ref=e134]
+                  - cell "—" [ref=e135]
+                  - cell "—" [ref=e136]
+                  - cell "—" [ref=e137]
+                  - cell "—" [ref=e138]
+                  - cell "—" [ref=e139]
+                  - cell "★" [ref=e140]
+                - row "AMZN Amazon.com, Inc. $230.55 — — — — — — — ★" [ref=e141] [cursor=pointer]:
+                  - cell "AMZN" [ref=e142]
+                  - cell "Amazon.com, Inc." [ref=e143]
+                  - cell "$230.55" [ref=e144]
+                  - cell "—" [ref=e145]
+                  - cell "—" [ref=e146]
+                  - cell "—" [ref=e147]
+                  - cell "—" [ref=e148]
+                  - cell "—" [ref=e149]
+                  - cell "—" [ref=e150]
+                  - cell "—" [ref=e151]
+                  - cell "★" [ref=e152]
+                - row "META Meta Platforms, Inc. $549.35 — — — — — — — ★" [ref=e153] [cursor=pointer]:
+                  - cell "META" [ref=e154]
+                  - cell "Meta Platforms, Inc." [ref=e155]
+                  - cell "$549.35" [ref=e156]
+                  - cell "—" [ref=e157]
+                  - cell "—" [ref=e158]
+                  - cell "—" [ref=e159]
+                  - cell "—" [ref=e160]
+                  - cell "—" [ref=e161]
+                  - cell "—" [ref=e162]
+                  - cell "—" [ref=e163]
+                  - cell "★" [ref=e164]
+                - row "Showing 5 of 18 results. Upgrade to Pro — see all 18 results" [ref=e165]:
+                  - cell "Showing 5 of 18 results. Upgrade to Pro — see all 18 results" [ref=e166]:
+                    - paragraph [ref=e167]: Showing 5 of 18 results.
+                    - link "Upgrade to Pro — see all 18 results" [ref=e168] [cursor=pointer]:
+                      - /url: /signup
+            - paragraph [ref=e169]: † Annualized figures are illustrative. They assume identical trades repeat perfectly for a full year, which will not happen. Educational data only — not investment advice.
+  - contentinfo [ref=e74]: Educational information, not investment advice. This tool is a non-tailored research screener, not a registered advisor.
+  - alert [ref=e75]

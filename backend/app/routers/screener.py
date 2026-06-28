@@ -217,5 +217,5 @@ def get_contracts(
     except Exception:
         return []
     liquid = filter_illiquid(raw)
-    ranked = rank_contracts(liquid, price=quote.price)
+    ranked = rank_contracts(liquid, price=quote.price, otm_only=False)
     return [_to_contract_out(r) for r in ranked]

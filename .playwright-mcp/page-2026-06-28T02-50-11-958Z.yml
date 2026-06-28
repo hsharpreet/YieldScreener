@@ -1,0 +1,156 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "YieldScreener" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e5]:
+        - link "Screener" [ref=e6] [cursor=pointer]:
+          - /url: /screener
+        - link "Pricing" [ref=e7] [cursor=pointer]:
+          - /url: /#pricing
+    - generic [ref=e76]:
+      - link "Sign in" [ref=e77] [cursor=pointer]:
+        - /url: /login
+      - link "Get Started" [ref=e78] [cursor=pointer]:
+        - /url: /signup
+  - main [ref=e8]:
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]: ⓘ
+        - generic [ref=e12]:
+          - strong [ref=e13]: Educational information only — not investment advice.
+          - text: Data is delayed ~15 minutes. Annualized figures are illustrative and assume identical trades repeat perfectly, which will not happen. Past covered-call yields do not guarantee future results.
+        - button "Dismiss" [ref=e14] [cursor=pointer]: ✕
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - heading "Covered Call Screener" [level=1] [ref=e17]
+          - generic [ref=e18]: USA Markets
+          - generic [ref=e260]: Data refreshes every 10 min · 15-min delayed
+        - paragraph [ref=e19]: Quality stocks ranked by best covered call yield. Annualized figures are illustrative only.
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - 'button "DTE: Standard" [ref=e24] [cursor=pointer]':
+            - text: "DTE: Standard"
+            - img [ref=e25]
+          - button "Mkt Cap" [ref=e28] [cursor=pointer]:
+            - text: Mkt Cap
+            - img [ref=e29]
+          - button "P/E Ratio" [ref=e32] [cursor=pointer]:
+            - text: P/E Ratio
+            - img [ref=e33]
+          - button "Beta" [ref=e36] [cursor=pointer]:
+            - text: Beta
+            - img [ref=e37]
+          - button "Sector" [ref=e40] [cursor=pointer]:
+            - text: Sector
+            - img [ref=e41]
+          - button "More Filters" [ref=e44] [cursor=pointer]:
+            - text: More Filters
+            - img [ref=e45]
+          - button "Saved" [ref=e48] [cursor=pointer]:
+            - img [ref=e49]
+            - text: Saved
+          - generic [ref=e55] [cursor=pointer]: WatchlistPro
+          - button "Reset" [ref=e56] [cursor=pointer]
+          - button "Run Screen" [ref=e57] [cursor=pointer]:
+            - img [ref=e58]
+            - text: Run Screen
+        - generic [ref=e61]:
+          - generic [ref=e62]: "Active:"
+          - generic [ref=e63]:
+            - text: "DTE: Standard"
+            - 'button "Remove DTE: Standard filter" [ref=e64] [cursor=pointer]': ✕
+      - main [ref=e65]:
+        - generic [ref=e261]:
+          - generic [ref=e262]:
+            - paragraph [ref=e263]: Showing 5 of 18 results (free tier)
+            - button "Columns" [ref=e265] [cursor=pointer]:
+              - img [ref=e266]
+              - text: Columns
+          - generic [ref=e268]:
+            - table [ref=e269]:
+              - rowgroup [ref=e270]:
+                - row "Symbol↕ Name↕ Price↕ Static Yield↕ Ann. Static †↓ If-Called↕ Ann. If-Called †↕ Cushion↕ DTE↕ Strike / Expiry Watchlist" [ref=e271]:
+                  - columnheader "Symbol↕" [ref=e272] [cursor=pointer]
+                  - columnheader "Name↕" [ref=e273] [cursor=pointer]
+                  - columnheader "Price↕" [ref=e274] [cursor=pointer]
+                  - columnheader "Static Yield↕" [ref=e275] [cursor=pointer]
+                  - columnheader "Ann. Static †↓" [ref=e276] [cursor=pointer]
+                  - columnheader "If-Called↕" [ref=e277] [cursor=pointer]
+                  - columnheader "Ann. If-Called †↕" [ref=e278] [cursor=pointer]
+                  - columnheader "Cushion↕" [ref=e279] [cursor=pointer]
+                  - columnheader "DTE↕" [ref=e280] [cursor=pointer]
+                  - columnheader "Strike / Expiry" [ref=e281]
+                  - columnheader "Watchlist" [ref=e282]:
+                    - generic [ref=e283]: Watchlist
+              - rowgroup [ref=e284]:
+                - row "MSFT Microsoft Corporation $371.36 5.22% 57.71% 6.20% 68.55% 5.22% 33 $375/2026-07-31 ★" [ref=e285] [cursor=pointer]:
+                  - cell "MSFT" [ref=e286]
+                  - cell "Microsoft Corporation" [ref=e287]
+                  - cell "$371.36" [ref=e288]
+                  - cell "5.22%" [ref=e289]
+                  - cell "57.71%" [ref=e290]
+                  - cell "6.20%" [ref=e291]
+                  - cell "68.55%" [ref=e292]
+                  - cell "5.22%" [ref=e293]
+                  - cell "33" [ref=e294]
+                  - cell "$375/2026-07-31" [ref=e295]:
+                    - generic [ref=e296]: $375
+                    - text: /2026-07-31
+                  - cell "★" [ref=e297]
+                - row "AAPL Apple Inc. $281.20 — — — — — — — ★" [ref=e298] [cursor=pointer]:
+                  - cell "AAPL" [ref=e299]
+                  - cell "Apple Inc." [ref=e300]
+                  - cell "$281.20" [ref=e301]
+                  - cell "—" [ref=e302]
+                  - cell "—" [ref=e303]
+                  - cell "—" [ref=e304]
+                  - cell "—" [ref=e305]
+                  - cell "—" [ref=e306]
+                  - cell "—" [ref=e307]
+                  - cell "—" [ref=e308]
+                  - cell "★" [ref=e309]
+                - row "GOOGL Alphabet Inc. $336.10 — — — — — — — ★" [ref=e310] [cursor=pointer]:
+                  - cell "GOOGL" [ref=e311]
+                  - cell "Alphabet Inc." [ref=e312]
+                  - cell "$336.10" [ref=e313]
+                  - cell "—" [ref=e314]
+                  - cell "—" [ref=e315]
+                  - cell "—" [ref=e316]
+                  - cell "—" [ref=e317]
+                  - cell "—" [ref=e318]
+                  - cell "—" [ref=e319]
+                  - cell "—" [ref=e320]
+                  - cell "★" [ref=e321]
+                - row "AMZN Amazon.com, Inc. $230.55 — — — — — — — ★" [ref=e322] [cursor=pointer]:
+                  - cell "AMZN" [ref=e323]
+                  - cell "Amazon.com, Inc." [ref=e324]
+                  - cell "$230.55" [ref=e325]
+                  - cell "—" [ref=e326]
+                  - cell "—" [ref=e327]
+                  - cell "—" [ref=e328]
+                  - cell "—" [ref=e329]
+                  - cell "—" [ref=e330]
+                  - cell "—" [ref=e331]
+                  - cell "—" [ref=e332]
+                  - cell "★" [ref=e333]
+                - row "META Meta Platforms, Inc. $549.35 — — — — — — — ★" [ref=e334] [cursor=pointer]:
+                  - cell "META" [ref=e335]
+                  - cell "Meta Platforms, Inc." [ref=e336]
+                  - cell "$549.35" [ref=e337]
+                  - cell "—" [ref=e338]
+                  - cell "—" [ref=e339]
+                  - cell "—" [ref=e340]
+                  - cell "—" [ref=e341]
+                  - cell "—" [ref=e342]
+                  - cell "—" [ref=e343]
+                  - cell "—" [ref=e344]
+                  - cell "★" [ref=e345]
+                - row "Showing 5 of 18 results. Upgrade to Pro — see all 18 results" [ref=e346]:
+                  - cell "Showing 5 of 18 results. Upgrade to Pro — see all 18 results" [ref=e347]:
+                    - paragraph [ref=e348]: Showing 5 of 18 results.
+                    - link "Upgrade to Pro — see all 18 results" [ref=e349] [cursor=pointer]:
+                      - /url: /signup
+            - paragraph [ref=e350]: † Annualized figures are illustrative. They assume identical trades repeat perfectly for a full year, which will not happen. Educational data only — not investment advice.
+  - contentinfo [ref=e74]: Educational information, not investment advice. This tool is a non-tailored research screener, not a registered advisor.
+  - alert [ref=e75]

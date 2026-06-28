@@ -12,11 +12,23 @@ class RankedContract:
     metrics: CoveredCallMetrics
 
 
-def rank_contracts(contracts: list[OptionContract], price: float) -> list[RankedContract]:
-    """Compute metrics for each contract; sort by annualized_static descending."""
+def rank_contracts(
+    contracts: list[OptionContract],
+    price: float,
+    otm_only: bool = True,
+) -> list[RankedContract]:
+    """Compute metrics for each contract; sort by annualized_static descending.
+
+    otm_only=True (default) excludes ITM calls whose premium is inflated by
+    intrinsic value, which would otherwise produce misleading annualized yields.
+    Pass otm_only=False for the accordion detail view where showing all strikes
+    is useful for manual comparison.
+    """
     ranked: list[RankedContract] = []
     for c in contracts:
         if c.premium <= 0:
+            continue
+        if otm_only and c.strike < price:
             continue
         try:
             m = covered_call_metrics(price=price, strike=c.strike, premium=c.premium, dte=c.dte)

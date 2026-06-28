@@ -49,15 +49,18 @@ class FundamentalsFilter:
 
 
 def filter_illiquid(contracts: list[OptionContract]) -> list[OptionContract]:
-    """Remove zero-bid, wide-spread, and thinly-traded contracts (CC-8)."""
+    """Remove zero-bid, wide-spread, and thinly-traded contracts (CC-8).
+
+    Volume is intentionally not checked here: it resets to 0 at market close
+    and would filter out all valid contracts during off-hours. Open interest
+    (which persists across sessions) is the correct liquidity proxy.
+    """
     result = []
     for c in contracts:
         if c.bid <= 0 or c.ask <= 0:
             continue
         spread_pct = (c.ask - c.bid) / c.ask
         if spread_pct > 0.15:
-            continue
-        if c.volume < 10:
             continue
         if c.open_interest < 100:
             continue

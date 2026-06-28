@@ -1,0 +1,60 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "YieldScreener" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e5]:
+        - link "Screener" [ref=e6] [cursor=pointer]:
+          - /url: /screener
+        - link "Pricing" [ref=e7] [cursor=pointer]:
+          - /url: /#pricing
+  - main [ref=e8]:
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]: ⓘ
+        - generic [ref=e12]:
+          - strong [ref=e13]: Educational information only — not investment advice.
+          - text: Data is delayed ~15 minutes. Annualized figures are illustrative and assume identical trades repeat perfectly, which will not happen. Past covered-call yields do not guarantee future results.
+        - button "Dismiss" [ref=e14] [cursor=pointer]: ✕
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - heading "Covered Call Screener" [level=1] [ref=e17]
+          - generic [ref=e18]: USA Markets
+        - paragraph [ref=e19]: Quality stocks ranked by best covered call yield. Annualized figures are illustrative only.
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - 'button "DTE: Standard" [ref=e24] [cursor=pointer]':
+            - text: "DTE: Standard"
+            - img [ref=e25]
+          - button "Mkt Cap" [ref=e28] [cursor=pointer]:
+            - text: Mkt Cap
+            - img [ref=e29]
+          - button "P/E Ratio" [ref=e32] [cursor=pointer]:
+            - text: P/E Ratio
+            - img [ref=e33]
+          - button "Beta" [ref=e36] [cursor=pointer]:
+            - text: Beta
+            - img [ref=e37]
+          - button "Sector" [ref=e40] [cursor=pointer]:
+            - text: Sector
+            - img [ref=e41]
+          - button "More Filters" [ref=e44] [cursor=pointer]:
+            - text: More Filters
+            - img [ref=e45]
+          - button "Saved" [ref=e48] [cursor=pointer]:
+            - img [ref=e49]
+            - text: Saved
+          - generic [ref=e55] [cursor=pointer]: WatchlistPro
+          - button "Reset" [ref=e56] [cursor=pointer]
+          - button "Run Screen" [ref=e57] [cursor=pointer]:
+            - img [ref=e58]
+            - text: Run Screen
+        - generic [ref=e61]:
+          - generic [ref=e62]: "Active:"
+          - generic [ref=e63]:
+            - text: "DTE: Standard"
+            - 'button "Remove DTE: Standard filter" [ref=e64] [cursor=pointer]': ✕
+      - main [ref=e65]:
+        - generic [ref=e67]: Applying filters…
+  - contentinfo [ref=e74]: Educational information, not investment advice. This tool is a non-tailored research screener, not a registered advisor.
+  - alert [ref=e75]

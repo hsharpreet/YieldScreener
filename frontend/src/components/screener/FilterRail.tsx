@@ -571,7 +571,12 @@ export default function FilterRail({ params, onChange, onRun, watchlistMode, onW
           {/* Reset */}
           {activeChips.length > 0 && (
             <button
-              onClick={() => onChange({ min_dte: undefined, max_dte: undefined })}
+              onClick={() => onChange({
+                min_dte: undefined, max_dte: undefined,
+                min_market_cap: undefined, max_pe: undefined, max_beta: undefined,
+                min_roe: undefined, max_peg: undefined, sectors: undefined,
+                max_analyst_rating: undefined, tickers: undefined,
+              })}
               className="text-xs text-gray-500 hover:text-red-400 transition-colors px-2 py-1.5 whitespace-nowrap"
             >
               Reset
