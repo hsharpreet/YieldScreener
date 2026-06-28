@@ -14,7 +14,11 @@ export default function ScreenerPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [dataStatus, setDataStatus] = useState<'ready' | 'loading'>('ready')
-  const [params, setParams] = useState<ScreenParams>({ min_dte: 21, max_dte: 45 })
+  const [params, setParams] = useState<ScreenParams>({
+    min_dte: 21,
+    max_dte: 45,
+    min_market_cap: 5_000_000_000,  // $5B default — visible Mkt Cap chip
+  })
   const [watchlist, setWatchlist] = useState<Set<string>>(new Set())
   const [watchlistMode, setWatchlistMode] = useState(false)
 

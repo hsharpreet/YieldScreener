@@ -7,8 +7,8 @@ from app.data.provider import OptionContract, StockQuote
 
 @dataclass
 class FundamentalsFilter:
-    min_market_cap: float = 5_000_000_000  # $5 B
-    max_pe: float = 50.0
+    min_market_cap: float | None = None
+    max_pe: float | None = None
     min_avg_volume: int = 500_000
     max_beta: float | None = None           # exclude if beta > max_beta
     min_roe: float | None = None            # exclude if roe < min_roe (e.g. 0.10 = 10%)
@@ -19,9 +19,9 @@ class FundamentalsFilter:
     max_analyst_rating: float | None = None
 
     def passes(self, quote: StockQuote) -> bool:
-        if quote.market_cap is not None and quote.market_cap < self.min_market_cap:
+        if self.min_market_cap is not None and quote.market_cap is not None and quote.market_cap < self.min_market_cap:
             return False
-        if quote.pe_ratio is not None and quote.pe_ratio > self.max_pe:
+        if self.max_pe is not None and quote.pe_ratio is not None and quote.pe_ratio > self.max_pe:
             return False
         if quote.avg_volume is not None and quote.avg_volume < self.min_avg_volume:
             return False

@@ -1,0 +1,355 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "YieldScreener" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e5]:
+        - link "Screener" [ref=e6] [cursor=pointer]:
+          - /url: /screener
+        - link "Pricing" [ref=e7] [cursor=pointer]:
+          - /url: /#pricing
+    - generic [ref=e78]:
+      - generic [ref=e79]: harpreet.hometv@gmail.com
+      - generic [ref=e80]: Pro
+      - link "Account" [ref=e81] [cursor=pointer]:
+        - /url: /account
+      - button "Sign out" [ref=e82] [cursor=pointer]
+  - main [ref=e8]:
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]: ⓘ
+        - generic [ref=e12]:
+          - strong [ref=e13]: Educational information only — not investment advice.
+          - text: Data is delayed ~15 minutes. Annualized figures are illustrative and assume identical trades repeat perfectly, which will not happen. Past covered-call yields do not guarantee future results.
+        - button "Dismiss" [ref=e14] [cursor=pointer]: ✕
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - heading "Covered Call Screener" [level=1] [ref=e17]
+          - generic [ref=e18]: USA Markets
+          - generic [ref=e83]: ⏳ Fetching market data…
+        - paragraph [ref=e19]: Quality stocks ranked by best covered call yield. Annualized figures are illustrative only.
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - 'button "DTE: Standard" [ref=e24] [cursor=pointer]':
+            - text: "DTE: Standard"
+            - img [ref=e25]
+          - 'button "Mkt Cap: Mid-cap" [ref=e28] [cursor=pointer]':
+            - text: "Mkt Cap: Mid-cap"
+            - img [ref=e29]
+          - button "P/E Ratio" [ref=e32] [cursor=pointer]:
+            - text: P/E Ratio
+            - img [ref=e33]
+          - button "Beta" [ref=e36] [cursor=pointer]:
+            - text: Beta
+            - img [ref=e37]
+          - button "Sector" [ref=e40] [cursor=pointer]:
+            - text: Sector
+            - img [ref=e41]
+          - button "More Filters" [ref=e44] [cursor=pointer]:
+            - text: More Filters
+            - img [ref=e45]
+          - button "Saved" [ref=e48] [cursor=pointer]:
+            - img [ref=e49]
+            - text: Saved
+          - generic [ref=e55] [cursor=pointer]: WatchlistPro
+          - button "Reset" [ref=e56] [cursor=pointer]
+          - button "Run Screen" [ref=e57] [cursor=pointer]:
+            - img [ref=e58]
+            - text: Run Screen
+        - generic [ref=e61]:
+          - generic [ref=e62]: "Active:"
+          - generic [ref=e63]:
+            - text: "DTE: Standard"
+            - 'button "Remove DTE: Standard filter" [ref=e64] [cursor=pointer]': ✕
+          - generic [ref=e65]:
+            - text: "Mkt Cap: Mid-cap"
+            - 'button "Remove Mkt Cap: Mid-cap filter" [ref=e66] [cursor=pointer]': ✕
+      - main [ref=e67]:
+        - generic [ref=e84]:
+          - generic [ref=e85]:
+            - paragraph [ref=e86]: 20 results
+            - button "Columns" [ref=e88] [cursor=pointer]:
+              - img [ref=e89]
+              - text: Columns
+          - generic [ref=e91]:
+            - table [ref=e92]:
+              - rowgroup [ref=e93]:
+                - row "Symbol↕ Name↕ Price↕ Static Yield↕ Ann. Static †↓ If-Called↕ Ann. If-Called †↕ Cushion↕ DTE↕ Strike / Expiry Watchlist" [ref=e94]:
+                  - columnheader "Symbol↕" [ref=e95] [cursor=pointer]
+                  - columnheader "Name↕" [ref=e96] [cursor=pointer]
+                  - columnheader "Price↕" [ref=e97] [cursor=pointer]
+                  - columnheader "Static Yield↕" [ref=e98] [cursor=pointer]
+                  - columnheader "Ann. Static †↓" [ref=e99] [cursor=pointer]
+                  - columnheader "If-Called↕" [ref=e100] [cursor=pointer]
+                  - columnheader "Ann. If-Called †↕" [ref=e101] [cursor=pointer]
+                  - columnheader "Cushion↕" [ref=e102] [cursor=pointer]
+                  - columnheader "DTE↕" [ref=e103] [cursor=pointer]
+                  - columnheader "Strike / Expiry" [ref=e104]
+                  - columnheader "Watchlist" [ref=e105]:
+                    - generic [ref=e106]: Watchlist
+              - rowgroup [ref=e107]:
+                - row "MSFT Microsoft Corporation $371.36 5.22% 57.71% 6.20% 68.55% 5.22% 33 $375/2026-07-31 ★" [ref=e108] [cursor=pointer]:
+                  - cell "MSFT" [ref=e109]
+                  - cell "Microsoft Corporation" [ref=e110]
+                  - cell "$371.36" [ref=e111]
+                  - cell "5.22%" [ref=e112]
+                  - cell "57.71%" [ref=e113]
+                  - cell "6.20%" [ref=e114]
+                  - cell "68.55%" [ref=e115]
+                  - cell "5.22%" [ref=e116]
+                  - cell "33" [ref=e117]
+                  - cell "$375/2026-07-31" [ref=e118]:
+                    - generic [ref=e119]: $375
+                    - text: /2026-07-31
+                  - cell "★" [ref=e120]:
+                    - button "★" [ref=e121]
+                - row "AAPL Apple Inc. $281.20 — — — — — — — ★" [ref=e122] [cursor=pointer]:
+                  - cell "AAPL" [ref=e123]
+                  - cell "Apple Inc." [ref=e124]
+                  - cell "$281.20" [ref=e125]
+                  - cell "—" [ref=e126]
+                  - cell "—" [ref=e127]
+                  - cell "—" [ref=e128]
+                  - cell "—" [ref=e129]
+                  - cell "—" [ref=e130]
+                  - cell "—" [ref=e131]
+                  - cell "—" [ref=e132]
+                  - cell "★" [ref=e133]:
+                    - button "★" [ref=e134]
+                - row "GOOGL Alphabet Inc. $336.10 — — — — — — — ★" [ref=e135] [cursor=pointer]:
+                  - cell "GOOGL" [ref=e136]
+                  - cell "Alphabet Inc." [ref=e137]
+                  - cell "$336.10" [ref=e138]
+                  - cell "—" [ref=e139]
+                  - cell "—" [ref=e140]
+                  - cell "—" [ref=e141]
+                  - cell "—" [ref=e142]
+                  - cell "—" [ref=e143]
+                  - cell "—" [ref=e144]
+                  - cell "—" [ref=e145]
+                  - cell "★" [ref=e146]:
+                    - button "★" [ref=e147]
+                - row "AMZN Amazon.com, Inc. $230.55 — — — — — — — ★" [ref=e148] [cursor=pointer]:
+                  - cell "AMZN" [ref=e149]
+                  - cell "Amazon.com, Inc." [ref=e150]
+                  - cell "$230.55" [ref=e151]
+                  - cell "—" [ref=e152]
+                  - cell "—" [ref=e153]
+                  - cell "—" [ref=e154]
+                  - cell "—" [ref=e155]
+                  - cell "—" [ref=e156]
+                  - cell "—" [ref=e157]
+                  - cell "—" [ref=e158]
+                  - cell "★" [ref=e159]:
+                    - button "★" [ref=e160]
+                - row "META Meta Platforms, Inc. $549.35 — — — — — — — ★" [ref=e161] [cursor=pointer]:
+                  - cell "META" [ref=e162]
+                  - cell "Meta Platforms, Inc." [ref=e163]
+                  - cell "$549.35" [ref=e164]
+                  - cell "—" [ref=e165]
+                  - cell "—" [ref=e166]
+                  - cell "—" [ref=e167]
+                  - cell "—" [ref=e168]
+                  - cell "—" [ref=e169]
+                  - cell "—" [ref=e170]
+                  - cell "—" [ref=e171]
+                  - cell "★" [ref=e172]:
+                    - button "★" [ref=e173]
+                - row "NVDA NVIDIA Corporation $191.72 — — — — — — — ★" [ref=e174] [cursor=pointer]:
+                  - cell "NVDA" [ref=e175]
+                  - cell "NVIDIA Corporation" [ref=e176]
+                  - cell "$191.72" [ref=e177]
+                  - cell "—" [ref=e178]
+                  - cell "—" [ref=e179]
+                  - cell "—" [ref=e180]
+                  - cell "—" [ref=e181]
+                  - cell "—" [ref=e182]
+                  - cell "—" [ref=e183]
+                  - cell "—" [ref=e184]
+                  - cell "★" [ref=e185]:
+                    - button "★" [ref=e186]
+                - row "TSLA Tesla, Inc. $379.19 — — — — — — — ★" [ref=e187] [cursor=pointer]:
+                  - cell "TSLA" [ref=e188]
+                  - cell "Tesla, Inc." [ref=e189]
+                  - cell "$379.19" [ref=e190]
+                  - cell "—" [ref=e191]
+                  - cell "—" [ref=e192]
+                  - cell "—" [ref=e193]
+                  - cell "—" [ref=e194]
+                  - cell "—" [ref=e195]
+                  - cell "—" [ref=e196]
+                  - cell "—" [ref=e197]
+                  - cell "★" [ref=e198]:
+                    - button "★" [ref=e199]
+                - row "JPM JP Morgan Chase & Co. $327.92 — — — — — — — ★" [ref=e200] [cursor=pointer]:
+                  - cell "JPM" [ref=e201]
+                  - cell "JP Morgan Chase & Co." [ref=e202]
+                  - cell "$327.92" [ref=e203]
+                  - cell "—" [ref=e204]
+                  - cell "—" [ref=e205]
+                  - cell "—" [ref=e206]
+                  - cell "—" [ref=e207]
+                  - cell "—" [ref=e208]
+                  - cell "—" [ref=e209]
+                  - cell "—" [ref=e210]
+                  - cell "★" [ref=e211]:
+                    - button "★" [ref=e212]
+                - row "BAC Bank of America Corporation $57.80 — — — — — — — ★" [ref=e213] [cursor=pointer]:
+                  - cell "BAC" [ref=e214]
+                  - cell "Bank of America Corporation" [ref=e215]
+                  - cell "$57.80" [ref=e216]
+                  - cell "—" [ref=e217]
+                  - cell "—" [ref=e218]
+                  - cell "—" [ref=e219]
+                  - cell "—" [ref=e220]
+                  - cell "—" [ref=e221]
+                  - cell "—" [ref=e222]
+                  - cell "—" [ref=e223]
+                  - cell "★" [ref=e224]:
+                    - button "★" [ref=e225]
+                - row "V Visa Inc. $335.01 — — — — — — — ★" [ref=e226] [cursor=pointer]:
+                  - cell "V" [ref=e227]
+                  - cell "Visa Inc." [ref=e228]
+                  - cell "$335.01" [ref=e229]
+                  - cell "—" [ref=e230]
+                  - cell "—" [ref=e231]
+                  - cell "—" [ref=e232]
+                  - cell "—" [ref=e233]
+                  - cell "—" [ref=e234]
+                  - cell "—" [ref=e235]
+                  - cell "—" [ref=e236]
+                  - cell "★" [ref=e237]:
+                    - button "★" [ref=e238]
+                - row "JNJ Johnson & Johnson $254.26 — — — — — — — ★" [ref=e239] [cursor=pointer]:
+                  - cell "JNJ" [ref=e240]
+                  - cell "Johnson & Johnson" [ref=e241]
+                  - cell "$254.26" [ref=e242]
+                  - cell "—" [ref=e243]
+                  - cell "—" [ref=e244]
+                  - cell "—" [ref=e245]
+                  - cell "—" [ref=e246]
+                  - cell "—" [ref=e247]
+                  - cell "—" [ref=e248]
+                  - cell "—" [ref=e249]
+                  - cell "★" [ref=e250]:
+                    - button "★" [ref=e251]
+                - row "UNH UnitedHealth Group Incorporated $427.42 — — — — — — — ★" [ref=e252] [cursor=pointer]:
+                  - cell "UNH" [ref=e253]
+                  - cell "UnitedHealth Group Incorporated" [ref=e254]
+                  - cell "$427.42" [ref=e255]
+                  - cell "—" [ref=e256]
+                  - cell "—" [ref=e257]
+                  - cell "—" [ref=e258]
+                  - cell "—" [ref=e259]
+                  - cell "—" [ref=e260]
+                  - cell "—" [ref=e261]
+                  - cell "—" [ref=e262]
+                  - cell "★" [ref=e263]:
+                    - button "★" [ref=e264]
+                - row "ABBV AbbVie Inc. $251.64 — — — — — — — ★" [ref=e265] [cursor=pointer]:
+                  - cell "ABBV" [ref=e266]
+                  - cell "AbbVie Inc." [ref=e267]
+                  - cell "$251.64" [ref=e268]
+                  - cell "—" [ref=e269]
+                  - cell "—" [ref=e270]
+                  - cell "—" [ref=e271]
+                  - cell "—" [ref=e272]
+                  - cell "—" [ref=e273]
+                  - cell "—" [ref=e274]
+                  - cell "—" [ref=e275]
+                  - cell "★" [ref=e276]:
+                    - button "★" [ref=e277]
+                - row "WMT Walmart Inc. $115.30 — — — — — — — ★" [ref=e278] [cursor=pointer]:
+                  - cell "WMT" [ref=e279]
+                  - cell "Walmart Inc." [ref=e280]
+                  - cell "$115.30" [ref=e281]
+                  - cell "—" [ref=e282]
+                  - cell "—" [ref=e283]
+                  - cell "—" [ref=e284]
+                  - cell "—" [ref=e285]
+                  - cell "—" [ref=e286]
+                  - cell "—" [ref=e287]
+                  - cell "—" [ref=e288]
+                  - cell "★" [ref=e289]:
+                    - button "★" [ref=e290]
+                - row "HD Home Depot, Inc. (The) $348.18 — — — — — — — ★" [ref=e291] [cursor=pointer]:
+                  - cell "HD" [ref=e292]
+                  - cell "Home Depot, Inc. (The)" [ref=e293]
+                  - cell "$348.18" [ref=e294]
+                  - cell "—" [ref=e295]
+                  - cell "—" [ref=e296]
+                  - cell "—" [ref=e297]
+                  - cell "—" [ref=e298]
+                  - cell "—" [ref=e299]
+                  - cell "—" [ref=e300]
+                  - cell "—" [ref=e301]
+                  - cell "★" [ref=e302]:
+                    - button "★" [ref=e303]
+                - row "COST Costco Wholesale Corporation $951.05 — — — — — — — ★" [ref=e304] [cursor=pointer]:
+                  - cell "COST" [ref=e305]
+                  - cell "Costco Wholesale Corporation" [ref=e306]
+                  - cell "$951.05" [ref=e307]
+                  - cell "—" [ref=e308]
+                  - cell "—" [ref=e309]
+                  - cell "—" [ref=e310]
+                  - cell "—" [ref=e311]
+                  - cell "—" [ref=e312]
+                  - cell "—" [ref=e313]
+                  - cell "—" [ref=e314]
+                  - cell "★" [ref=e315]:
+                    - button "★" [ref=e316]
+                - row "KO Coca-Cola Company (The) $82.62 — — — — — — — ★" [ref=e317] [cursor=pointer]:
+                  - cell "KO" [ref=e318]
+                  - cell "Coca-Cola Company (The)" [ref=e319]
+                  - cell "$82.62" [ref=e320]
+                  - cell "—" [ref=e321]
+                  - cell "—" [ref=e322]
+                  - cell "—" [ref=e323]
+                  - cell "—" [ref=e324]
+                  - cell "—" [ref=e325]
+                  - cell "—" [ref=e326]
+                  - cell "—" [ref=e327]
+                  - cell "★" [ref=e328]:
+                    - button "★" [ref=e329]
+                - row "XOM Exxon Mobil Corporation $136.40 — — — — — — — ★" [ref=e330] [cursor=pointer]:
+                  - cell "XOM" [ref=e331]
+                  - cell "Exxon Mobil Corporation" [ref=e332]
+                  - cell "$136.40" [ref=e333]
+                  - cell "—" [ref=e334]
+                  - cell "—" [ref=e335]
+                  - cell "—" [ref=e336]
+                  - cell "—" [ref=e337]
+                  - cell "—" [ref=e338]
+                  - cell "—" [ref=e339]
+                  - cell "—" [ref=e340]
+                  - cell "★" [ref=e341]:
+                    - button "★" [ref=e342]
+                - row "CVX Chevron Corporation $170.93 — — — — — — — ★" [ref=e343] [cursor=pointer]:
+                  - cell "CVX" [ref=e344]
+                  - cell "Chevron Corporation" [ref=e345]
+                  - cell "$170.93" [ref=e346]
+                  - cell "—" [ref=e347]
+                  - cell "—" [ref=e348]
+                  - cell "—" [ref=e349]
+                  - cell "—" [ref=e350]
+                  - cell "—" [ref=e351]
+                  - cell "—" [ref=e352]
+                  - cell "—" [ref=e353]
+                  - cell "★" [ref=e354]:
+                    - button "★" [ref=e355]
+                - row "DIS Walt Disney Company (The) $98.70 — — — — — — — ★" [ref=e356] [cursor=pointer]:
+                  - cell "DIS" [ref=e357]
+                  - cell "Walt Disney Company (The)" [ref=e358]
+                  - cell "$98.70" [ref=e359]
+                  - cell "—" [ref=e360]
+                  - cell "—" [ref=e361]
+                  - cell "—" [ref=e362]
+                  - cell "—" [ref=e363]
+                  - cell "—" [ref=e364]
+                  - cell "—" [ref=e365]
+                  - cell "—" [ref=e366]
+                  - cell "★" [ref=e367]:
+                    - button "★" [ref=e368]
+            - paragraph [ref=e369]: † Annualized figures are illustrative. They assume identical trades repeat perfectly for a full year, which will not happen. Educational data only — not investment advice.
+  - contentinfo [ref=e76]: Educational information, not investment advice. This tool is a non-tailored research screener, not a registered advisor.
+  - alert [ref=e77]

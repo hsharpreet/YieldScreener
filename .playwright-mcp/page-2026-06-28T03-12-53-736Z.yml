@@ -1,0 +1,160 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "YieldScreener" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e5]:
+        - link "Screener" [ref=e6] [cursor=pointer]:
+          - /url: /screener
+        - link "Pricing" [ref=e7] [cursor=pointer]:
+          - /url: /#pricing
+    - generic [ref=e108]:
+      - generic [ref=e109]: harpreet.hometv@gmail.com
+      - generic [ref=e110]: Pro
+      - link "Account" [ref=e111] [cursor=pointer]:
+        - /url: /account
+      - button "Sign out" [ref=e112] [cursor=pointer]
+  - main [ref=e8]:
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]: ⓘ
+        - generic [ref=e12]:
+          - strong [ref=e13]: Educational information only — not investment advice.
+          - text: Data is delayed ~15 minutes. Annualized figures are illustrative and assume identical trades repeat perfectly, which will not happen. Past covered-call yields do not guarantee future results.
+        - button "Dismiss" [ref=e14] [cursor=pointer]: ✕
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - heading "Covered Call Screener" [level=1] [ref=e17]
+          - generic [ref=e18]: USA Markets
+          - generic [ref=e430]: Data refreshes every 10 min · 15-min delayed
+        - paragraph [ref=e19]: Quality stocks ranked by best covered call yield. Annualized figures are illustrative only.
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]: Filters
+            - generic [ref=e27] [cursor=pointer]: WatchlistPro
+            - button "Saved" [ref=e29] [cursor=pointer]:
+              - img [ref=e30]
+              - text: Saved
+          - generic [ref=e33]:
+            - button "Reset" [ref=e34] [cursor=pointer]
+            - button "Run Screen" [active] [ref=e35] [cursor=pointer]:
+              - img [ref=e36]
+              - text: Run Screen
+        - generic [ref=e39]:
+          - generic [ref=e40]:
+            - generic [ref=e41]:
+              - generic [ref=e42]: Days to Exp.
+              - button "Standard" [ref=e43] [cursor=pointer]:
+                - generic [ref=e44]: Standard
+                - img [ref=e45]
+            - generic [ref=e47]:
+              - generic [ref=e48]: P/E Ratio
+              - button "Any" [ref=e49] [cursor=pointer]:
+                - generic [ref=e50]: Any
+                - img [ref=e51]
+            - generic [ref=e53]:
+              - generic [ref=e54]: PEG Ratio
+              - button "Any" [ref=e55] [cursor=pointer]:
+                - generic [ref=e56]: Any
+                - img [ref=e57]
+          - generic [ref=e59]:
+            - generic [ref=e60]:
+              - generic [ref=e61]: Market Cap
+              - button "Mid-cap" [ref=e62] [cursor=pointer]:
+                - generic [ref=e63]: Mid-cap
+                - img [ref=e64]
+            - generic [ref=e66]:
+              - generic [ref=e67]: Beta
+              - button "Any" [ref=e68] [cursor=pointer]:
+                - generic [ref=e69]: Any
+                - img [ref=e70]
+            - generic [ref=e72]:
+              - generic [ref=e73]: Min ROE
+              - button "Any" [ref=e74] [cursor=pointer]:
+                - generic [ref=e75]: Any
+                - img [ref=e76]
+          - generic [ref=e78]:
+            - generic [ref=e79]:
+              - generic [ref=e80]: Sector
+              - button "Technology" [ref=e425] [cursor=pointer]:
+                - generic [ref=e82]: Technology
+                - img [ref=e83]
+            - generic [ref=e85]:
+              - generic [ref=e86]: Analyst Rating
+              - button "Any" [ref=e87] [cursor=pointer]:
+                - generic [ref=e88]: Any
+                - img [ref=e89]
+            - generic [ref=e91]:
+              - generic [ref=e92]: Tickers
+              - button "All" [ref=e93] [cursor=pointer]:
+                - generic [ref=e94]: All
+                - img [ref=e95]
+      - main [ref=e97]:
+        - generic [ref=e431]:
+          - generic [ref=e432]:
+            - paragraph [ref=e433]: 3 results
+            - button "Columns" [ref=e435] [cursor=pointer]:
+              - img [ref=e436]
+              - text: Columns
+          - generic [ref=e438]:
+            - table [ref=e439]:
+              - rowgroup [ref=e440]:
+                - row "Symbol↕ Name↕ Price↕ Static Yield↕ Ann. Static †↓ If-Called↕ Ann. If-Called †↕ Cushion↕ DTE↕ Strike / Expiry Watchlist" [ref=e441]:
+                  - columnheader "Symbol↕" [ref=e442] [cursor=pointer]
+                  - columnheader "Name↕" [ref=e443] [cursor=pointer]
+                  - columnheader "Price↕" [ref=e444] [cursor=pointer]
+                  - columnheader "Static Yield↕" [ref=e445] [cursor=pointer]
+                  - columnheader "Ann. Static †↓" [ref=e446] [cursor=pointer]
+                  - columnheader "If-Called↕" [ref=e447] [cursor=pointer]
+                  - columnheader "Ann. If-Called †↕" [ref=e448] [cursor=pointer]
+                  - columnheader "Cushion↕" [ref=e449] [cursor=pointer]
+                  - columnheader "DTE↕" [ref=e450] [cursor=pointer]
+                  - columnheader "Strike / Expiry" [ref=e451]
+                  - columnheader "Watchlist" [ref=e452]:
+                    - generic [ref=e453]: Watchlist
+              - rowgroup [ref=e454]:
+                - row "MSFT Microsoft Corporation $371.36 5.22% 57.71% 6.20% 68.55% 5.22% 33 $375/2026-07-31 ★" [ref=e455] [cursor=pointer]:
+                  - cell "MSFT" [ref=e456]
+                  - cell "Microsoft Corporation" [ref=e457]
+                  - cell "$371.36" [ref=e458]
+                  - cell "5.22%" [ref=e459]
+                  - cell "57.71%" [ref=e460]
+                  - cell "6.20%" [ref=e461]
+                  - cell "68.55%" [ref=e462]
+                  - cell "5.22%" [ref=e463]
+                  - cell "33" [ref=e464]
+                  - cell "$375/2026-07-31" [ref=e465]:
+                    - generic [ref=e466]: $375
+                    - text: /2026-07-31
+                  - cell "★" [ref=e467]:
+                    - button "★" [ref=e468]
+                - row "AAPL Apple Inc. $281.20 — — — — — — — ★" [ref=e469] [cursor=pointer]:
+                  - cell "AAPL" [ref=e470]
+                  - cell "Apple Inc." [ref=e471]
+                  - cell "$281.20" [ref=e472]
+                  - cell "—" [ref=e473]
+                  - cell "—" [ref=e474]
+                  - cell "—" [ref=e475]
+                  - cell "—" [ref=e476]
+                  - cell "—" [ref=e477]
+                  - cell "—" [ref=e478]
+                  - cell "—" [ref=e479]
+                  - cell "★" [ref=e480]:
+                    - button "★" [ref=e481]
+                - row "NVDA NVIDIA Corporation $191.72 — — — — — — — ★" [ref=e482] [cursor=pointer]:
+                  - cell "NVDA" [ref=e483]
+                  - cell "NVIDIA Corporation" [ref=e484]
+                  - cell "$191.72" [ref=e485]
+                  - cell "—" [ref=e486]
+                  - cell "—" [ref=e487]
+                  - cell "—" [ref=e488]
+                  - cell "—" [ref=e489]
+                  - cell "—" [ref=e490]
+                  - cell "—" [ref=e491]
+                  - cell "—" [ref=e492]
+                  - cell "★" [ref=e493]:
+                    - button "★" [ref=e494]
+            - paragraph [ref=e495]: † Annualized figures are illustrative. They assume identical trades repeat perfectly for a full year, which will not happen. Educational data only — not investment advice.
+  - contentinfo [ref=e106]: Educational information, not investment advice. This tool is a non-tailored research screener, not a registered advisor.
+  - alert [ref=e107]
