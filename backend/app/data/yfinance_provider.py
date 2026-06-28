@@ -344,10 +344,24 @@ class YFinanceProvider(DataProvider):
         min_dte: int = 21,
         max_dte: int = 45,
     ) -> list[OptionContract]:
+        r = _get_redis()
+        # Try exact cache key first (covers the case where the scheduler cached
+        # a narrower window that exactly matches the request).
         try:
-            raw = _get_redis().get(f"chain:{ticker}:{min_dte}:{max_dte}")
+            raw = r.get(f"chain:{ticker}:{min_dte}:{max_dte}")
             if raw:
                 return [OptionContract(**d) for d in json.loads(raw)]
         except Exception:
             pass
+
+        # Fall back to the broad 7-60 cache the scheduler always stores, then
+        # filter in memory. This means ANY user DTE range is served instantly.
+        try:
+            raw = r.get(f"chain:{ticker}:7:60")
+            if raw:
+                all_contracts = [OptionContract(**d) for d in json.loads(raw)]
+                return [c for c in all_contracts if min_dte <= c.dte <= max_dte]
+        except Exception:
+            pass
+
         return []

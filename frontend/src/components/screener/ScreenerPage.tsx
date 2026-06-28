@@ -14,35 +14,18 @@ export default function ScreenerPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [dataStatus, setDataStatus] = useState<'ready' | 'loading'>('ready')
-  const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [params, setParams] = useState<ScreenParams>({
-    min_dte: 7,
-    max_dte: 60,
-  })
+  const [params, setParams] = useState<ScreenParams>({ min_dte: 21, max_dte: 45 })
   const [watchlist, setWatchlist] = useState<Set<string>>(new Set())
   const [watchlistMode, setWatchlistMode] = useState(false)
 
-  // Always-current ref so load() never needs to be recreated
+  // Refs that are always current — load() never needs to be recreated
   const paramsRef = useRef<ScreenParams>(params)
   paramsRef.current = params
+  const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const firstRender = useRef(true)
 
-  // Fetch watchlist for Pro users
-  useEffect(() => {
-    if (user?.tier === 'pro') {
-      fetchWatchlist().then(tickers => setWatchlist(new Set(tickers)))
-    }
-  }, [user])
-
-  // When watchlist mode toggles, inject tickers filter
-  useEffect(() => {
-    if (watchlistMode && watchlist.size > 0) {
-      setParams(p => ({ ...p, tickers: Array.from(watchlist).join(',') }))
-    } else if (!watchlistMode) {
-      setParams(p => ({ ...p, tickers: undefined }))
-    }
-  }, [watchlistMode, watchlist])
-
-  // load() reads from paramsRef so it never needs to be recreated
+  // ── load: reads cache from backend, never blocks on Yahoo Finance ──────────
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
@@ -53,7 +36,7 @@ export default function ScreenerPage() {
       setTier(result.tier)
       setTotal(result.total)
       setDataStatus(result.dataStatus)
-      // If the backend scheduler hasn't finished the first refresh yet, retry in 10s.
+      // Scheduler hasn't finished its first pass yet — retry in 10 s automatically.
       if (result.dataStatus === 'loading') {
         retryRef.current = setTimeout(load, 10_000)
       }
@@ -62,13 +45,38 @@ export default function ScreenerPage() {
     } finally {
       setLoading(false)
     }
-  }, []) // No deps — never re-creates; always uses latest ref
+  }, []) // stable — always reads latest params via paramsRef
 
-  // Run once on mount; clean up any pending retry on unmount
+  // ── Run on mount ───────────────────────────────────────────────────────────
   useEffect(() => {
     load()
-    return () => { if (retryRef.current) clearTimeout(retryRef.current) }
+    return () => {
+      if (retryRef.current) clearTimeout(retryRef.current)
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
   }, [load])
+
+  // ── Auto-run 600 ms after any filter change (debounced) ───────────────────
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return }
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(load, 600)
+  }, [params, load])
+
+  // ── Watchlist mode ─────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (user?.tier === 'pro') {
+      fetchWatchlist().then(tickers => setWatchlist(new Set(tickers)))
+    }
+  }, [user])
+
+  useEffect(() => {
+    if (watchlistMode && watchlist.size > 0) {
+      setParams(p => ({ ...p, tickers: Array.from(watchlist).join(',') }))
+    } else if (!watchlistMode) {
+      setParams(p => ({ ...p, tickers: undefined }))
+    }
+  }, [watchlistMode, watchlist])
 
   function handleWatchlistToggle(ticker: string, add: boolean) {
     setWatchlist(prev => {
@@ -90,11 +98,21 @@ export default function ScreenerPage() {
           <span className="inline-flex items-center gap-1 border border-[#2a3a58] rounded-full px-2.5 py-0.5 text-xs text-gray-400" style={{ background: '#1a2438' }}>
             USA Markets
           </span>
-          <span className="text-xs text-gray-500">
-            Quality stocks ranked by best covered call yield.{' '}
-            <span className="text-gray-600">Annualized figures are illustrative only.</span>
-          </span>
+          {dataStatus === 'loading' && (
+            <span className="text-xs" style={{ color: '#f59e0b' }}>
+              ⏳ Fetching market data…
+            </span>
+          )}
+          {dataStatus === 'ready' && !loading && (
+            <span className="text-xs" style={{ color: '#2a4060' }}>
+              Data refreshes every 10 min · 15-min delayed
+            </span>
+          )}
         </div>
+        <p className="text-xs mt-1" style={{ color: '#3a5070' }}>
+          Quality stocks ranked by best covered call yield.{' '}
+          <span style={{ color: '#2a4060' }}>Annualized figures are illustrative only.</span>
+        </p>
       </div>
 
       {/* Filter bar */}
@@ -113,7 +131,7 @@ export default function ScreenerPage() {
             <div className="text-sm" style={{ color: '#6a8ab0' }}>
               {dataStatus === 'loading'
                 ? 'Fetching market data for the first time — this takes ~30 s…'
-                : 'Screening stocks across US markets…'}
+                : 'Applying filters…'}
             </div>
             <div className="mt-4 space-y-2 max-w-5xl mx-auto">
               {[1, 2, 3, 4, 5].map(i => (
@@ -132,22 +150,21 @@ export default function ScreenerPage() {
             <div className="text-2xl mb-3">⏳</div>
             <p className="font-medium" style={{ color: '#c8d8e8' }}>Market data is loading…</p>
             <p className="text-sm mt-1" style={{ color: '#4a6080' }}>
-              The background scheduler is fetching data for the first time. Retrying in 10 s.
+              The background scheduler is fetching fresh data. Retrying automatically in 10 s.
             </p>
           </div>
         )}
 
         {error && !loading && (
           <div className="py-12 text-center">
-            <div className="text-4xl mb-4 text-gray-600">?</div>
-            <p className="text-gray-300 font-medium">No stocks matched your filters.</p>
-            <p className="text-gray-500 text-sm mt-1">
-              Try relaxing the criteria — reduce min market cap, widen the DTE range, or remove optional filters.
+            <p className="font-medium" style={{ color: '#c8d8e8' }}>No stocks matched your filters.</p>
+            <p className="text-sm mt-1" style={{ color: '#4a6080' }}>
+              Try relaxing the criteria — wider DTE range, higher max PE, or fewer sector restrictions.
             </p>
           </div>
         )}
 
-        {!loading && !error && (
+        {!loading && !error && rows.length > 0 && (
           <ScreenerTable
             rows={rows}
             tier={tier}
@@ -155,6 +172,15 @@ export default function ScreenerPage() {
             watchlist={watchlist}
             onWatchlistToggle={handleWatchlistToggle}
           />
+        )}
+
+        {!loading && !error && rows.length === 0 && dataStatus === 'ready' && (
+          <div className="py-12 text-center">
+            <p className="font-medium" style={{ color: '#c8d8e8' }}>No stocks matched your filters.</p>
+            <p className="text-sm mt-1" style={{ color: '#4a6080' }}>
+              Try relaxing the criteria — wider DTE range, higher max PE, or fewer sector restrictions.
+            </p>
+          </div>
         )}
       </main>
     </div>

@@ -72,11 +72,13 @@ class DataRefreshScheduler:
                 logger.debug("DataRefreshScheduler: fundamentals failed for %s: %s", ticker, exc)
 
         # ── Step 3: Option chains (individual calls, through rate limiter) ──────
+        # Cache a broad DTE window (7-60) so any user-selected DTE range is served
+        # from cache without a separate Yahoo request.
         for ticker in self.tickers:
             if self._stop.is_set():
                 return
             try:
-                refresh_option_chain(ticker, min_dte=21, max_dte=45)
+                refresh_option_chain(ticker, min_dte=7, max_dte=60)
             except Exception as exc:
                 logger.debug("DataRefreshScheduler: chain failed for %s: %s", ticker, exc)
 
