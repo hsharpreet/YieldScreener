@@ -118,13 +118,30 @@ def screen(
     ),
     min_dte: int = Query(21, ge=1),
     max_dte: int = Query(45, ge=1),
+    # General
     min_market_cap: float | None = Query(None, ge=0),
-    max_pe: float | None = Query(None, ge=0),
-    max_beta: float | None = Query(None, ge=0),
-    min_roe: float | None = Query(None),
-    max_peg: float | None = Query(None, ge=0),
-    sectors: str | None = Query(None, description="Comma-separated sectors to include"),
+    sectors: str | None = Query(None),
     max_analyst_rating: float | None = Query(None, ge=1.0, le=5.0),
+    # Valuation
+    max_pe: float | None = Query(None, ge=0),
+    max_forward_pe: float | None = Query(None, ge=0),
+    max_peg: float | None = Query(None, ge=0),
+    max_price_to_book: float | None = Query(None, ge=0),
+    max_price_to_sales: float | None = Query(None, ge=0),
+    max_ev_to_ebitda: float | None = Query(None, ge=0),
+    min_dividend_yield: float | None = Query(None, ge=0),
+    # Profitability
+    min_gross_margin: float | None = Query(None),
+    min_operating_margin: float | None = Query(None),
+    min_net_margin: float | None = Query(None),
+    min_roe: float | None = Query(None),
+    min_roa: float | None = Query(None),
+    # Financial health
+    max_debt_to_equity: float | None = Query(None, ge=0),
+    min_current_ratio: float | None = Query(None, ge=0),
+    # Risk / trading
+    max_beta: float | None = Query(None, ge=0),
+    max_short_float: float | None = Query(None, ge=0),
     current_user: User | None = Depends(get_optional_user),
 ) -> list[ScreenerRow]:
     """Return the best covered call per quality-filtered stock.
@@ -145,12 +162,24 @@ def screen(
     sector_list = [s.strip() for s in sectors.split(",")] if sectors else None
     fund_filter = FundamentalsFilter(
         min_market_cap=min_market_cap,
-        max_pe=max_pe,
-        max_beta=max_beta,
-        min_roe=min_roe,
-        max_peg=max_peg,
         sector_filter=sector_list,
         max_analyst_rating=max_analyst_rating,
+        max_pe=max_pe,
+        max_forward_pe=max_forward_pe,
+        max_peg=max_peg,
+        max_price_to_book=max_price_to_book,
+        max_price_to_sales=max_price_to_sales,
+        max_ev_to_ebitda=max_ev_to_ebitda,
+        min_dividend_yield=min_dividend_yield,
+        min_gross_margin=min_gross_margin,
+        min_operating_margin=min_operating_margin,
+        min_net_margin=min_net_margin,
+        min_roe=min_roe,
+        min_roa=min_roa,
+        max_debt_to_equity=max_debt_to_equity,
+        min_current_ratio=min_current_ratio,
+        max_beta=max_beta,
+        max_short_float=max_short_float,
     )
     rows: list[ScreenerRow] = []
 

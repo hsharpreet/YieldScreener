@@ -188,6 +188,24 @@ def refresh_fundamentals(ticker: str) -> Optional[StockQuote]:
             eps_growth=_f("earningsGrowth"),
             revenue_growth=_f("revenueGrowth"),
             analyst_rating=_f("recommendationMean"),
+            # Valuation extras
+            price_to_book=_f("priceToBook"),
+            price_to_sales=_f("priceToSalesTrailing12Months"),
+            ev_to_ebitda=_f("enterpriseToEbitda"),
+            # Profitability
+            gross_margin=_f("grossMargins"),
+            operating_margin=_f("operatingMargins"),
+            net_margin=_f("profitMargins"),
+            roa=_f("returnOnAssets"),
+            # Financial health
+            debt_to_equity=_f("debtToEquity"),
+            current_ratio=_f("currentRatio"),
+            quick_ratio=_f("quickRatio"),
+            # Trading / market
+            short_float=_f("shortPercentOfFloat"),
+            target_price=_f("targetMeanPrice"),
+            fifty_two_week_high=_f("fiftyTwoWeekHigh"),
+            fifty_two_week_low=_f("fiftyTwoWeekLow"),
         )
 
         try:

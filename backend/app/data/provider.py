@@ -15,10 +15,28 @@ class StockQuote:
     sector: str | None = None
     beta: float | None = None
     peg_ratio: float | None = None
-    roe: float | None = None          # returnOnEquity from yfinance
-    eps_growth: float | None = None   # earningsGrowth from yfinance
-    revenue_growth: float | None = None  # revenueGrowth
-    analyst_rating: float | None = None  # recommendationMean (1=Strong Buy, 5=Sell)
+    roe: float | None = None               # returnOnEquity
+    eps_growth: float | None = None        # earningsGrowth
+    revenue_growth: float | None = None    # revenueGrowth
+    analyst_rating: float | None = None    # recommendationMean (1=Strong Buy, 5=Sell)
+    # Valuation extras
+    price_to_book: float | None = None     # priceToBook
+    price_to_sales: float | None = None    # priceToSalesTrailing12Months
+    ev_to_ebitda: float | None = None      # enterpriseToEbitda
+    # Profitability
+    gross_margin: float | None = None      # grossMargins
+    operating_margin: float | None = None  # operatingMargins
+    net_margin: float | None = None        # profitMargins
+    roa: float | None = None               # returnOnAssets
+    # Financial health
+    debt_to_equity: float | None = None    # debtToEquity
+    current_ratio: float | None = None     # currentRatio
+    quick_ratio: float | None = None       # quickRatio
+    # Trading / market
+    short_float: float | None = None       # shortPercentOfFloat (0–1)
+    target_price: float | None = None      # targetMeanPrice
+    fifty_two_week_high: float | None = None  # fiftyTwoWeekHigh
+    fifty_two_week_low: float | None = None   # fiftyTwoWeekLow
 
 
 @dataclass
