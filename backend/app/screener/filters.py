@@ -128,9 +128,9 @@ def filter_illiquid(contracts: list[OptionContract]) -> list[OptionContract]:
         if c.bid <= 0 or c.ask <= 0:
             continue
         spread_pct = (c.ask - c.bid) / c.ask
-        if spread_pct > 0.15:
+        if spread_pct > 0.40:
             continue
-        if c.open_interest < 100:
+        if c.open_interest < 50:
             continue
         result.append(c)
     return result

@@ -278,18 +278,36 @@ def _fetch_chain(ticker: str, min_dte: int, max_dte: int) -> list[OptionContract
         except Exception:
             continue
 
+        # NaN-safe helpers — yfinance returns NaN for volume/OI on weekends/off-hours.
+        # float('nan') is truthy so `val or 0` does NOT catch it; int(nan) raises.
+        def _si(val) -> int:
+            """Safe int: NaN / None → 0."""
+            try:
+                f = float(val)
+                return 0 if f != f else int(f)  # f != f is True only for NaN
+            except (TypeError, ValueError):
+                return 0
+
+        def _sf(val) -> float | None:
+            """Safe float: NaN / None → None."""
+            try:
+                f = float(val)
+                return None if f != f else f
+            except (TypeError, ValueError):
+                return None
+
         iv_vals = [
-            float(r.get("impliedVolatility"))
+            _sf(r.get("impliedVolatility"))
             for _, r in chain.iterrows()
-            if r.get("impliedVolatility") is not None
+            if _sf(r.get("impliedVolatility")) is not None
         ]
-        iv_min = min(iv_vals) if iv_vals else None
-        iv_max = max(iv_vals) if iv_vals else None
+        iv_min = min(iv_vals) if iv_vals else None  # type: ignore[type-var]
+        iv_max = max(iv_vals) if iv_vals else None  # type: ignore[type-var]
         iv_range = (iv_max - iv_min) if iv_min is not None and iv_max is not None else None
 
         for _, row in chain.iterrows():
-            bid = float(row.get("bid", 0) or 0)
-            ask = float(row.get("ask", 0) or 0)
+            bid = _sf(row.get("bid")) or 0.0
+            ask = _sf(row.get("ask")) or 0.0
             if bid <= 0 or ask <= 0:
                 continue
             premium = (bid + ask) / 2
@@ -297,17 +315,12 @@ def _fetch_chain(ticker: str, min_dte: int, max_dte: int) -> list[OptionContract
                 earnings_date is not None
                 and today < earnings_date <= today + datetime.timedelta(days=dte)
             )
-            cur_iv = row.get("impliedVolatility")
-            cur_iv_f = float(cur_iv) if cur_iv is not None else None
+            cur_iv_f = _sf(row.get("impliedVolatility"))
             iv_rank = (
                 (cur_iv_f - iv_min) / iv_range * 100
                 if iv_range and iv_range > 0 and cur_iv_f is not None and iv_min is not None
                 else None
             )
-
-            def _rf(key: str) -> float | None:
-                v = row.get(key)
-                return float(v) if v is not None else None
 
             contracts.append(OptionContract(
                 ticker=ticker,
@@ -317,14 +330,14 @@ def _fetch_chain(ticker: str, min_dte: int, max_dte: int) -> list[OptionContract
                 premium=premium,
                 bid=bid,
                 ask=ask,
-                volume=int(row.get("volume") or 0),
-                open_interest=int(row.get("openInterest") or 0),
-                implied_volatility=float(row.get("impliedVolatility") or 0),
+                volume=_si(row.get("volume")),
+                open_interest=_si(row.get("openInterest")),
+                implied_volatility=_sf(row.get("impliedVolatility")) or 0.0,
                 earnings_within_dte=earnings_flag,
-                delta=_rf("delta"),
-                gamma=_rf("gamma"),
-                theta=_rf("theta"),
-                vega=_rf("vega"),
+                delta=_sf(row.get("delta")),
+                gamma=_sf(row.get("gamma")),
+                theta=_sf(row.get("theta")),
+                vega=_sf(row.get("vega")),
                 iv_rank=iv_rank,
             ))
     return contracts
