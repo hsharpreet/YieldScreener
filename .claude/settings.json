@@ -28,5 +28,12 @@
   "permissions": {
     "defaultMode": "bypassPermissions",
     "deny": ["Read(./.env)", "Edit(./.env)", "Write(./.env)"]
+  },
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"],
+      "env": {}
+    }
   }
 }
