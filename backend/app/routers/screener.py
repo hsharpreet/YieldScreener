@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Optional
+
 from fastapi import APIRouter, Depends, Query, Response
 from pydantic import BaseModel
 
@@ -9,7 +11,13 @@ from app.db.models import User
 from app.screener.filters import FundamentalsFilter, filter_illiquid
 from app.screener.ranker import RankedContract, rank_contracts
 
+if TYPE_CHECKING:
+    from app.data.scheduler import DataRefreshScheduler
+
 router = APIRouter(prefix="/api", tags=["screener"])
+
+# Injected by main.py on startup so the screener can expose X-Data-Status.
+scheduler: Optional["DataRefreshScheduler"] = None
 
 DEFAULT_UNIVERSE = [
     # Mega-cap tech (high option liquidity)
@@ -121,9 +129,15 @@ def screen(
 ) -> list[ScreenerRow]:
     """Return the best covered call per quality-filtered stock.
 
-    Free tier: top 5 results. Pro tier: full results set.
+    Reads exclusively from Redis cache populated by the background scheduler.
+    Returns X-Data-Status: loading when the first refresh hasn't finished yet.
+    Free tier: top 5 results. Pro tier: full results.
     Educational data only — not investment advice.
     """
+    # Signal to the frontend when the first data refresh is still in progress.
+    is_ready = scheduler is None or scheduler.ready
+    response.headers["X-Data-Status"] = "ready" if is_ready else "loading"
+
     ticker_list = (
         [t.strip().upper() for t in tickers.split(",")] if tickers else DEFAULT_UNIVERSE
     )

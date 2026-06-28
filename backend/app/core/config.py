@@ -14,5 +14,24 @@ class Settings(BaseSettings):
     STRIPE_WEBHOOK_SECRET: str = ""
     STRIPE_PRO_PRICE_ID: str = ""
 
+    # ── yfinance data refresh ─────────────────────────────────────────────────
+    # How often (seconds) the background scheduler re-fetches all market data.
+    # Screener reads from Redis cache only — Yahoo Finance is never called on a
+    # user request. Set in .env: YF_REFRESH_INTERVAL=600
+    YF_REFRESH_INTERVAL: int = 600          # 10 minutes
+
+    # Seconds to sleep between retry attempts when Yahoo returns a 429.
+    YF_RETRY_SLEEP: float = 1.0
+
+    # Max retries per ticker before giving up and moving on.
+    YF_MAX_RETRIES: int = 3
+
+    # User-Agent sent to Yahoo Finance (helps avoid bot detection).
+    YF_USER_AGENT: str = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/125.0.0.0 Safari/537.36"
+    )
+
 
 settings = Settings()

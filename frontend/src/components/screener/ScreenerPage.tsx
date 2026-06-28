@@ -13,6 +13,8 @@ export default function ScreenerPage() {
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [dataStatus, setDataStatus] = useState<'ready' | 'loading'>('ready')
+  const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [params, setParams] = useState<ScreenParams>({
     min_dte: 7,
     max_dte: 60,
@@ -44,11 +46,17 @@ export default function ScreenerPage() {
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
+    if (retryRef.current) { clearTimeout(retryRef.current); retryRef.current = null }
     try {
       const result = await fetchScreen(paramsRef.current)
       setRows(result.rows)
       setTier(result.tier)
       setTotal(result.total)
+      setDataStatus(result.dataStatus)
+      // If the backend scheduler hasn't finished the first refresh yet, retry in 10s.
+      if (result.dataStatus === 'loading') {
+        retryRef.current = setTimeout(load, 10_000)
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load screener data')
     } finally {
@@ -56,8 +64,11 @@ export default function ScreenerPage() {
     }
   }, []) // No deps — never re-creates; always uses latest ref
 
-  // Run once on mount only
-  useEffect(() => { load() }, [load])
+  // Run once on mount; clean up any pending retry on unmount
+  useEffect(() => {
+    load()
+    return () => { if (retryRef.current) clearTimeout(retryRef.current) }
+  }, [load])
 
   function handleWatchlistToggle(ticker: string, add: boolean) {
     setWatchlist(prev => {
@@ -99,7 +110,11 @@ export default function ScreenerPage() {
       <main className="flex-1 px-4 py-4 overflow-auto">
         {loading && (
           <div className="py-12 text-center">
-            <div className="text-gray-500 text-sm">Screening stocks across US markets...</div>
+            <div className="text-sm" style={{ color: '#6a8ab0' }}>
+              {dataStatus === 'loading'
+                ? 'Fetching market data for the first time — this takes ~30 s…'
+                : 'Screening stocks across US markets…'}
+            </div>
             <div className="mt-4 space-y-2 max-w-5xl mx-auto">
               {[1, 2, 3, 4, 5].map(i => (
                 <div
@@ -109,6 +124,16 @@ export default function ScreenerPage() {
                 />
               ))}
             </div>
+          </div>
+        )}
+
+        {!loading && dataStatus === 'loading' && rows.length === 0 && (
+          <div className="py-12 text-center">
+            <div className="text-2xl mb-3">⏳</div>
+            <p className="font-medium" style={{ color: '#c8d8e8' }}>Market data is loading…</p>
+            <p className="text-sm mt-1" style={{ color: '#4a6080' }}>
+              The background scheduler is fetching data for the first time. Retrying in 10 s.
+            </p>
           </div>
         )}
 

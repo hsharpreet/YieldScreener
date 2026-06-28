@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.routers import auth, billing, health, screener, screeners, watchlist
+from app.routers.screener import DEFAULT_UNIVERSE
 
 app = FastAPI(
     title="Yield Screener API",
@@ -10,7 +11,7 @@ app = FastAPI(
         "Quality-first covered-call screener. "
         "Educational information, not investment advice."
     ),
-    version="0.3.0",
+    version="0.4.0",
 )
 
 app.add_middleware(
@@ -28,11 +29,12 @@ app.include_router(screeners.router)
 app.include_router(watchlist.router)
 app.include_router(billing.router)
 
-# No startup warm cache.
-# Reason: firing 21+ yfinance requests at startup races with the first user
-# request and bursts Yahoo Finance → corrupts the shared crumb → all subsequent
-# calls fail with 429 regardless of rate limiting.
-# Instead: the global _yf_gate semaphore in yfinance_provider.py serialises all
-# outbound Yahoo calls to ≤1 per 0.6 s. Redis caches results so the SECOND
-# screener run is instant. First run takes ~25 s for 21 tickers — acceptable
-# until the yfinance → marketdata.app swap (DataProvider ABC is ready).
+
+@app.on_event("startup")
+async def startup_event() -> None:
+    from app.data.scheduler import DataRefreshScheduler
+    scheduler = DataRefreshScheduler(tickers=DEFAULT_UNIVERSE)
+    app.state.scheduler = scheduler
+    scheduler.start()
+    # Expose readiness to the screener router so it can return X-Data-Status.
+    screener.scheduler = scheduler
