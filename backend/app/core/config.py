@@ -14,6 +14,14 @@ class Settings(BaseSettings):
     STRIPE_WEBHOOK_SECRET: str = ""
     STRIPE_PRO_PRICE_ID: str = ""
 
+    # ── Data provider selection ───────────────────────────────────────────────
+    # "yfinance" (default, free, unreliable) or "tradier" (free w/ brokerage acct)
+    DATA_PROVIDER: str = "yfinance"
+
+    # ── Tradier API ───────────────────────────────────────────────────────────
+    # Production bearer token from account.tradier.com → API Access.
+    TRADIER_TOKEN: str = ""
+
     # ── yfinance data refresh ─────────────────────────────────────────────────
     # How often (seconds) the background scheduler re-fetches all market data.
     # Screener reads from Redis cache only — Yahoo Finance is never called on a

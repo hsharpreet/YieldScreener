@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Query, Response
 from pydantic import BaseModel
 
 from app.core.deps import get_optional_user
-from app.data.yfinance_provider import YFinanceProvider
+from app.data.provider import DataProvider
 from app.db.models import User
 from app.screener.filters import FundamentalsFilter, filter_illiquid
 from app.screener.ranker import RankedContract, rank_contracts
@@ -16,8 +16,9 @@ if TYPE_CHECKING:
 
 router = APIRouter(prefix="/api", tags=["screener"])
 
-# Injected by main.py on startup so the screener can expose X-Data-Status.
+# Both injected by main.py on startup.
 scheduler: Optional["DataRefreshScheduler"] = None
+provider: Optional[DataProvider] = None  # falls back to YFinanceProvider if None
 
 DEFAULT_UNIVERSE = [
     # Mega-cap tech (high option liquidity)
@@ -151,14 +152,20 @@ def screen(
     Free tier: top 5 results. Pro tier: full results.
     Educational data only — not investment advice.
     """
-    # Signal to the frontend when the first data refresh is still in progress.
-    is_ready = scheduler is None or scheduler.ready
-    response.headers["X-Data-Status"] = "ready" if is_ready else "loading"
+    # Signal data freshness to the frontend.
+    if scheduler is None or scheduler.ready:
+        data_status = "stale" if (scheduler and scheduler.stale) else "ready"
+    else:
+        data_status = "loading"
+    response.headers["X-Data-Status"] = data_status
 
     ticker_list = (
         [t.strip().upper() for t in tickers.split(",")] if tickers else DEFAULT_UNIVERSE
     )
-    provider = YFinanceProvider()
+    _provider = provider
+    if _provider is None:
+        from app.data.yfinance_provider import YFinanceProvider
+        _provider = YFinanceProvider()
     sector_list = [s.strip() for s in sectors.split(",")] if sectors else None
     fund_filter = FundamentalsFilter(
         min_market_cap=min_market_cap,
@@ -185,7 +192,7 @@ def screen(
 
     for ticker in ticker_list:
         try:
-            quote = provider.get_quote(ticker)
+            quote = _provider.get_quote(ticker)
         except Exception:
             continue
         if quote.price <= 0:
@@ -193,7 +200,7 @@ def screen(
         if not fund_filter.passes(quote):
             continue
         try:
-            raw = provider.get_call_options(ticker, min_dte=min_dte, max_dte=max_dte)
+            raw = _provider.get_call_options(ticker, min_dte=min_dte, max_dte=max_dte)
         except Exception:
             raw = []
         liquid = filter_illiquid(raw)
@@ -239,10 +246,13 @@ def get_contracts(
 
     Used by the accordion chain view. Educational data only — not investment advice.
     """
-    provider = YFinanceProvider()
+    _p = provider
+    if _p is None:
+        from app.data.yfinance_provider import YFinanceProvider
+        _p = YFinanceProvider()
     try:
-        quote = provider.get_quote(ticker)
-        raw = provider.get_call_options(ticker.upper(), min_dte=min_dte, max_dte=max_dte)
+        quote = _p.get_quote(ticker)
+        raw = _p.get_call_options(ticker.upper(), min_dte=min_dte, max_dte=max_dte)
     except Exception:
         return []
     liquid = filter_illiquid(raw)

@@ -33,8 +33,22 @@ app.include_router(billing.router)
 @app.on_event("startup")
 async def startup_event() -> None:
     from app.data.scheduler import DataRefreshScheduler
-    scheduler = DataRefreshScheduler(tickers=DEFAULT_UNIVERSE)
-    app.state.scheduler = scheduler
-    scheduler.start()
-    # Expose readiness to the screener router so it can return X-Data-Status.
-    screener.scheduler = scheduler
+
+    if settings.DATA_PROVIDER == "tradier" and settings.TRADIER_TOKEN:
+        from app.data.tradier_provider import TradierProvider, tradier_refresh
+        _provider = TradierProvider()
+        _refresh_fn = tradier_refresh
+    else:
+        from app.data.yfinance_provider import YFinanceProvider
+        _provider = YFinanceProvider()
+        _refresh_fn = None  # scheduler uses built-in yfinance flow
+
+    screener.provider = _provider
+
+    _scheduler = DataRefreshScheduler(
+        tickers=DEFAULT_UNIVERSE,
+        refresh_fn=_refresh_fn,
+    )
+    app.state.scheduler = _scheduler
+    _scheduler.start()
+    screener.scheduler = _scheduler

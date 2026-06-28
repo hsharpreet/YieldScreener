@@ -33,9 +33,9 @@ from app.data.provider import DataProvider, OptionContract, StockQuote
 # ── Redis ──────────────────────────────────────────────────────────────────────
 _redis: redis_lib.Redis | None = None
 
-PRICE_TTL = settings.YF_REFRESH_INTERVAL + 120   # expire slightly after next refresh
+PRICE_TTL = settings.YF_REFRESH_INTERVAL * 4      # 40 min — survives 3 missed refresh cycles
 FUNDAMENTALS_TTL = 86_400                          # 24 h — quarterly data
-CHAIN_TTL = settings.YF_REFRESH_INTERVAL + 120    # expire slightly after next refresh
+CHAIN_TTL = settings.YF_REFRESH_INTERVAL * 4      # 40 min — same as PRICE_TTL
 
 # ── Shared requests session with browser User-Agent ───────────────────────────
 _yf_session = requests.Session()
