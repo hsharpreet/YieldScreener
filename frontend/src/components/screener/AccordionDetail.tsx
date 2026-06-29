@@ -5,23 +5,44 @@ import MetricCard from './MetricCard'
 
 function pct(n: number) { return `${(n * 100).toFixed(2)}%` }
 function usd(n: number) { return `$${n.toFixed(2)}` }
-function netCredit(n: number) { return `$${(n).toFixed(0)}` }
+function dollars(n: number) { return `$${n.toLocaleString('en-US', { maximumFractionDigits: 0 })}` }
 
-const POLL_INTERVAL_MS = 30_000  // refresh every 30 s while accordion is open
+const POLL_INTERVAL_MS = 30_000
+
+type StrikeCount = 'otm' | 9 | 13 | 17 | 'all'
+const STRIKE_OPTIONS: StrikeCount[] = ['otm', 9, 13, 17, 'all']
+function strikeLabel(s: StrikeCount) {
+  if (s === 'otm') return 'OTM'
+  if (s === 'all') return 'All'
+  return String(s)
+}
 
 interface Props { ticker: string; price: number; name: string; contract: Contract }
 
-// Sort: OTM first (strike ≥ price), grouped by expiry ascending, then strike ascending within expiry.
-// ITM contracts are appended at the end (sorted by strike desc so nearest-ATM ITM appears first).
-function sortChain(contracts: Contract[], price: number, showItm: boolean): Contract[] {
-  const otm = contracts
-    .filter(c => c.strike >= price)
-    .sort((a, b) => a.expiry.localeCompare(b.expiry) || a.strike - b.strike)
-  if (!showItm) return otm
-  const itm = contracts
-    .filter(c => c.strike < price)
-    .sort((a, b) => a.expiry.localeCompare(b.expiry) || b.strike - a.strike)
-  return [...otm, ...itm]
+// Pick up to `count` strikes nearest to ATM per expiry (both ITM and OTM).
+function filterStrikes(contracts: Contract[], price: number, filter: StrikeCount): Contract[] {
+  const expiries = [...new Set(contracts.map(c => c.expiry))].sort()
+  const result: Contract[] = []
+
+  for (const exp of expiries) {
+    const forExpiry = contracts.filter(c => c.expiry === exp)
+    const otm = forExpiry.filter(c => c.strike >= price).sort((a, b) => a.strike - b.strike)
+    const itm = forExpiry.filter(c => c.strike < price).sort((a, b) => b.strike - a.strike)
+
+    if (filter === 'all') {
+      result.push(...itm.slice().reverse(), ...otm)
+      continue
+    }
+    if (filter === 'otm') {
+      result.push(...otm)
+      continue
+    }
+    const half = Math.floor(filter / 2)
+    // nearest ITM (reversed to ascending) then nearest OTM
+    result.push(...itm.slice(0, half).reverse(), ...otm.slice(0, filter - half))
+  }
+
+  return result
 }
 
 export default function AccordionDetail({ ticker, price, name, contract }: Props) {
@@ -29,9 +50,10 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
   const [chainLoading, setChainLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [secondsAgo, setSecondsAgo] = useState(0)
-  const [showItm, setShowItm] = useState(false)
+  const [strikeCount, setStrikeCount] = useState<StrikeCount>(9)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const m = contract.metrics
+  const capitalRequired = price * 100
 
   async function refresh() {
     const data = await fetchContracts(ticker, 7, 60)
@@ -41,14 +63,12 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
     setSecondsAgo(0)
   }
 
-  // Initial load + poll while open
   useEffect(() => {
     refresh()
     timerRef.current = setInterval(refresh, POLL_INTERVAL_MS)
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
   }, [ticker]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Count-up "X s ago" ticker
   useEffect(() => {
     if (!lastUpdated) return
     const t = setInterval(() => {
@@ -82,62 +102,76 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
       {/* Contract summary */}
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#3a5070' }}>
-          Best call: ${contract.strike} strike &middot; expires {contract.expiry} &middot; {contract.dte} DTE &middot; premium {usd(contract.premium)}
+          Recommended: ${contract.strike} strike &middot; expires {contract.expiry} &middot; {contract.dte} DTE &middot; premium {usd(contract.premium)}
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          <MetricCard
+            label="Capital Required"
+            value={dollars(capitalRequired)}
+            sub={`${usd(price)} × 100 shares`}
+            tooltip="Cash needed to own 100 shares to write this covered call."
+          />
           <MetricCard
             label="Net Credit"
-            value={usd(m.net_credit)}
-            sub="per 100 shares"
-            tooltip="Premium x 100 shares — cash received upfront when you sell the call."
+            value={dollars(m.net_credit)}
+            sub={`${usd(contract.premium)} × 100 shares`}
+            tooltip="Premium × 100 shares — cash received upfront when you sell the call."
           />
           <MetricCard
             label="Breakeven"
             value={usd(m.breakeven)}
-            sub={`cushion ${pct(m.downside_cushion)}`}
+            sub={`${usd(price)} − ${usd(contract.premium)} · cushion ${pct(m.downside_cushion)}`}
             tooltip="Stock price at which you break even = current price minus premium."
           />
           <MetricCard
             label="If Flat (not called)"
             value={pct(m.static_yield)}
-            sub={`${pct(m.annualized_static)} ann. (illus.)`}
+            sub={`${pct(m.annualized_static)} ann. (illus.) · ${usd(contract.premium)} ÷ ${usd(price)}`}
             highlight
-            tooltip="Return if the option expires worthless and you keep the shares. = premium / price."
+            tooltip="Return if the option expires worthless and you keep shares. = premium ÷ price."
           />
           <MetricCard
             label="If Called (assigned)"
             value={pct(m.if_called_return)}
-            sub={`${pct(m.annualized_if_called)} ann. (illus.)`}
+            sub={`${pct(m.annualized_if_called)} ann. (illus.) · ${dollars(m.if_called_profit)} total`}
             highlight
-            tooltip="Return if assigned at the strike price. Includes both premium and any capital gain or loss."
+            tooltip="Return if assigned at the strike. Includes premium + any capital gain or loss."
           />
         </div>
       </div>
 
       {/* Option chain mini-table */}
       <div>
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
           <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: '#3a5070' }}>
-            Available contracts (7&#x2013;60 DTE) — OTM first, grouped by expiry
+            Available contracts (7–60 DTE)
           </p>
-          <button
-            onClick={() => setShowItm(s => !s)}
-            className="text-[10px] px-2 py-0.5 rounded border transition-colors"
-            style={{
-              color: showItm ? '#0a1628' : '#6a8ab0',
-              background: showItm ? '#00d4aa' : 'transparent',
-              borderColor: showItm ? '#00d4aa' : '#2a3a58',
-            }}
-          >
-            {showItm ? 'Hide ITM' : 'Show ITM'}
-          </button>
+          {/* Strike count selector */}
+          <div className="flex items-center gap-1">
+            <span className="text-[9px] uppercase tracking-wider mr-1" style={{ color: '#3a5070' }}>Strikes:</span>
+            {STRIKE_OPTIONS.map(opt => (
+              <button
+                key={String(opt)}
+                onClick={() => setStrikeCount(opt)}
+                className="text-[10px] px-2 py-0.5 rounded border transition-colors"
+                style={{
+                  color: strikeCount === opt ? '#0a1628' : '#6a8ab0',
+                  background: strikeCount === opt ? '#00d4aa' : 'transparent',
+                  borderColor: strikeCount === opt ? '#00d4aa' : '#2a3a58',
+                }}
+              >
+                {strikeLabel(opt)}
+              </button>
+            ))}
+          </div>
         </div>
+
         {chainLoading ? (
           <p className="text-xs" style={{ color: '#3a5070' }}>Loading chain...</p>
         ) : chain.length === 0 ? (
           <p className="text-xs" style={{ color: '#3a5070' }}>No liquid contracts found.</p>
         ) : (() => {
-          const sorted = sortChain(chain, price, showItm)
+          const filtered = filterStrikes(chain, price, strikeCount)
           let lastExpiry = ''
           return (
             <div className="overflow-x-auto rounded" style={{ border: '1px solid #1a2d4a' }}>
@@ -156,7 +190,7 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
                   </tr>
                 </thead>
                 <tbody>
-                  {sorted.map((c, i) => {
+                  {filtered.map((c, i) => {
                     const isBest = c.expiry === contract.expiry && c.strike === contract.strike
                     const isItm = c.strike < price
                     const showGroupHeader = c.expiry !== lastExpiry
@@ -170,23 +204,25 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
                         </tr>
                       ),
                       <tr
-                        key={i}
+                        key={`${c.expiry}-${c.strike}`}
                         style={{
-                          background: isBest ? 'rgba(0,212,170,0.08)' : i % 2 === 0 ? '#0d1929' : '#0a1628',
+                          background: isBest ? 'rgba(0,212,170,0.14)' : i % 2 === 0 ? '#0d1929' : '#0a1628',
                           borderBottom: '1px solid #162030',
-                          opacity: isItm ? 0.6 : 1,
+                          borderLeft: isBest ? '3px solid #00d4aa' : '3px solid transparent',
+                          opacity: isItm && !isBest ? 0.6 : 1,
                         }}
                       >
                         <td className="px-3 py-1.5 tabular-nums" style={{ color: isBest ? '#00d4aa' : '#6a8ab0' }}>
                           {isItm && <span className="mr-1 text-[9px] font-semibold" style={{ color: '#f59e0b' }}>ITM</span>}
+                          {isBest && <span className="mr-1 text-[9px] font-bold" style={{ color: '#00d4aa' }}>★</span>}
                           {c.expiry}
                         </td>
                         <td className="px-3 py-1.5 tabular-nums font-medium" style={{ color: isBest ? '#00d4aa' : '#8a9ab0' }}>${c.strike}</td>
-                        <td className="px-3 py-1.5 tabular-nums font-semibold" style={{ color: '#00d4aa' }}>{netCredit(c.metrics.net_credit)}</td>
+                        <td className="px-3 py-1.5 tabular-nums font-semibold" style={{ color: '#00d4aa' }}>{dollars(c.metrics.net_credit)}</td>
                         <td className="px-3 py-1.5 tabular-nums" style={{ color: '#6a8ab0' }}>{usd(c.premium)}</td>
                         <td className="px-3 py-1.5 tabular-nums" style={{ color: '#00d4aa' }}>{pct(c.metrics.static_yield)}</td>
                         <td className="px-3 py-1.5 tabular-nums font-medium" style={{ color: '#00d4aa' }}>{pct(c.metrics.annualized_static)}</td>
-                        <td className="px-3 py-1.5 tabular-nums" style={{ color: '#7eb8d4' }}>{netCredit(c.metrics.if_called_profit)}</td>
+                        <td className="px-3 py-1.5 tabular-nums" style={{ color: '#7eb8d4' }}>{dollars(c.metrics.if_called_profit)}</td>
                         <td className="px-3 py-1.5 text-center" style={{ color: '#f59e0b' }}>
                           {c.earnings_within_dte ? '⚠' : ''}
                         </td>
@@ -196,7 +232,7 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
                 </tbody>
               </table>
               <p className="text-[11px] px-3 py-1.5" style={{ color: '#2a4060', borderTop: '1px solid #162030' }}>
-                Net Credit = premium &times; 100 shares (cash received). If-Called $ = total profit if assigned. &#x2020; Ann. figures illustrative. Data 15-min delayed.
+                ★ Recommended (highest yield × delta fit). Net Credit = premium × 100. If-Called $ = total profit if assigned. † Ann. figures illustrative. Data 15-min delayed.
               </p>
             </div>
           )

@@ -44,6 +44,7 @@ interface Props {
   total: number
   watchlist: Set<string>
   onWatchlistToggle: (ticker: string, add: boolean) => void
+  loading?: boolean
 }
 
 // Sort caret
@@ -56,7 +57,7 @@ function SortIcon({ dir }: { dir: 'asc' | 'desc' | null }) {
   )
 }
 
-export default function ScreenerTable({ rows, tier, total, watchlist, onWatchlistToggle }: Props) {
+export default function ScreenerTable({ rows, tier, total, watchlist, onWatchlistToggle, loading }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>('ann_static')
   const [asc, setAsc] = useState(false)
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -94,11 +95,18 @@ export default function ScreenerTable({ rows, tier, total, watchlist, onWatchlis
     <div>
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-2 px-1">
-        <p className="text-xs" style={{ color: '#4a6080' }}>
-          {tier === 'free' && total > rows.length
-            ? `Showing ${rows.length} of ${total} results (free tier)`
-            : `${rows.length} result${rows.length !== 1 ? 's' : ''}`}
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-xs" style={{ color: '#4a6080' }}>
+            {tier === 'free' && total > rows.length
+              ? `Showing ${rows.length} of ${total} results (free tier)`
+              : `${rows.length} result${rows.length !== 1 ? 's' : ''}`}
+          </p>
+          {loading && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ color: '#6a8ab0', background: '#1a2438' }}>
+              ↻ Refreshing…
+            </span>
+          )}
+        </div>
         <ColumnCustomizer columns={columns} onChange={handleColumnsChange} />
       </div>
 

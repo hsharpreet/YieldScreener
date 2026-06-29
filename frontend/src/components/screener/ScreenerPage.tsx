@@ -13,7 +13,7 @@ export default function ScreenerPage() {
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [dataStatus, setDataStatus] = useState<'ready' | 'loading'>('ready')
+  const [dataStatus, setDataStatus] = useState<'ready' | 'loading' | 'stale'>('ready')
   const [params, setParams] = useState<ScreenParams>({
     min_dte: 21,
     max_dte: 45,
@@ -130,7 +130,8 @@ export default function ScreenerPage() {
 
       {/* Table area */}
       <main className="flex-1 px-4 py-4 overflow-auto">
-        {loading && (
+        {/* Skeleton: only when loading with nothing to show yet */}
+        {loading && rows.length === 0 && (
           <div className="py-12 text-center">
             <div className="text-sm" style={{ color: '#6a8ab0' }}>
               {dataStatus === 'loading'
@@ -149,6 +150,7 @@ export default function ScreenerPage() {
           </div>
         )}
 
+        {/* Waiting for first scheduler pass — no rows yet */}
         {!loading && dataStatus === 'loading' && rows.length === 0 && (
           <div className="py-12 text-center">
             <div className="text-2xl mb-3">⏳</div>
@@ -159,7 +161,19 @@ export default function ScreenerPage() {
           </div>
         )}
 
-        {error && !loading && (
+        {/* Table: stays visible while refreshing — loading prop shows inline spinner */}
+        {rows.length > 0 && !error && (
+          <ScreenerTable
+            rows={rows}
+            tier={tier}
+            total={total}
+            watchlist={watchlist}
+            onWatchlistToggle={handleWatchlistToggle}
+            loading={loading}
+          />
+        )}
+
+        {error && !loading && rows.length === 0 && (
           <div className="py-12 text-center">
             <p className="font-medium" style={{ color: '#c8d8e8' }}>No stocks matched your filters.</p>
             <p className="text-sm mt-1" style={{ color: '#4a6080' }}>
@@ -168,17 +182,7 @@ export default function ScreenerPage() {
           </div>
         )}
 
-        {!loading && !error && rows.length > 0 && (
-          <ScreenerTable
-            rows={rows}
-            tier={tier}
-            total={total}
-            watchlist={watchlist}
-            onWatchlistToggle={handleWatchlistToggle}
-          />
-        )}
-
-        {!loading && !error && rows.length === 0 && dataStatus === 'ready' && (
+        {!loading && !error && rows.length === 0 && dataStatus !== 'loading' && (
           <div className="py-12 text-center">
             <p className="font-medium" style={{ color: '#c8d8e8' }}>No stocks matched your filters.</p>
             <p className="text-sm mt-1" style={{ color: '#4a6080' }}>

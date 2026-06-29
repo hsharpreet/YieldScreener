@@ -67,7 +67,7 @@ export interface ScreenResult {
   rows: ScreenerRow[]
   tier: 'free' | 'pro'
   total: number
-  dataStatus: 'ready' | 'loading'
+  dataStatus: 'ready' | 'loading' | 'stale'
 }
 
 export interface UserOut {
@@ -117,7 +117,7 @@ export async function fetchScreen(params: ScreenParams = {}): Promise<ScreenResu
     rows,
     tier: (res.headers.get('X-Tier') ?? 'free') as 'free' | 'pro',
     total: parseInt(res.headers.get('X-Total') ?? String(rows.length)),
-    dataStatus: (res.headers.get('X-Data-Status') ?? 'ready') as 'ready' | 'loading',
+    dataStatus: (res.headers.get('X-Data-Status') ?? 'ready') as 'ready' | 'loading' | 'stale',
   }
 }
 
