@@ -36,6 +36,8 @@ _redis: redis_lib.Redis | None = None
 PRICE_TTL = settings.YF_REFRESH_INTERVAL * 4      # 40 min — survives 3 missed refresh cycles
 FUNDAMENTALS_TTL = 86_400                          # 24 h — quarterly data
 CHAIN_TTL = settings.YF_REFRESH_INTERVAL * 4      # 40 min — same as PRICE_TTL
+EARNINGS_TTL = 86_400                             # 24 h — earnings dates don't change intraday
+EXPIRY_LIST_TTL = 86_400                          # 24 h — option expiry calendar is stable
 
 # ── Shared requests session with browser User-Agent ───────────────────────────
 _yf_session = requests.Session()
@@ -248,20 +250,41 @@ def refresh_option_chain(ticker: str, min_dte: int = 21, max_dte: int = 45) -> l
 def _fetch_chain(ticker: str, min_dte: int, max_dte: int) -> list[OptionContract]:
     t = yf.Ticker(ticker, session=_yf_session)
     today = datetime.date.today()
+    r = _get_redis()
 
+    # ── Earnings date: cached 24 h (never changes intraday) ───────────────────
     earnings_date: datetime.date | None = None
     try:
-        cal = _yf_retry(lambda: t.calendar)
-        if cal is not None and "Earnings Date" in cal:
-            ed = cal["Earnings Date"]
-            if hasattr(ed, "__iter__"):
-                ed = list(ed)[0]
-            earnings_date = pd.Timestamp(ed).date() if hasattr(ed, "date") else None
+        cached_earnings = r.get(f"earnings:{ticker}")
+        if cached_earnings is not None:
+            earnings_date = (
+                datetime.date.fromisoformat(cached_earnings)
+                if cached_earnings != "none"
+                else None
+            )
+        else:
+            cal = _yf_retry(lambda: t.calendar)
+            if cal is not None and "Earnings Date" in cal:
+                ed = cal["Earnings Date"]
+                if hasattr(ed, "__iter__"):
+                    ed = list(ed)[0]
+                earnings_date = pd.Timestamp(ed).date() if hasattr(ed, "date") else None
+            r.setex(
+                f"earnings:{ticker}",
+                EARNINGS_TTL,
+                str(earnings_date) if earnings_date else "none",
+            )
     except Exception:
         earnings_date = None
 
+    # ── Expiry list: cached 24 h (exchange calendar is stable within a day) ───
     try:
-        all_options = _yf_retry(lambda: t.options)
+        cached_expiries = r.get(f"expirations:{ticker}")
+        if cached_expiries is not None:
+            all_options = json.loads(cached_expiries)
+        else:
+            all_options = _yf_retry(lambda: t.options)
+            r.setex(f"expirations:{ticker}", EXPIRY_LIST_TTL, json.dumps(list(all_options)))
     except Exception:
         return []
 
