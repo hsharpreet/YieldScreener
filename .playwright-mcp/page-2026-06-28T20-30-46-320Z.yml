@@ -1,0 +1,515 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "YieldScreener" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e5]:
+        - link "Screener" [ref=e6] [cursor=pointer]:
+          - /url: /screener
+        - link "Pricing" [ref=e7] [cursor=pointer]:
+          - /url: /#pricing
+    - generic [ref=e205]:
+      - generic [ref=e206]: harpreet.hometv@gmail.com
+      - generic [ref=e207]: Pro
+      - link "Account" [ref=e208] [cursor=pointer]:
+        - /url: /account
+      - button "Sign out" [ref=e209] [cursor=pointer]
+  - main [ref=e8]:
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]: ⓘ
+        - generic [ref=e12]:
+          - strong [ref=e13]: Educational information only — not investment advice.
+          - text: Data is delayed ~15 minutes. Annualized figures are illustrative and assume identical trades repeat perfectly, which will not happen. Past covered-call yields do not guarantee future results.
+        - button "Dismiss" [ref=e14] [cursor=pointer]: ✕
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - heading "Covered Call Screener" [level=1] [ref=e17]
+          - generic [ref=e18]: USA Markets
+          - generic [ref=e210]: Data refreshes every 10 min · 15-min delayed
+        - paragraph [ref=e19]: Quality stocks ranked by best covered call yield. Annualized figures are illustrative only.
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]: Filters3
+            - generic [ref=e27] [cursor=pointer]: WatchlistPro
+            - button "Saved" [ref=e29] [cursor=pointer]:
+              - img [ref=e30]
+              - text: Saved
+          - generic [ref=e33]:
+            - button "Reset" [ref=e34] [cursor=pointer]
+            - button "Run Screen" [ref=e35] [cursor=pointer]:
+              - img [ref=e36]
+              - text: Run Screen
+        - generic [ref=e39]:
+          - generic [ref=e40]: Options
+          - generic [ref=e41]:
+            - generic [ref=e42]: Days to Exp.
+            - button "Standard" [ref=e43] [cursor=pointer]:
+              - generic [ref=e44]: Standard
+              - img [ref=e45]
+          - generic [ref=e47]:
+            - generic [ref=e48]: Beta
+            - button "Any" [ref=e49] [cursor=pointer]:
+              - generic [ref=e50]: Any
+              - img [ref=e51]
+          - generic [ref=e53]:
+            - generic [ref=e54]: Analyst Rating
+            - button "Any" [ref=e55] [cursor=pointer]:
+              - generic [ref=e56]: Any
+              - img [ref=e57]
+          - generic [ref=e59]: General
+          - generic [ref=e60]:
+            - generic [ref=e61]: Sector
+            - button "Any" [ref=e62] [cursor=pointer]:
+              - generic [ref=e63]: Any
+              - img [ref=e64]
+          - generic [ref=e66]:
+            - generic [ref=e67]: Market Cap
+            - button "Mid ($5B+)" [ref=e68] [cursor=pointer]:
+              - generic [ref=e69]: Mid ($5B+)
+              - img [ref=e70]
+          - generic [ref=e72]:
+            - generic [ref=e73]: Tickers
+            - button "All" [ref=e74] [cursor=pointer]:
+              - generic [ref=e75]: All
+              - img [ref=e76]
+          - generic [ref=e78]: Valuation
+          - generic [ref=e79]:
+            - generic [ref=e80]: P/E Ratio
+            - button "Any" [ref=e81] [cursor=pointer]:
+              - generic [ref=e82]: Any
+              - img [ref=e83]
+          - generic [ref=e85]:
+            - generic [ref=e86]: Forward P/E
+            - button "Any" [ref=e87] [cursor=pointer]:
+              - generic [ref=e88]: Any
+              - img [ref=e89]
+          - generic [ref=e91]:
+            - generic [ref=e92]: PEG Ratio
+            - button "Any" [ref=e93] [cursor=pointer]:
+              - generic [ref=e94]: Any
+              - img [ref=e95]
+          - generic [ref=e97]:
+            - generic [ref=e98]: Price / Book
+            - button "Any" [ref=e99] [cursor=pointer]:
+              - generic [ref=e100]: Any
+              - img [ref=e101]
+          - generic [ref=e103]:
+            - generic [ref=e104]: Price / Sales
+            - button "Any" [ref=e105] [cursor=pointer]:
+              - generic [ref=e106]: Any
+              - img [ref=e107]
+          - generic [ref=e109]:
+            - generic [ref=e110]: EV / EBITDA
+            - button "Any" [ref=e111] [cursor=pointer]:
+              - generic [ref=e112]: Any
+              - img [ref=e113]
+          - generic [ref=e115]:
+            - generic [ref=e116]: Div. Yield
+            - button "Any" [ref=e117] [cursor=pointer]:
+              - generic [ref=e118]: Any
+              - img [ref=e119]
+          - generic [ref=e121]: Profitability
+          - generic [ref=e122]:
+            - generic [ref=e123]: Gross Margin
+            - button "Any" [ref=e124] [cursor=pointer]:
+              - generic [ref=e125]: Any
+              - img [ref=e126]
+          - generic [ref=e128]:
+            - generic [ref=e129]: Oper. Margin
+            - button "Any" [ref=e130] [cursor=pointer]:
+              - generic [ref=e131]: Any
+              - img [ref=e132]
+          - generic [ref=e134]:
+            - generic [ref=e135]: Net Margin
+            - button "Any" [ref=e136] [cursor=pointer]:
+              - generic [ref=e137]: Any
+              - img [ref=e138]
+          - generic [ref=e140]:
+            - generic [ref=e141]: ROE
+            - button "Any" [ref=e142] [cursor=pointer]:
+              - generic [ref=e143]: Any
+              - img [ref=e144]
+          - generic [ref=e146]:
+            - generic [ref=e147]: ROA
+            - button "Any" [ref=e148] [cursor=pointer]:
+              - generic [ref=e149]: Any
+              - img [ref=e150]
+          - generic [ref=e152]:
+            - generic [ref=e153]: EPS Growth
+            - generic [ref=e154]: Coming Soon
+          - generic [ref=e155]: Financial Health
+          - generic [ref=e156]:
+            - generic [ref=e157]: Debt / Equity
+            - button "Any" [ref=e158] [cursor=pointer]:
+              - generic [ref=e159]: Any
+              - img [ref=e160]
+          - generic [ref=e162]:
+            - generic [ref=e163]: Current Ratio
+            - button "Any" [ref=e164] [cursor=pointer]:
+              - generic [ref=e165]: Any
+              - img [ref=e166]
+          - generic [ref=e168]:
+            - generic [ref=e169]: Quick Ratio
+            - generic [ref=e170]: Coming Soon
+          - generic [ref=e171]: Trading
+          - generic [ref=e172]:
+            - generic [ref=e173]: Short Float
+            - button "Any" [ref=e174] [cursor=pointer]:
+              - generic [ref=e175]: Any
+              - img [ref=e176]
+          - generic [ref=e178]:
+            - generic [ref=e179]: Avg. Volume
+            - generic [ref=e180]: Coming Soon
+          - generic [ref=e181]:
+            - generic [ref=e182]: RSI (14)
+            - generic [ref=e183]: Coming Soon
+          - generic [ref=e184]: Technical
+          - generic [ref=e185]:
+            - generic [ref=e186]: 52W High/Low
+            - generic [ref=e187]: Coming Soon
+          - generic [ref=e188]:
+            - generic [ref=e189]: SMA 50-Day
+            - generic [ref=e190]: Coming Soon
+          - generic [ref=e191]:
+            - generic [ref=e192]: SMA 200-Day
+            - generic [ref=e193]: Coming Soon
+      - main [ref=e194]:
+        - generic [ref=e211]:
+          - generic [ref=e212]:
+            - paragraph [ref=e213]: 20 results
+            - button "Columns" [ref=e215] [cursor=pointer]:
+              - img [ref=e216]
+              - text: Columns
+          - generic [ref=e218]:
+            - table [ref=e219]:
+              - rowgroup [ref=e220]:
+                - row "Symbol↕ Name↕ Price↕ Net Credit ($)↕ Static Yield↕ Ann. Static †↓ If-Called↕ Ann. If-Called †↕ Cushion↕ DTE↕ Strike / Expiry Watchlist" [ref=e221]:
+                  - columnheader "Symbol↕" [ref=e222] [cursor=pointer]
+                  - columnheader "Name↕" [ref=e223] [cursor=pointer]
+                  - columnheader "Price↕" [ref=e224] [cursor=pointer]
+                  - columnheader "Net Credit ($)↕" [ref=e225] [cursor=pointer]
+                  - columnheader "Static Yield↕" [ref=e226] [cursor=pointer]
+                  - columnheader "Ann. Static †↓" [ref=e227] [cursor=pointer]
+                  - columnheader "If-Called↕" [ref=e228] [cursor=pointer]
+                  - columnheader "Ann. If-Called †↕" [ref=e229] [cursor=pointer]
+                  - columnheader "Cushion↕" [ref=e230] [cursor=pointer]
+                  - columnheader "DTE↕" [ref=e231] [cursor=pointer]
+                  - columnheader "Strike / Expiry" [ref=e232]
+                  - columnheader "Watchlist" [ref=e233]:
+                    - generic [ref=e234]: Watchlist
+              - rowgroup [ref=e235]:
+                - row "TSLA Tesla, Inc. $379.19 $1988 5.24% 73.58% 5.46% 76.58% 5.24% 26 $380/2026-07-24 ★" [ref=e236] [cursor=pointer]:
+                  - cell "TSLA" [ref=e237]
+                  - cell "Tesla, Inc." [ref=e238]
+                  - cell "$379.19" [ref=e239]
+                  - cell "$1988" [ref=e240]
+                  - cell "5.24%" [ref=e241]
+                  - cell "73.58%" [ref=e242]
+                  - cell "5.46%" [ref=e243]
+                  - cell "76.58%" [ref=e244]
+                  - cell "5.24%" [ref=e245]
+                  - cell "26" [ref=e246]
+                  - cell "$380/2026-07-24" [ref=e247]:
+                    - generic [ref=e248]: $380
+                    - text: /2026-07-24
+                  - cell "★" [ref=e249]:
+                    - button "★" [ref=e250]
+                - row "UNH UnitedHealth Group Incorporated $427.42 $1663 3.89% 54.60% 4.49% 63.10% 3.89% 26 $430/2026-07-24 ★" [ref=e251] [cursor=pointer]:
+                  - cell "UNH" [ref=e252]
+                  - cell "UnitedHealth Group Incorporated" [ref=e253]
+                  - cell "$427.42" [ref=e254]
+                  - cell "$1663" [ref=e255]
+                  - cell "3.89%" [ref=e256]
+                  - cell "54.60%" [ref=e257]
+                  - cell "4.49%" [ref=e258]
+                  - cell "63.10%" [ref=e259]
+                  - cell "3.89%" [ref=e260]
+                  - cell "26" [ref=e261]
+                  - cell "$430/2026-07-24" [ref=e262]:
+                    - generic [ref=e263]: $430
+                    - text: /2026-07-24
+                  - cell "★" [ref=e264]:
+                    - button "★" [ref=e265]
+                - row "NVDA NVIDIA Corporation $191.72 $705 3.68% 51.62% 5.39% 75.64% 3.68% 26 $195/2026-07-24 ★" [ref=e266] [cursor=pointer]:
+                  - cell "NVDA" [ref=e267]
+                  - cell "NVIDIA Corporation" [ref=e268]
+                  - cell "$191.72" [ref=e269]
+                  - cell "$705" [ref=e270]
+                  - cell "3.68%" [ref=e271]
+                  - cell "51.62%" [ref=e272]
+                  - cell "5.39%" [ref=e273]
+                  - cell "75.64%" [ref=e274]
+                  - cell "3.68%" [ref=e275]
+                  - cell "26" [ref=e276]
+                  - cell "$195/2026-07-24" [ref=e277]:
+                    - generic [ref=e278]: $195
+                    - text: /2026-07-24
+                  - cell "★" [ref=e279]:
+                    - button "★" [ref=e280]
+                - row "JNJ Johnson & Johnson $254.26 $735 2.89% 40.58% 3.18% 44.67% 2.89% 26 $255/2026-07-24 ★" [ref=e281] [cursor=pointer]:
+                  - cell "JNJ" [ref=e282]
+                  - cell "Johnson & Johnson" [ref=e283]
+                  - cell "$254.26" [ref=e284]
+                  - cell "$735" [ref=e285]
+                  - cell "2.89%" [ref=e286]
+                  - cell "40.58%" [ref=e287]
+                  - cell "3.18%" [ref=e288]
+                  - cell "44.67%" [ref=e289]
+                  - cell "2.89%" [ref=e290]
+                  - cell "26" [ref=e291]
+                  - cell "$255/2026-07-24" [ref=e292]:
+                    - generic [ref=e293]: $255
+                    - text: /2026-07-24
+                  - cell "★" [ref=e294]:
+                    - button "★" [ref=e295]
+                - row "HD Home Depot, Inc. (The) $348.18 $980 2.81% 39.51% 3.34% 46.85% 2.81% 26 $350/2026-07-24 ★" [ref=e296] [cursor=pointer]:
+                  - cell "HD" [ref=e297]
+                  - cell "Home Depot, Inc. (The)" [ref=e298]
+                  - cell "$348.18" [ref=e299]
+                  - cell "$980" [ref=e300]
+                  - cell "2.81%" [ref=e301]
+                  - cell "39.51%" [ref=e302]
+                  - cell "3.34%" [ref=e303]
+                  - cell "46.85%" [ref=e304]
+                  - cell "2.81%" [ref=e305]
+                  - cell "26" [ref=e306]
+                  - cell "$350/2026-07-24" [ref=e307]:
+                    - generic [ref=e308]: $350
+                    - text: /2026-07-24
+                  - cell "★" [ref=e309]:
+                    - button "★" [ref=e310]
+                - row "BAC Bank of America Corporation $57.80 $158 2.73% 38.38% 3.08% 43.23% 2.73% 26 $58/2026-07-24 ★" [ref=e311] [cursor=pointer]:
+                  - cell "BAC" [ref=e312]
+                  - cell "Bank of America Corporation" [ref=e313]
+                  - cell "$57.80" [ref=e314]
+                  - cell "$158" [ref=e315]
+                  - cell "2.73%" [ref=e316]
+                  - cell "38.38%" [ref=e317]
+                  - cell "3.08%" [ref=e318]
+                  - cell "43.23%" [ref=e319]
+                  - cell "2.73%" [ref=e320]
+                  - cell "26" [ref=e321]
+                  - cell "$58/2026-07-24" [ref=e322]:
+                    - generic [ref=e323]: $58
+                    - text: /2026-07-24
+                  - cell "★" [ref=e324]:
+                    - button "★" [ref=e325]
+                - row "WMT Walmart Inc. $115.30 $312 2.70% 37.93% 3.31% 46.45% 2.70% 26 $116/2026-07-24 ★" [ref=e326] [cursor=pointer]:
+                  - cell "WMT" [ref=e327]
+                  - cell "Walmart Inc." [ref=e328]
+                  - cell "$115.30" [ref=e329]
+                  - cell "$312" [ref=e330]
+                  - cell "2.70%" [ref=e331]
+                  - cell "37.93%" [ref=e332]
+                  - cell "3.31%" [ref=e333]
+                  - cell "46.45%" [ref=e334]
+                  - cell "2.70%" [ref=e335]
+                  - cell "26" [ref=e336]
+                  - cell "$116/2026-07-24" [ref=e337]:
+                    - generic [ref=e338]: $116
+                    - text: /2026-07-24
+                  - cell "★" [ref=e339]:
+                    - button "★" [ref=e340]
+                - row "DIS Walt Disney Company (The) $98.70 $256 2.59% 36.41% 2.90% 40.68% 2.59% 26 $99/2026-07-24 ★" [ref=e341] [cursor=pointer]:
+                  - cell "DIS" [ref=e342]
+                  - cell "Walt Disney Company (The)" [ref=e343]
+                  - cell "$98.70" [ref=e344]
+                  - cell "$256" [ref=e345]
+                  - cell "2.59%" [ref=e346]
+                  - cell "36.41%" [ref=e347]
+                  - cell "2.90%" [ref=e348]
+                  - cell "40.68%" [ref=e349]
+                  - cell "2.59%" [ref=e350]
+                  - cell "26" [ref=e351]
+                  - cell "$99/2026-07-24" [ref=e352]:
+                    - generic [ref=e353]: $99
+                    - text: /2026-07-24
+                  - cell "★" [ref=e354]:
+                    - button "★" [ref=e355]
+                - row "JPM JP Morgan Chase & Co. $327.92 $832 2.54% 35.64% 3.17% 44.54% 2.54% 26 $330/2026-07-24 ★" [ref=e356] [cursor=pointer]:
+                  - cell "JPM" [ref=e357]
+                  - cell "JP Morgan Chase & Co." [ref=e358]
+                  - cell "$327.92" [ref=e359]
+                  - cell "$832" [ref=e360]
+                  - cell "2.54%" [ref=e361]
+                  - cell "35.64%" [ref=e362]
+                  - cell "3.17%" [ref=e363]
+                  - cell "44.54%" [ref=e364]
+                  - cell "2.54%" [ref=e365]
+                  - cell "26" [ref=e366]
+                  - cell "$330/2026-07-24" [ref=e367]:
+                    - generic [ref=e368]: $330
+                    - text: /2026-07-24
+                  - cell "★" [ref=e369]:
+                    - button "★" [ref=e370]
+                - row "COST Costco Wholesale Corporation $951.05 $2173 2.28% 32.07% 2.70% 37.90% 2.28% 26 $955/2026-07-24 ★" [ref=e371] [cursor=pointer]:
+                  - cell "COST" [ref=e372]
+                  - cell "Costco Wholesale Corporation" [ref=e373]
+                  - cell "$951.05" [ref=e374]
+                  - cell "$2173" [ref=e375]
+                  - cell "2.28%" [ref=e376]
+                  - cell "32.07%" [ref=e377]
+                  - cell "2.70%" [ref=e378]
+                  - cell "37.90%" [ref=e379]
+                  - cell "2.28%" [ref=e380]
+                  - cell "26" [ref=e381]
+                  - cell "$955/2026-07-24" [ref=e382]:
+                    - generic [ref=e383]: $955
+                    - text: /2026-07-24
+                  - cell "★" [ref=e384]:
+                    - button "★" [ref=e385]
+                - row "V Visa Inc. $335.01 $885 2.64% 29.22% 4.13% 45.69% 2.64% 33 $340/2026-07-31 ★" [ref=e386] [cursor=pointer]:
+                  - cell "V" [ref=e387]
+                  - cell "Visa Inc." [ref=e388]
+                  - cell "$335.01" [ref=e389]
+                  - cell "$885" [ref=e390]
+                  - cell "2.64%" [ref=e391]
+                  - cell "29.22%" [ref=e392]
+                  - cell "4.13%" [ref=e393]
+                  - cell "45.69%" [ref=e394]
+                  - cell "2.64%" [ref=e395]
+                  - cell "33" [ref=e396]
+                  - cell "$340/2026-07-31" [ref=e397]:
+                    - generic [ref=e398]: $340
+                    - text: /2026-07-31
+                  - cell "★" [ref=e399]:
+                    - button "★" [ref=e400]
+                - row "XOM Exxon Mobil Corporation $136.40 $268 1.96% 27.58% 4.60% 64.63% 1.96% 26 $140/2026-07-24 ★" [ref=e401] [cursor=pointer]:
+                  - cell "XOM" [ref=e402]
+                  - cell "Exxon Mobil Corporation" [ref=e403]
+                  - cell "$136.40" [ref=e404]
+                  - cell "$268" [ref=e405]
+                  - cell "1.96%" [ref=e406]
+                  - cell "27.58%" [ref=e407]
+                  - cell "4.60%" [ref=e408]
+                  - cell "64.63%" [ref=e409]
+                  - cell "1.96%" [ref=e410]
+                  - cell "26" [ref=e411]
+                  - cell "$140/2026-07-24" [ref=e412]:
+                    - generic [ref=e413]: $140
+                    - text: /2026-07-24
+                  - cell "★" [ref=e414]:
+                    - button "★" [ref=e415]
+                - row "CVX Chevron Corporation $170.93 $328 1.92% 26.90% 4.30% 60.37% 1.92% 26 $175/2026-07-24 ★" [ref=e416] [cursor=pointer]:
+                  - cell "CVX" [ref=e417]
+                  - cell "Chevron Corporation" [ref=e418]
+                  - cell "$170.93" [ref=e419]
+                  - cell "$328" [ref=e420]
+                  - cell "1.92%" [ref=e421]
+                  - cell "26.90%" [ref=e422]
+                  - cell "4.30%" [ref=e423]
+                  - cell "60.37%" [ref=e424]
+                  - cell "1.92%" [ref=e425]
+                  - cell "26" [ref=e426]
+                  - cell "$175/2026-07-24" [ref=e427]:
+                    - generic [ref=e428]: $175
+                    - text: /2026-07-24
+                  - cell "★" [ref=e429]:
+                    - button "★" [ref=e430]
+                - row "KO Coca-Cola Company (The) $82.62 $154 1.86% 26.17% 2.32% 32.62% 1.86% 26 $83/2026-07-24 ★" [ref=e431] [cursor=pointer]:
+                  - cell "KO" [ref=e432]
+                  - cell "Coca-Cola Company (The)" [ref=e433]
+                  - cell "$82.62" [ref=e434]
+                  - cell "$154" [ref=e435]
+                  - cell "1.86%" [ref=e436]
+                  - cell "26.17%" [ref=e437]
+                  - cell "2.32%" [ref=e438]
+                  - cell "32.62%" [ref=e439]
+                  - cell "1.86%" [ref=e440]
+                  - cell "26" [ref=e441]
+                  - cell "$83/2026-07-24" [ref=e442]:
+                    - generic [ref=e443]: $83
+                    - text: /2026-07-24
+                  - cell "★" [ref=e444]:
+                    - button "★" [ref=e445]
+                - row "ABBV AbbVie Inc. $251.64 $349 1.38% 19.44% 4.71% 66.08% 1.38% 26 $260/2026-07-24 ★" [ref=e446] [cursor=pointer]:
+                  - cell "ABBV" [ref=e447]
+                  - cell "AbbVie Inc." [ref=e448]
+                  - cell "$251.64" [ref=e449]
+                  - cell "$349" [ref=e450]
+                  - cell "1.38%" [ref=e451]
+                  - cell "19.44%" [ref=e452]
+                  - cell "4.71%" [ref=e453]
+                  - cell "66.08%" [ref=e454]
+                  - cell "1.38%" [ref=e455]
+                  - cell "26" [ref=e456]
+                  - cell "$260/2026-07-24" [ref=e457]:
+                    - generic [ref=e458]: $260
+                    - text: /2026-07-24
+                  - cell "★" [ref=e459]:
+                    - button "★" [ref=e460]
+                - row "AAPL Apple Inc. $281.20 — — — — — — — — ★" [ref=e461] [cursor=pointer]:
+                  - cell "AAPL" [ref=e462]
+                  - cell "Apple Inc." [ref=e463]
+                  - cell "$281.20" [ref=e464]
+                  - cell "—" [ref=e465]
+                  - cell "—" [ref=e466]
+                  - cell "—" [ref=e467]
+                  - cell "—" [ref=e468]
+                  - cell "—" [ref=e469]
+                  - cell "—" [ref=e470]
+                  - cell "—" [ref=e471]
+                  - cell "—" [ref=e472]
+                  - cell "★" [ref=e473]:
+                    - button "★" [ref=e474]
+                - row "MSFT Microsoft Corporation $371.36 — — — — — — — — ★" [ref=e475] [cursor=pointer]:
+                  - cell "MSFT" [ref=e476]
+                  - cell "Microsoft Corporation" [ref=e477]
+                  - cell "$371.36" [ref=e478]
+                  - cell "—" [ref=e479]
+                  - cell "—" [ref=e480]
+                  - cell "—" [ref=e481]
+                  - cell "—" [ref=e482]
+                  - cell "—" [ref=e483]
+                  - cell "—" [ref=e484]
+                  - cell "—" [ref=e485]
+                  - cell "—" [ref=e486]
+                  - cell "★" [ref=e487]:
+                    - button "★" [ref=e488]
+                - row "GOOGL Alphabet Inc. $336.10 — — — — — — — — ★" [ref=e489] [cursor=pointer]:
+                  - cell "GOOGL" [ref=e490]
+                  - cell "Alphabet Inc." [ref=e491]
+                  - cell "$336.10" [ref=e492]
+                  - cell "—" [ref=e493]
+                  - cell "—" [ref=e494]
+                  - cell "—" [ref=e495]
+                  - cell "—" [ref=e496]
+                  - cell "—" [ref=e497]
+                  - cell "—" [ref=e498]
+                  - cell "—" [ref=e499]
+                  - cell "—" [ref=e500]
+                  - cell "★" [ref=e501]:
+                    - button "★" [ref=e502]
+                - row "AMZN Amazon.com, Inc. $230.55 — — — — — — — — ★" [ref=e503] [cursor=pointer]:
+                  - cell "AMZN" [ref=e504]
+                  - cell "Amazon.com, Inc." [ref=e505]
+                  - cell "$230.55" [ref=e506]
+                  - cell "—" [ref=e507]
+                  - cell "—" [ref=e508]
+                  - cell "—" [ref=e509]
+                  - cell "—" [ref=e510]
+                  - cell "—" [ref=e511]
+                  - cell "—" [ref=e512]
+                  - cell "—" [ref=e513]
+                  - cell "—" [ref=e514]
+                  - cell "★" [ref=e515]:
+                    - button "★" [ref=e516]
+                - row "META Meta Platforms, Inc. $549.35 — — — — — — — — ★" [ref=e517] [cursor=pointer]:
+                  - cell "META" [ref=e518]
+                  - cell "Meta Platforms, Inc." [ref=e519]
+                  - cell "$549.35" [ref=e520]
+                  - cell "—" [ref=e521]
+                  - cell "—" [ref=e522]
+                  - cell "—" [ref=e523]
+                  - cell "—" [ref=e524]
+                  - cell "—" [ref=e525]
+                  - cell "—" [ref=e526]
+                  - cell "—" [ref=e527]
+                  - cell "—" [ref=e528]
+                  - cell "★" [ref=e529]:
+                    - button "★" [ref=e530]
+            - paragraph [ref=e531]: † Annualized figures are illustrative. They assume identical trades repeat perfectly for a full year, which will not happen. Educational data only — not investment advice.
+  - contentinfo [ref=e203]: Educational information, not investment advice. This tool is a non-tailored research screener, not a registered advisor.
+  - alert [ref=e204]

@@ -7,18 +7,24 @@ interface Props {
 }
 
 export default function MetricCard({ label, value, sub, highlight, tooltip }: Props) {
+  const borderColor = highlight ? 'rgba(0,212,170,0.25)' : '#1a2d4a'
+  const bgColor = highlight ? 'rgba(0,212,170,0.06)' : '#111c2d'
+  const valueColor = highlight ? '#00d4aa' : '#c8d8e8'
+
   return (
     <div
-      className={`rounded-lg border px-4 py-3 ${highlight ? 'border-green-200 bg-green-50' : 'border-gray-200 bg-white'}`}
-      title={tooltip}>
-      <p className="text-xs text-gray-500 mb-1 flex items-center gap-1">
+      className="rounded-lg px-4 py-3"
+      style={{ border: `1px solid ${borderColor}`, background: bgColor }}
+      title={tooltip}
+    >
+      <p className="text-[11px] font-semibold uppercase tracking-wide mb-1 flex items-center gap-1" style={{ color: '#4a6080' }}>
         {label}
         {tooltip && (
-          <span className="text-gray-400 cursor-help" title={tooltip}>&#9432;</span>
+          <span className="cursor-help" style={{ color: '#3a5070' }} title={tooltip}>&#9432;</span>
         )}
       </p>
-      <p className={`text-lg font-semibold ${highlight ? 'text-green-700' : 'text-gray-900'}`}>{value}</p>
-      {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+      <p className="text-lg font-bold" style={{ color: valueColor }}>{value}</p>
+      {sub && <p className="text-[11px] mt-0.5" style={{ color: '#3a5870' }}>{sub}</p>}
     </div>
   )
 }

@@ -1,17 +1,28 @@
 from __future__ import annotations
 
-import time
+from typing import TYPE_CHECKING, Literal, Optional
 
 from fastapi import APIRouter, Depends, Query, Response
 from pydantic import BaseModel
 
 from app.core.deps import get_optional_user
-from app.data.yfinance_provider import YFinanceProvider
+from app.data.provider import DataProvider
 from app.db.models import User
 from app.screener.filters import FundamentalsFilter, filter_illiquid
-from app.screener.ranker import RankedContract, rank_contracts
+from app.screener.ranker import RankedContract, best_per_expiry, rank_contracts
+
+# Only covered_call is implemented today; the param keeps URLs forward-compatible
+# for cash_secured_put / pmcc without a breaking change later.
+Strategy = Literal["covered_call"]
+
+if TYPE_CHECKING:
+    from app.data.scheduler import DataRefreshScheduler
 
 router = APIRouter(prefix="/api", tags=["screener"])
+
+# Both injected by main.py on startup.
+scheduler: Optional["DataRefreshScheduler"] = None
+provider: Optional[DataProvider] = None  # falls back to YFinanceProvider if None
 
 DEFAULT_UNIVERSE = [
     # Mega-cap tech (high option liquidity)
@@ -57,6 +68,10 @@ class ContractOut(BaseModel):
     theta: float | None = None
     vega: float | None = None
     iv_rank: float | None = None
+    score: float = 0.0
+    is_itm: bool = False
+    recommended: bool = False        # overall top-ranked OTM contract
+    best_for_expiry: bool = False    # best OTM contract within its expiry
 
 
 class ScreenerRow(BaseModel):
@@ -72,7 +87,12 @@ class ScreenerRow(BaseModel):
     analyst_rating: float | None = None
 
 
-def _to_contract_out(ranked_contract: RankedContract) -> ContractOut:
+def _to_contract_out(
+    ranked_contract: RankedContract,
+    price: float | None = None,
+    recommended: bool = False,
+    best_for_expiry: bool = False,
+) -> ContractOut:
     c = ranked_contract.contract
     m = ranked_contract.metrics
     return ContractOut(
@@ -101,6 +121,10 @@ def _to_contract_out(ranked_contract: RankedContract) -> ContractOut:
         theta=c.theta,
         vega=c.vega,
         iv_rank=c.iv_rank,
+        score=ranked_contract.score,
+        is_itm=price is not None and c.strike < price,
+        recommended=recommended,
+        best_for_expiry=best_for_expiry,
     )
 
 
@@ -110,43 +134,83 @@ def screen(
     tickers: str | None = Query(
         None, description="Comma-separated tickers; defaults to built-in universe"
     ),
+    strategy: Strategy = Query("covered_call"),
     min_dte: int = Query(21, ge=1),
     max_dte: int = Query(45, ge=1),
-    min_market_cap: float = Query(5_000_000_000, ge=0),
-    max_pe: float = Query(50.0, ge=0),
-    max_beta: float | None = Query(None, ge=0),
-    min_roe: float | None = Query(None),
-    max_peg: float | None = Query(None, ge=0),
-    sectors: str | None = Query(None, description="Comma-separated sectors to include"),
+    # General
+    min_market_cap: float | None = Query(None, ge=0),
+    sectors: str | None = Query(None),
     max_analyst_rating: float | None = Query(None, ge=1.0, le=5.0),
+    # Valuation
+    max_pe: float | None = Query(None, ge=0),
+    max_forward_pe: float | None = Query(None, ge=0),
+    max_peg: float | None = Query(None, ge=0),
+    max_price_to_book: float | None = Query(None, ge=0),
+    max_price_to_sales: float | None = Query(None, ge=0),
+    max_ev_to_ebitda: float | None = Query(None, ge=0),
+    min_dividend_yield: float | None = Query(None, ge=0),
+    # Profitability
+    min_gross_margin: float | None = Query(None),
+    min_operating_margin: float | None = Query(None),
+    min_net_margin: float | None = Query(None),
+    min_roe: float | None = Query(None),
+    min_roa: float | None = Query(None),
+    # Financial health
+    max_debt_to_equity: float | None = Query(None, ge=0),
+    min_current_ratio: float | None = Query(None, ge=0),
+    # Risk / trading
+    max_beta: float | None = Query(None, ge=0),
+    max_short_float: float | None = Query(None, ge=0),
     current_user: User | None = Depends(get_optional_user),
 ) -> list[ScreenerRow]:
     """Return the best covered call per quality-filtered stock.
 
-    Free tier: top 5 results. Pro tier: full results set.
+    Reads exclusively from Redis cache populated by the background scheduler.
+    Returns X-Data-Status: loading when the first refresh hasn't finished yet.
+    Free tier: top 5 results. Pro tier: full results.
     Educational data only — not investment advice.
     """
+    # Signal data freshness to the frontend.
+    if scheduler is None or scheduler.ready:
+        data_status = "stale" if (scheduler and scheduler.stale) else "ready"
+    else:
+        data_status = "loading"
+    response.headers["X-Data-Status"] = data_status
+
     ticker_list = (
         [t.strip().upper() for t in tickers.split(",")] if tickers else DEFAULT_UNIVERSE
     )
-    provider = YFinanceProvider()
+    _provider = provider
+    if _provider is None:
+        from app.data.yfinance_provider import YFinanceProvider
+        _provider = YFinanceProvider()
     sector_list = [s.strip() for s in sectors.split(",")] if sectors else None
     fund_filter = FundamentalsFilter(
         min_market_cap=min_market_cap,
-        max_pe=max_pe,
-        max_beta=max_beta,
-        min_roe=min_roe,
-        max_peg=max_peg,
         sector_filter=sector_list,
         max_analyst_rating=max_analyst_rating,
+        max_pe=max_pe,
+        max_forward_pe=max_forward_pe,
+        max_peg=max_peg,
+        max_price_to_book=max_price_to_book,
+        max_price_to_sales=max_price_to_sales,
+        max_ev_to_ebitda=max_ev_to_ebitda,
+        min_dividend_yield=min_dividend_yield,
+        min_gross_margin=min_gross_margin,
+        min_operating_margin=min_operating_margin,
+        min_net_margin=min_net_margin,
+        min_roe=min_roe,
+        min_roa=min_roa,
+        max_debt_to_equity=max_debt_to_equity,
+        min_current_ratio=min_current_ratio,
+        max_beta=max_beta,
+        max_short_float=max_short_float,
     )
     rows: list[ScreenerRow] = []
 
-    for i, ticker in enumerate(ticker_list):
-        if i > 0:
-            time.sleep(1.5)  # pace requests — Yahoo Finance rate-limits hard bursts
+    for ticker in ticker_list:
         try:
-            quote = provider.get_quote(ticker)
+            quote = _provider.get_quote(ticker)
         except Exception:
             continue
         if quote.price <= 0:
@@ -154,12 +218,16 @@ def screen(
         if not fund_filter.passes(quote):
             continue
         try:
-            raw = provider.get_call_options(ticker, min_dte=min_dte, max_dte=max_dte)
+            raw = _provider.get_call_options(ticker, min_dte=min_dte, max_dte=max_dte)
         except Exception:
             raw = []
         liquid = filter_illiquid(raw)
         ranked = rank_contracts(liquid, price=quote.price)
-        best = _to_contract_out(ranked[0]) if ranked else None
+        best = (
+            _to_contract_out(ranked[0], price=quote.price, recommended=True)
+            if ranked
+            else None
+        )
         rows.append(
             ScreenerRow(
                 ticker=ticker,
@@ -193,19 +261,38 @@ def screen(
 @router.get("/contracts/{ticker}", response_model=list[ContractOut])
 def get_contracts(
     ticker: str,
+    strategy: Strategy = Query("covered_call"),
     min_dte: int = Query(7, ge=1),
     max_dte: int = Query(60, ge=1),
 ) -> list[ContractOut]:
     """All liquid covered-call contracts for a single ticker.
 
-    Used by the accordion chain view. Educational data only — not investment advice.
+    Used by the accordion chain view.  Each contract carries two ranking
+    flags computed with the same score the screener uses:
+      - best_for_expiry: best OTM contract within its own expiry date
+      - recommended: the single best OTM contract across all expiries
+    Educational data only — not investment advice.
     """
-    provider = YFinanceProvider()
+    _p = provider
+    if _p is None:
+        from app.data.yfinance_provider import YFinanceProvider
+        _p = YFinanceProvider()
     try:
-        quote = provider.get_quote(ticker)
-        raw = provider.get_call_options(ticker.upper(), min_dte=min_dte, max_dte=max_dte)
+        quote = _p.get_quote(ticker)
+        raw = _p.get_call_options(ticker.upper(), min_dte=min_dte, max_dte=max_dte)
     except Exception:
         return []
     liquid = filter_illiquid(raw)
-    ranked = rank_contracts(liquid, price=quote.price)
-    return [_to_contract_out(r) for r in ranked]
+    ranked = rank_contracts(liquid, price=quote.price, otm_only=False)
+    expiry_winners = best_per_expiry(ranked, price=quote.price)
+    winner_ids = {id(r) for r in expiry_winners.values()}
+    overall = max(expiry_winners.values(), key=lambda r: r.score, default=None)
+    return [
+        _to_contract_out(
+            r,
+            price=quote.price,
+            recommended=r is overall,
+            best_for_expiry=id(r) in winner_ids,
+        )
+        for r in ranked
+    ]

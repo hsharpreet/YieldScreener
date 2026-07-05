@@ -128,17 +128,21 @@ Two optional Notion automations (git works without either):
 
 ---
 
-## 9. Current site structure (as of 2026-06-26)
+## 9. Current site structure (as of 2026-06-27)
 
 | Route | Component | Notes |
 |---|---|---|
-| `/` | `src/app/page.tsx` | Marketing landing page — will be replaced by claude.ai/design output |
+| `/` | `src/app/page.tsx` | **NEW** claude.ai/design landing page (dark navy + teal). Has own nav + footer. |
 | `/screener` | `src/app/screener/page.tsx` → `ScreenerPage` | Main app — keep all logic here |
 | `/login` | `src/app/login/page.tsx` | Auth |
 | `/signup` | `src/app/signup/page.tsx` | Auth + disclaimer text |
 | `/account` | `src/app/account/page.tsx` | Tier display, upgrade CTA |
 
-NavBar: `src/components/NavBar.tsx` — Logo→/, Screener, Pricing, Account, Login/Signup
+NavBar: `src/components/NavBar.tsx` — rendered via `ConditionalNavBar.tsx` which hides it on `/` (the landing page has its own nav).
+Footer: likewise via `ConditionalFooter.tsx`.
+
+Design inspiration for the screener UI: `Inspiration/` folder — FinViz.png, Trading View.png, thetascanner.png, Filter Screenshot.png.
+Screener filter bar: TradingView-style horizontal chips with preset value dropdowns (see §11 below).
 
 ---
 
@@ -146,29 +150,41 @@ NavBar: `src/components/NavBar.tsx` — Logo→/, Screener, Pricing, Account, Lo
 
 yfinance hits `query2.finance.yahoo.com` and gets 429 errors when > ~20 requests/minute burst.
 
-**Mitigations in place:**
-- `get_quote()` Redis-cached 30 min (was uncached)
+**Mitigations in place (as of 2026-06-27):**
+- `get_quote()` Redis-cached 30 min
 - `get_call_options()` Redis-cached 15 min
 - Redis volume is persistent (`redis_data` Docker volume — survives restarts)
-- Startup cache pre-warmer: daemon thread fetches all 20 default tickers at 3s gaps on app startup
+- Startup cache pre-warmer warms BOTH quotes AND option chains (3s gap between tickers, 3s gap before chain fetch per ticker) — root cause of 429s was option chains not being pre-warmed
 - Inter-ticker delay in screener endpoint: 1.5s
+- Inter-expiry delay inside `_fetch_call_options()`: 0.4s between each `option_chain()` HTTP call
+- Expiry dates filtered BEFORE fetching chains (avoids wasted HTTP calls for out-of-range dates)
 - Retry on 429: 2s then 4s backoff in `_fetch_quote()`
-- `DEFAULT_UNIVERSE` = 20 tickers (trimmed from 35)
+- `DEFAULT_UNIVERSE` = 21 tickers
 
 **Real fix at launch:** swap `YFinanceProvider` for `MarketDataProvider` (marketdata.app or Tradier). The `DataProvider` ABC is ready — one module swap.
 
 ---
 
-## 11. Phase 3 — next session task (design integration)
+## 11. Phase 3 — status & next steps
 
-Harry is getting a landing page design from **claude.ai/design**. On next session start:
+### Completed 2026-06-27
+1. **Landing page** — `src/app/page.tsx` replaced with full claude.ai/design conversion. Dark navy + teal. Own nav/footer. Auth wired to `/login`, `/signup`, `/account`. "Open Screener" → `/screener`.
+2. **Layout restructure** — `ConditionalNavBar` + `ConditionalFooter` so global nav/footer hide on `/`.
+3. **API rate-limit fix** — warm cache now covers option chains; inter-expiry delay added.
+4. **Screener UI redesign** — frontend-dev agent converting FilterRail to TradingView-style horizontal filter chips with preset value dropdowns (DTE, Market Cap, P/E, Beta, Sector). Dark theme (#0f1724). Status: pending agent output + Harry approval.
 
-1. Receive design package (React code or screenshots) from Harry
-2. Integrate as new `src/app/page.tsx` — replace the placeholder landing page
-3. Wire design's Login / Sign Up / Account CTAs to `/login`, `/signup`, `/account`
-4. The `/screener` route and all backend code stays unchanged
-5. After design merge: add Greeks/IV Rank columns to ScreenerTable, then deploy to Hostinger VPS (CC-23)
+### Remaining for Phase 3
+- Harry reviews and approves screener redesign
+- Add Greeks/IV Rank columns to ScreenerTable (CC-22)
+- Deploy to Hostinger VPS (CC-23) — **BLOCKED until screener is approved**
+- GATE: Canadian securities lawyer review before charging real money
 
-**How Harry provides the design:** claude.ai/design → generate/build landing page → Export or Share → copy React/HTML → paste into chat. Screenshots also work (Claude Code reads images).
+### Screener filter presets (for reference)
+When implementing filter dropdowns, always provide preset options with descriptive labels (per Finviz style):
+- **P/E**: Very low ≤5 / Low ≤15 / Moderate ≤25 / High ≤35 / Very high ≤50
+- **DTE**: Near-term 7–21 / Standard 21–45 / Extended 45–60
+- **Market Cap**: Small $1B+ / Mid $5B+ / Large $20B+ / Mega $100B+
+- **Beta**: Low ≤0.8 / Moderate ≤1.2 / High ≤1.5
+- **Sector**: multi-select checkboxes for all 11 GICS sectors
 
-**Do NOT start VPS deployment until design is merged and Harry approves.**
+**Do NOT start VPS deployment until screener redesign is Harry-approved.**

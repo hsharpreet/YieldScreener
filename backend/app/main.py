@@ -1,6 +1,3 @@
-import threading
-import time
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -14,7 +11,7 @@ app = FastAPI(
         "Quality-first covered-call screener. "
         "Educational information, not investment advice."
     ),
-    version="0.2.0",
+    version="0.4.0",
 )
 
 app.add_middleware(
@@ -33,26 +30,25 @@ app.include_router(watchlist.router)
 app.include_router(billing.router)
 
 
-def _warm_cache() -> None:
-    """Background thread: slowly pre-fetches all default-universe quotes into Redis.
-
-    Uses a 3-second gap between tickers so Yahoo Finance never sees a burst.
-    The screener reads from cache on the user's first request, making it fast.
-    """
-    # Wait for the server to fully start before making outbound requests.
-    time.sleep(5)
-    from app.data.yfinance_provider import YFinanceProvider
-    provider = YFinanceProvider()
-    for i, ticker in enumerate(DEFAULT_UNIVERSE):
-        try:
-            provider.get_quote(ticker)
-        except Exception:
-            pass
-        if i < len(DEFAULT_UNIVERSE) - 1:
-            time.sleep(3)
-
-
 @app.on_event("startup")
 async def startup_event() -> None:
-    t = threading.Thread(target=_warm_cache, daemon=True)
-    t.start()
+    from app.data.scheduler import DataRefreshScheduler
+
+    if settings.DATA_PROVIDER == "tradier" and settings.TRADIER_TOKEN:
+        from app.data.tradier_provider import TradierProvider, tradier_refresh
+        _provider = TradierProvider()
+        _refresh_fn = tradier_refresh
+    else:
+        from app.data.yfinance_provider import YFinanceProvider
+        _provider = YFinanceProvider()
+        _refresh_fn = None  # scheduler uses built-in yfinance flow
+
+    screener.provider = _provider
+
+    _scheduler = DataRefreshScheduler(
+        tickers=DEFAULT_UNIVERSE,
+        refresh_fn=_refresh_fn,
+    )
+    app.state.scheduler = _scheduler
+    _scheduler.start()
+    screener.scheduler = _scheduler

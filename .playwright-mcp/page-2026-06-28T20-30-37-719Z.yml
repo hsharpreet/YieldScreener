@@ -1,0 +1,174 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "YieldScreener" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e5]:
+        - link "Screener" [ref=e6] [cursor=pointer]:
+          - /url: /screener
+        - link "Pricing" [ref=e7] [cursor=pointer]:
+          - /url: /#pricing
+  - main [ref=e8]:
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]: ⓘ
+        - generic [ref=e12]:
+          - strong [ref=e13]: Educational information only — not investment advice.
+          - text: Data is delayed ~15 minutes. Annualized figures are illustrative and assume identical trades repeat perfectly, which will not happen. Past covered-call yields do not guarantee future results.
+        - button "Dismiss" [ref=e14] [cursor=pointer]: ✕
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - heading "Covered Call Screener" [level=1] [ref=e17]
+          - generic [ref=e18]: USA Markets
+        - paragraph [ref=e19]: Quality stocks ranked by best covered call yield. Annualized figures are illustrative only.
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]: Filters3
+            - generic [ref=e27] [cursor=pointer]: WatchlistPro
+            - button "Saved" [ref=e29] [cursor=pointer]:
+              - img [ref=e30]
+              - text: Saved
+          - generic [ref=e33]:
+            - button "Reset" [ref=e34] [cursor=pointer]
+            - button "Run Screen" [ref=e35] [cursor=pointer]:
+              - img [ref=e36]
+              - text: Run Screen
+        - generic [ref=e39]:
+          - generic [ref=e40]: Options
+          - generic [ref=e41]:
+            - generic [ref=e42]: Days to Exp.
+            - button "Standard" [ref=e43] [cursor=pointer]:
+              - generic [ref=e44]: Standard
+              - img [ref=e45]
+          - generic [ref=e47]:
+            - generic [ref=e48]: Beta
+            - button "Any" [ref=e49] [cursor=pointer]:
+              - generic [ref=e50]: Any
+              - img [ref=e51]
+          - generic [ref=e53]:
+            - generic [ref=e54]: Analyst Rating
+            - button "Any" [ref=e55] [cursor=pointer]:
+              - generic [ref=e56]: Any
+              - img [ref=e57]
+          - generic [ref=e59]: General
+          - generic [ref=e60]:
+            - generic [ref=e61]: Sector
+            - button "Any" [ref=e62] [cursor=pointer]:
+              - generic [ref=e63]: Any
+              - img [ref=e64]
+          - generic [ref=e66]:
+            - generic [ref=e67]: Market Cap
+            - button "Mid ($5B+)" [ref=e68] [cursor=pointer]:
+              - generic [ref=e69]: Mid ($5B+)
+              - img [ref=e70]
+          - generic [ref=e72]:
+            - generic [ref=e73]: Tickers
+            - button "All" [ref=e74] [cursor=pointer]:
+              - generic [ref=e75]: All
+              - img [ref=e76]
+          - generic [ref=e78]: Valuation
+          - generic [ref=e79]:
+            - generic [ref=e80]: P/E Ratio
+            - button "Any" [ref=e81] [cursor=pointer]:
+              - generic [ref=e82]: Any
+              - img [ref=e83]
+          - generic [ref=e85]:
+            - generic [ref=e86]: Forward P/E
+            - button "Any" [ref=e87] [cursor=pointer]:
+              - generic [ref=e88]: Any
+              - img [ref=e89]
+          - generic [ref=e91]:
+            - generic [ref=e92]: PEG Ratio
+            - button "Any" [ref=e93] [cursor=pointer]:
+              - generic [ref=e94]: Any
+              - img [ref=e95]
+          - generic [ref=e97]:
+            - generic [ref=e98]: Price / Book
+            - button "Any" [ref=e99] [cursor=pointer]:
+              - generic [ref=e100]: Any
+              - img [ref=e101]
+          - generic [ref=e103]:
+            - generic [ref=e104]: Price / Sales
+            - button "Any" [ref=e105] [cursor=pointer]:
+              - generic [ref=e106]: Any
+              - img [ref=e107]
+          - generic [ref=e109]:
+            - generic [ref=e110]: EV / EBITDA
+            - button "Any" [ref=e111] [cursor=pointer]:
+              - generic [ref=e112]: Any
+              - img [ref=e113]
+          - generic [ref=e115]:
+            - generic [ref=e116]: Div. Yield
+            - button "Any" [ref=e117] [cursor=pointer]:
+              - generic [ref=e118]: Any
+              - img [ref=e119]
+          - generic [ref=e121]: Profitability
+          - generic [ref=e122]:
+            - generic [ref=e123]: Gross Margin
+            - button "Any" [ref=e124] [cursor=pointer]:
+              - generic [ref=e125]: Any
+              - img [ref=e126]
+          - generic [ref=e128]:
+            - generic [ref=e129]: Oper. Margin
+            - button "Any" [ref=e130] [cursor=pointer]:
+              - generic [ref=e131]: Any
+              - img [ref=e132]
+          - generic [ref=e134]:
+            - generic [ref=e135]: Net Margin
+            - button "Any" [ref=e136] [cursor=pointer]:
+              - generic [ref=e137]: Any
+              - img [ref=e138]
+          - generic [ref=e140]:
+            - generic [ref=e141]: ROE
+            - button "Any" [ref=e142] [cursor=pointer]:
+              - generic [ref=e143]: Any
+              - img [ref=e144]
+          - generic [ref=e146]:
+            - generic [ref=e147]: ROA
+            - button "Any" [ref=e148] [cursor=pointer]:
+              - generic [ref=e149]: Any
+              - img [ref=e150]
+          - generic [ref=e152]:
+            - generic [ref=e153]: EPS Growth
+            - generic [ref=e154]: Coming Soon
+          - generic [ref=e155]: Financial Health
+          - generic [ref=e156]:
+            - generic [ref=e157]: Debt / Equity
+            - button "Any" [ref=e158] [cursor=pointer]:
+              - generic [ref=e159]: Any
+              - img [ref=e160]
+          - generic [ref=e162]:
+            - generic [ref=e163]: Current Ratio
+            - button "Any" [ref=e164] [cursor=pointer]:
+              - generic [ref=e165]: Any
+              - img [ref=e166]
+          - generic [ref=e168]:
+            - generic [ref=e169]: Quick Ratio
+            - generic [ref=e170]: Coming Soon
+          - generic [ref=e171]: Trading
+          - generic [ref=e172]:
+            - generic [ref=e173]: Short Float
+            - button "Any" [ref=e174] [cursor=pointer]:
+              - generic [ref=e175]: Any
+              - img [ref=e176]
+          - generic [ref=e178]:
+            - generic [ref=e179]: Avg. Volume
+            - generic [ref=e180]: Coming Soon
+          - generic [ref=e181]:
+            - generic [ref=e182]: RSI (14)
+            - generic [ref=e183]: Coming Soon
+          - generic [ref=e184]: Technical
+          - generic [ref=e185]:
+            - generic [ref=e186]: 52W High/Low
+            - generic [ref=e187]: Coming Soon
+          - generic [ref=e188]:
+            - generic [ref=e189]: SMA 50-Day
+            - generic [ref=e190]: Coming Soon
+          - generic [ref=e191]:
+            - generic [ref=e192]: SMA 200-Day
+            - generic [ref=e193]: Coming Soon
+      - main [ref=e194]:
+        - generic [ref=e196]: Applying filters…
+  - contentinfo [ref=e203]: Educational information, not investment advice. This tool is a non-tailored research screener, not a registered advisor.
+  - alert [ref=e204]

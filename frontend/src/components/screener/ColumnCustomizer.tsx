@@ -4,18 +4,23 @@ import { useState } from 'react'
 export interface ColumnDef { key: string; label: string; visible: boolean }
 
 const DEFAULT_COLUMNS: ColumnDef[] = [
-  { key: 'ticker', label: 'Ticker', visible: true },
+  { key: 'ticker', label: 'Symbol', visible: true },
+  { key: 'name', label: 'Name', visible: true },
   { key: 'price', label: 'Price', visible: true },
+  { key: 'net_credit', label: 'Net Credit ($)', visible: true },
   { key: 'static_yield', label: 'Static Yield', visible: true },
   { key: 'ann_static', label: 'Ann. Static †', visible: true },
   { key: 'if_called', label: 'If-Called', visible: true },
   { key: 'ann_if_called', label: 'Ann. If-Called †', visible: true },
   { key: 'cushion', label: 'Cushion', visible: true },
   { key: 'dte', label: 'DTE', visible: true },
+  { key: 'delta', label: 'Delta', visible: true },
+  { key: 'iv_rank', label: 'IV Rank', visible: true },
   { key: 'strike_expiry', label: 'Strike / Expiry', visible: true },
 ]
 
-const STORAGE_KEY = 'ys_columns'
+// v4: added delta + iv_rank columns (CC-22) — bump invalidates stale saved sets
+const STORAGE_KEY = 'ys_columns_v4'
 
 export function loadColumns(): ColumnDef[] {
   if (typeof window === 'undefined') return DEFAULT_COLUMNS
@@ -45,22 +50,64 @@ export default function ColumnCustomizer({ columns, onChange }: Props) {
     <div className="relative">
       <button
         onClick={() => setOpen(o => !o)}
-        className="text-xs text-gray-500 hover:text-gray-700 border border-gray-200 rounded px-2 py-1">
-        Columns &#9881;
+        className="flex items-center gap-1.5 text-xs font-medium rounded px-2.5 py-1 border transition-colors"
+        style={{
+          background: '#1a2438',
+          borderColor: '#2a3a58',
+          color: '#6a8ab0',
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.borderColor = '#00d4aa40'
+          e.currentTarget.style.color = '#c8d8e8'
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.borderColor = '#2a3a58'
+          e.currentTarget.style.color = '#6a8ab0'
+        }}
+      >
+        <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
+          <path d="M1 3h10M3 6h6M5 9h2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+        </svg>
+        Columns
       </button>
       {open && (
-        <div className="absolute right-0 top-7 z-10 bg-white border border-gray-200 rounded shadow-lg p-3 w-48">
-          <p className="text-xs font-semibold text-gray-500 mb-2">Show / hide columns</p>
+        <div
+          className="absolute right-0 top-8 z-20 rounded-lg border shadow-2xl p-3 w-52"
+          style={{ background: '#0d1b2e', borderColor: '#1a2d4a' }}
+        >
+          <p className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: '#3a5070' }}>
+            Show / Hide Columns
+          </p>
           {columns.map(col => (
-            <label key={col.key} className="flex items-center gap-2 py-0.5 cursor-pointer text-xs text-gray-700">
-              <input
-                type="checkbox"
-                checked={col.visible}
-                onChange={() => toggle(col.key)}
-                className="rounded" />
-              {col.label}
+            <label
+              key={col.key}
+              className="flex items-center gap-2 py-1 cursor-pointer text-xs transition-colors"
+              style={{ color: col.visible ? '#c8d8e8' : '#4a6080' }}
+            >
+              <span
+                className="w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0"
+                style={{
+                  background: col.visible ? '#00d4aa' : 'transparent',
+                  borderColor: col.visible ? '#00d4aa' : '#2a3a58',
+                }}
+                onClick={() => toggle(col.key)}
+              >
+                {col.visible && (
+                  <svg viewBox="0 0 10 10" className="w-2.5 h-2.5" fill="none">
+                    <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="#0a1628" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </span>
+              <span onClick={() => toggle(col.key)} className="flex-1">{col.label}</span>
             </label>
           ))}
+          <button
+            onClick={() => setOpen(false)}
+            className="mt-2 w-full text-center text-[11px] transition-colors py-1"
+            style={{ color: '#00d4aa' }}
+          >
+            Done
+          </button>
         </div>
       )}
     </div>

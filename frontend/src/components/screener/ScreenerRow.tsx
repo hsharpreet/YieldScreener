@@ -13,6 +13,9 @@ interface Props {
   inWatchlist: boolean
   onWatchlistToggle: (ticker: string, add: boolean) => void
   colSpanCount: number
+  isEven?: boolean
+  visibleColKeys?: Set<string>
+  showStrikeExpiry?: boolean
 }
 
 export default function ScreenerRowComponent({
@@ -22,37 +25,164 @@ export default function ScreenerRowComponent({
   inWatchlist,
   onWatchlistToggle,
   colSpanCount,
+  isEven,
+  visibleColKeys,
+  showStrikeExpiry,
 }: Props) {
   const c = row.best_call
   const m = c?.metrics
+
+  // Default: show all columns if no visibility info provided
+  const show = (key: string) => !visibleColKeys || visibleColKeys.has(key)
+
+  const rowBg = expanded
+    ? '#1a2d4a'
+    : isEven
+      ? '#111c2d'
+      : '#0f1929'
+
+  const rowBorder = '1px solid #162030'
 
   return (
     <>
       <tr
         onClick={onToggle}
-        className={`cursor-pointer transition-colors ${expanded ? 'bg-blue-50' : 'hover:bg-gray-50'}`}>
-        <td className="px-4 py-3 font-semibold text-blue-700">{row.ticker}</td>
-        <td className="px-4 py-3 text-gray-700">{usd(row.price)}</td>
-        <td className="px-4 py-3 text-gray-700">{m ? pct(m.static_yield) : '—'}</td>
-        <td className="px-4 py-3 font-medium text-green-700">{m ? pct(m.annualized_static) : '—'}</td>
-        <td className="px-4 py-3 text-gray-700">{m ? pct(m.if_called_return) : '—'}</td>
-        <td className="px-4 py-3 font-medium text-green-700">{m ? pct(m.annualized_if_called) : '—'}</td>
-        <td className="px-4 py-3 text-gray-700">{m ? pct(m.downside_cushion) : '—'}</td>
-        <td className="px-4 py-3 text-gray-700">{c ? c.dte : '—'}</td>
-        <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
-          {c ? `$${c.strike} / ${c.expiry}` : '—'}
-          {c?.earnings_within_dte && (
-            <span className="ml-1 text-amber-600" title="Earnings fall within this contract's expiration">&#9888;</span>
-          )}
-        </td>
-        <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+        className="cursor-pointer transition-colors"
+        style={{
+          background: rowBg,
+          borderBottom: rowBorder,
+        }}
+        onMouseEnter={e => {
+          if (!expanded) e.currentTarget.style.background = '#1a2438'
+        }}
+        onMouseLeave={e => {
+          if (!expanded) e.currentTarget.style.background = rowBg
+        }}
+      >
+        {/* Symbol */}
+        {show('ticker') && (
+          <td className="px-3 py-2.5 font-semibold text-sm whitespace-nowrap" style={{ color: '#00d4aa' }}>
+            {row.ticker}
+          </td>
+        )}
+
+        {/* Name */}
+        {show('name') && (
+          <td className="px-3 py-2.5 text-xs max-w-[160px] truncate" style={{ color: '#6a8ab0' }} title={row.name ?? undefined}>
+            {row.name || '—'}
+          </td>
+        )}
+
+        {/* Price */}
+        {show('price') && (
+          <td className="px-3 py-2.5 text-sm tabular-nums" style={{ color: '#c8d8e8' }}>
+            {usd(row.price)}
+          </td>
+        )}
+
+        {/* Net Credit */}
+        {show('net_credit') && (
+          <td className="px-3 py-2.5 text-sm tabular-nums font-semibold" style={{ color: '#00d4aa' }}>
+            {m ? `$${m.net_credit.toFixed(0)}` : '—'}
+          </td>
+        )}
+
+        {/* Static Yield */}
+        {show('static_yield') && (
+          <td className="px-3 py-2.5 text-sm tabular-nums font-medium" style={{ color: '#00d4aa' }}>
+            {m ? pct(m.static_yield) : '—'}
+          </td>
+        )}
+
+        {/* Ann. Static */}
+        {show('ann_static') && (
+          <td className="px-3 py-2.5 text-sm tabular-nums font-semibold" style={{ color: '#00d4aa' }}>
+            {m ? pct(m.annualized_static) : '—'}
+          </td>
+        )}
+
+        {/* If-Called */}
+        {show('if_called') && (
+          <td className="px-3 py-2.5 text-sm tabular-nums" style={{ color: '#7eb8d4' }}>
+            {m ? pct(m.if_called_return) : '—'}
+          </td>
+        )}
+
+        {/* Ann. If-Called */}
+        {show('ann_if_called') && (
+          <td className="px-3 py-2.5 text-sm tabular-nums font-medium" style={{ color: '#7eb8d4' }}>
+            {m ? pct(m.annualized_if_called) : '—'}
+          </td>
+        )}
+
+        {/* Cushion */}
+        {show('cushion') && (
+          <td className="px-3 py-2.5 text-sm tabular-nums" style={{ color: '#8a9ab0' }}>
+            {m ? pct(m.downside_cushion) : '—'}
+          </td>
+        )}
+
+        {/* DTE */}
+        {show('dte') && (
+          <td className="px-3 py-2.5 text-sm tabular-nums" style={{ color: '#8a9ab0' }}>
+            {c ? c.dte : '—'}
+          </td>
+        )}
+
+        {/* Delta */}
+        {show('delta') && (
+          <td className="px-3 py-2.5 text-sm tabular-nums" style={{ color: '#8a9ab0' }}>
+            {c?.delta != null ? c.delta.toFixed(2) : '—'}
+          </td>
+        )}
+
+        {/* IV Rank */}
+        {show('iv_rank') && (
+          <td className="px-3 py-2.5 text-sm tabular-nums" style={{ color: '#8a9ab0' }}>
+            {c?.iv_rank != null ? c.iv_rank.toFixed(0) : '—'}
+          </td>
+        )}
+
+        {/* Strike / Expiry */}
+        {showStrikeExpiry && (
+          <td className="px-3 py-2.5 text-xs whitespace-nowrap" style={{ color: '#6a8ab0' }}>
+            {c ? (
+              <>
+                <span className="font-medium" style={{ color: '#8a9ab0' }}>${c.strike}</span>
+                <span className="mx-1" style={{ color: '#2a3a58' }}>/</span>
+                {c.expiry}
+                {c.earnings_within_dte && (
+                  <span
+                    className="ml-1.5 text-amber-400"
+                    title="Earnings date falls within this contract's expiration window"
+                  >
+                    &#9888;
+                  </span>
+                )}
+              </>
+            ) : '—'}
+          </td>
+        )}
+
+        {/* Watchlist */}
+        <td className="px-3 py-2.5" onClick={e => e.stopPropagation()}>
           <WatchlistButton ticker={row.ticker} inWatchlist={inWatchlist} onToggle={onWatchlistToggle} />
         </td>
       </tr>
+
       {expanded && c && m && (
         <tr>
-          <td colSpan={colSpanCount} className="bg-gray-50 border-t border-gray-100 px-4 py-4">
-            <AccordionDetail ticker={row.ticker} price={row.price} name={row.name} contract={c} />
+          <td
+            colSpan={colSpanCount}
+            style={{
+              background: '#0d1929',
+              borderBottom: '1px solid #1a2d4a',
+              borderTop: '1px solid #1a2d4a',
+            }}
+          >
+            <div className="px-6 py-5">
+              <AccordionDetail ticker={row.ticker} price={row.price} name={row.name} contract={c} />
+            </div>
           </td>
         </tr>
       )}
