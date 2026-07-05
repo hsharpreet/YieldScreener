@@ -19,30 +19,35 @@ function strikeLabel(s: StrikeCount) {
 
 interface Props { ticker: string; price: number; name: string; contract: Contract }
 
-// Pick up to `count` strikes nearest to ATM per expiry (both ITM and OTM).
-function filterStrikes(contracts: Contract[], price: number, filter: StrikeCount): Contract[] {
-  const expiries = [...new Set(contracts.map(c => c.expiry))].sort()
-  const result: Contract[] = []
+// Pick strikes to show within one expiry group, nearest to ATM.
+function filterGroupStrikes(forExpiry: Contract[], price: number, filter: StrikeCount): Contract[] {
+  const otm = forExpiry.filter(c => c.strike >= price).sort((a, b) => a.strike - b.strike)
+  const itm = forExpiry.filter(c => c.strike < price).sort((a, b) => b.strike - a.strike)
 
-  for (const exp of expiries) {
-    const forExpiry = contracts.filter(c => c.expiry === exp)
-    const otm = forExpiry.filter(c => c.strike >= price).sort((a, b) => a.strike - b.strike)
-    const itm = forExpiry.filter(c => c.strike < price).sort((a, b) => b.strike - a.strike)
+  if (filter === 'all') return [...itm.slice().reverse(), ...otm]
+  if (filter === 'otm') return otm
+  const half = Math.floor(filter / 2)
+  return [...itm.slice(0, half).reverse(), ...otm.slice(0, filter - half)]
+}
 
-    if (filter === 'all') {
-      result.push(...itm.slice().reverse(), ...otm)
-      continue
+interface ExpiryGroup {
+  expiry: string
+  dte: number
+  contracts: Contract[]        // all contracts in this expiry (unfiltered)
+  best: Contract | null        // best OTM per backend ranking (null if all ITM)
+}
+
+function groupByExpiry(chain: Contract[]): ExpiryGroup[] {
+  const expiries = [...new Set(chain.map(c => c.expiry))].sort()
+  return expiries.map(expiry => {
+    const contracts = chain.filter(c => c.expiry === expiry)
+    return {
+      expiry,
+      dte: contracts[0].dte,
+      contracts,
+      best: contracts.find(c => c.best_for_expiry) ?? null,
     }
-    if (filter === 'otm') {
-      result.push(...otm)
-      continue
-    }
-    const half = Math.floor(filter / 2)
-    // nearest ITM (reversed to ascending) then nearest OTM
-    result.push(...itm.slice(0, half).reverse(), ...otm.slice(0, filter - half))
-  }
-
-  return result
+  })
 }
 
 export default function AccordionDetail({ ticker, price, name, contract }: Props) {
@@ -51,6 +56,8 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [secondsAgo, setSecondsAgo] = useState(0)
   const [strikeCount, setStrikeCount] = useState<StrikeCount>(9)
+  const [openExpiries, setOpenExpiries] = useState<Set<string>>(new Set())
+  const seededRef = useRef(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const m = contract.metrics
   const capitalRequired = price * 100
@@ -61,6 +68,12 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
     setChainLoading(false)
     setLastUpdated(new Date())
     setSecondsAgo(0)
+    // First load: auto-open the expiry holding the overall recommended contract.
+    if (!seededRef.current) {
+      seededRef.current = true
+      const rec = data.find(c => c.recommended)
+      if (rec) setOpenExpiries(new Set([rec.expiry]))
+    }
   }
 
   useEffect(() => {
@@ -76,6 +89,18 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
     }, 1000)
     return () => clearInterval(t)
   }, [lastUpdated])
+
+  function toggleExpiry(expiry: string) {
+    setOpenExpiries(prev => {
+      const next = new Set(prev)
+      if (next.has(expiry)) next.delete(expiry)
+      else next.add(expiry)
+      return next
+    })
+  }
+
+  const groups = groupByExpiry(chain)
+  const allOpen = groups.length > 0 && groups.every(g => openExpiries.has(g.expiry))
 
   return (
     <div className="space-y-5">
@@ -102,7 +127,7 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
       {/* Contract summary */}
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#3a5070' }}>
-          Recommended: ${contract.strike} strike &middot; expires {contract.expiry} &middot; {contract.dte} DTE &middot; premium {usd(contract.premium)}
+          Top ranked: ${contract.strike} strike &middot; expires {contract.expiry} &middot; {contract.dte} DTE &middot; premium {usd(contract.premium)}
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           <MetricCard
@@ -140,103 +165,150 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
         </div>
       </div>
 
-      {/* Option chain mini-table */}
+      {/* Option chain, grouped by expiry */}
       <div>
         <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
           <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: '#3a5070' }}>
-            Available contracts (7–60 DTE)
+            Expirations (7–60 DTE) — click a date to expand its strikes
           </p>
-          {/* Strike count selector */}
-          <div className="flex items-center gap-1">
-            <span className="text-[9px] uppercase tracking-wider mr-1" style={{ color: '#3a5070' }}>Strikes:</span>
-            {STRIKE_OPTIONS.map(opt => (
-              <button
-                key={String(opt)}
-                onClick={() => setStrikeCount(opt)}
-                className="text-[10px] px-2 py-0.5 rounded border transition-colors"
-                style={{
-                  color: strikeCount === opt ? '#0a1628' : '#6a8ab0',
-                  background: strikeCount === opt ? '#00d4aa' : 'transparent',
-                  borderColor: strikeCount === opt ? '#00d4aa' : '#2a3a58',
-                }}
-              >
-                {strikeLabel(opt)}
-              </button>
-            ))}
+          <div className="flex items-center gap-3">
+            {/* Strike count selector */}
+            <div className="flex items-center gap-1">
+              <span className="text-[9px] uppercase tracking-wider mr-1" style={{ color: '#3a5070' }}>Strikes:</span>
+              {STRIKE_OPTIONS.map(opt => (
+                <button
+                  key={String(opt)}
+                  onClick={() => setStrikeCount(opt)}
+                  className="text-[10px] px-2 py-0.5 rounded border transition-colors"
+                  style={{
+                    color: strikeCount === opt ? '#0a1628' : '#6a8ab0',
+                    background: strikeCount === opt ? '#00d4aa' : 'transparent',
+                    borderColor: strikeCount === opt ? '#00d4aa' : '#2a3a58',
+                  }}
+                >
+                  {strikeLabel(opt)}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setOpenExpiries(allOpen ? new Set() : new Set(groups.map(g => g.expiry)))}
+              className="text-[10px] px-2 py-0.5 rounded border transition-colors"
+              style={{ color: '#6a8ab0', borderColor: '#2a3a58' }}
+            >
+              {allOpen ? 'Collapse all' : 'Expand all'}
+            </button>
           </div>
         </div>
 
         {chainLoading ? (
           <p className="text-xs" style={{ color: '#3a5070' }}>Loading chain...</p>
-        ) : chain.length === 0 ? (
+        ) : groups.length === 0 ? (
           <p className="text-xs" style={{ color: '#3a5070' }}>No liquid contracts found.</p>
-        ) : (() => {
-          const filtered = filterStrikes(chain, price, strikeCount)
-          let lastExpiry = ''
-          return (
-            <div className="overflow-x-auto rounded" style={{ border: '1px solid #1a2d4a' }}>
-              <table className="text-xs w-full" style={{ background: '#0a1628' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid #1a2d4a' }}>
-                    {['Expiry / DTE', 'Strike', 'Net Credit', 'Premium', 'Static %', 'Ann. Static †', 'If-Called $', 'Earn.'].map(h => (
-                      <th
-                        key={h}
-                        className="text-left px-3 py-2 font-semibold uppercase tracking-widest text-[10px] whitespace-nowrap"
-                        style={{ color: '#3a5070' }}
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((c, i) => {
-                    const isBest = c.expiry === contract.expiry && c.strike === contract.strike
-                    const isItm = c.strike < price
-                    const showGroupHeader = c.expiry !== lastExpiry
-                    if (showGroupHeader) lastExpiry = c.expiry
-                    return [
-                      showGroupHeader && (
-                        <tr key={`hdr-${c.expiry}`} style={{ background: '#07101e', borderBottom: '1px solid #1a2d4a' }}>
-                          <td colSpan={8} className="px-3 py-1 text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#2a5070' }}>
-                            {c.expiry} &mdash; {c.dte} DTE
+        ) : (
+          <div className="overflow-x-auto rounded" style={{ border: '1px solid #1a2d4a' }}>
+            <table className="text-xs w-full" style={{ background: '#0a1628' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid #1a2d4a' }}>
+                  {['Expiry / Strike', 'Net Credit', 'Premium', 'Static %', 'Ann. Static †', 'If-Called $', 'Delta', 'IV', 'Earn.'].map(h => (
+                    <th
+                      key={h}
+                      className="text-left px-3 py-2 font-semibold uppercase tracking-widest text-[10px] whitespace-nowrap"
+                      style={{ color: '#3a5070' }}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {groups.map(group => {
+                  const isOpen = openExpiries.has(group.expiry)
+                  const visible = isOpen ? filterGroupStrikes(group.contracts, price, strikeCount) : []
+                  return [
+                    // Expiry header row — click to expand/collapse; shows best-of-expiry summary
+                    <tr
+                      key={`hdr-${group.expiry}`}
+                      onClick={() => toggleExpiry(group.expiry)}
+                      className="cursor-pointer select-none"
+                      style={{ background: isOpen ? '#0c1830' : '#07101e', borderBottom: '1px solid #1a2d4a' }}
+                    >
+                      <td colSpan={9} className="px-3 py-2">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[10px]" style={{ color: '#00d4aa' }}>{isOpen ? '▾' : '▸'}</span>
+                          <span className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: '#7eb8d4' }}>
+                            {group.expiry}
+                          </span>
+                          <span className="text-[10px]" style={{ color: '#3a5070' }}>
+                            {group.dte} DTE · {group.contracts.length} strikes
+                          </span>
+                          {group.best ? (
+                            <span className="text-[10px] tabular-nums ml-auto" style={{ color: '#00d4aa' }}>
+                              ★ Best OTM: ${group.best.strike} @ {usd(group.best.premium)} → {pct(group.best.metrics.static_yield)} ({pct(group.best.metrics.annualized_static)} ann. †)
+                              {group.best.recommended && (
+                                <span
+                                  className="ml-2 text-[9px] font-bold rounded px-1.5 py-0.5"
+                                  style={{ color: '#0a1628', background: '#00d4aa' }}
+                                >
+                                  TOP RANKED
+                                </span>
+                              )}
+                            </span>
+                          ) : (
+                            <span className="text-[10px] ml-auto" style={{ color: '#3a5070' }}>no OTM strikes</span>
+                          )}
+                        </div>
+                      </td>
+                    </tr>,
+                    // Strike rows (only when the group is expanded)
+                    ...visible.map((c, i) => {
+                      const isBestOfExpiry = c.best_for_expiry
+                      const isTopRanked = c.recommended
+                      return (
+                        <tr
+                          key={`${c.expiry}-${c.strike}`}
+                          style={{
+                            background: isBestOfExpiry ? 'rgba(0,212,170,0.14)' : i % 2 === 0 ? '#0d1929' : '#0a1628',
+                            borderBottom: '1px solid #162030',
+                            borderLeft: isBestOfExpiry ? '3px solid #00d4aa' : '3px solid transparent',
+                            opacity: c.is_itm ? 0.55 : 1,
+                          }}
+                        >
+                          <td className="px-3 py-1.5 tabular-nums font-medium" style={{ color: isBestOfExpiry ? '#00d4aa' : '#8a9ab0' }}>
+                            {isBestOfExpiry && <span className="mr-1 text-[9px] font-bold" style={{ color: '#00d4aa' }}>★</span>}
+                            {isTopRanked && (
+                              <span className="mr-1 text-[8px] font-bold rounded px-1 py-0.5" style={{ color: '#0a1628', background: '#00d4aa' }}>
+                                TOP
+                              </span>
+                            )}
+                            {c.is_itm && <span className="mr-1 text-[9px] font-semibold" style={{ color: '#f59e0b' }}>ITM</span>}
+                            ${c.strike}
+                          </td>
+                          <td className="px-3 py-1.5 tabular-nums font-semibold" style={{ color: '#00d4aa' }}>{dollars(c.metrics.net_credit)}</td>
+                          <td className="px-3 py-1.5 tabular-nums" style={{ color: '#6a8ab0' }}>{usd(c.premium)}</td>
+                          <td className="px-3 py-1.5 tabular-nums" style={{ color: '#00d4aa' }}>{pct(c.metrics.static_yield)}</td>
+                          <td className="px-3 py-1.5 tabular-nums font-medium" style={{ color: '#00d4aa' }}>{pct(c.metrics.annualized_static)}</td>
+                          <td className="px-3 py-1.5 tabular-nums" style={{ color: '#7eb8d4' }}>{dollars(c.metrics.if_called_profit)}</td>
+                          <td className="px-3 py-1.5 tabular-nums" style={{ color: '#8a9ab0' }}>
+                            {c.delta !== null ? c.delta.toFixed(2) : '—'}
+                          </td>
+                          <td className="px-3 py-1.5 tabular-nums" style={{ color: '#8a9ab0' }}>
+                            {c.implied_volatility > 0 ? pct(c.implied_volatility) : '—'}
+                          </td>
+                          <td className="px-3 py-1.5 text-center" style={{ color: '#f59e0b' }}>
+                            {c.earnings_within_dte ? '⚠' : ''}
                           </td>
                         </tr>
-                      ),
-                      <tr
-                        key={`${c.expiry}-${c.strike}`}
-                        style={{
-                          background: isBest ? 'rgba(0,212,170,0.14)' : i % 2 === 0 ? '#0d1929' : '#0a1628',
-                          borderBottom: '1px solid #162030',
-                          borderLeft: isBest ? '3px solid #00d4aa' : '3px solid transparent',
-                          opacity: isItm && !isBest ? 0.6 : 1,
-                        }}
-                      >
-                        <td className="px-3 py-1.5 tabular-nums" style={{ color: isBest ? '#00d4aa' : '#6a8ab0' }}>
-                          {isItm && <span className="mr-1 text-[9px] font-semibold" style={{ color: '#f59e0b' }}>ITM</span>}
-                          {isBest && <span className="mr-1 text-[9px] font-bold" style={{ color: '#00d4aa' }}>★</span>}
-                          {c.expiry}
-                        </td>
-                        <td className="px-3 py-1.5 tabular-nums font-medium" style={{ color: isBest ? '#00d4aa' : '#8a9ab0' }}>${c.strike}</td>
-                        <td className="px-3 py-1.5 tabular-nums font-semibold" style={{ color: '#00d4aa' }}>{dollars(c.metrics.net_credit)}</td>
-                        <td className="px-3 py-1.5 tabular-nums" style={{ color: '#6a8ab0' }}>{usd(c.premium)}</td>
-                        <td className="px-3 py-1.5 tabular-nums" style={{ color: '#00d4aa' }}>{pct(c.metrics.static_yield)}</td>
-                        <td className="px-3 py-1.5 tabular-nums font-medium" style={{ color: '#00d4aa' }}>{pct(c.metrics.annualized_static)}</td>
-                        <td className="px-3 py-1.5 tabular-nums" style={{ color: '#7eb8d4' }}>{dollars(c.metrics.if_called_profit)}</td>
-                        <td className="px-3 py-1.5 text-center" style={{ color: '#f59e0b' }}>
-                          {c.earnings_within_dte ? '⚠' : ''}
-                        </td>
-                      </tr>
-                    ].filter(Boolean)
-                  })}
-                </tbody>
-              </table>
-              <p className="text-[11px] px-3 py-1.5" style={{ color: '#2a4060', borderTop: '1px solid #162030' }}>
-                ★ Recommended (highest yield × delta fit). Net Credit = premium × 100. If-Called $ = total profit if assigned. † Ann. figures illustrative. Data 15-min delayed.
-              </p>
-            </div>
-          )
-        })()}
+                      )
+                    }),
+                  ]
+                })}
+              </tbody>
+            </table>
+            <p className="text-[11px] px-3 py-1.5" style={{ color: '#2a4060', borderTop: '1px solid #162030' }}>
+              ★ Best OTM strike per expiration, ranked by ann. static yield × delta fit — same math for every user. TOP = highest-ranked across all expirations. Net Credit = premium × 100. † Ann. figures illustrative. Educational data only, 15-min delayed — not investment advice.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )

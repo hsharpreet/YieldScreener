@@ -4,7 +4,7 @@ import { ScreenerRow } from '@/lib/api'
 import ScreenerRowComponent from './ScreenerRow'
 import ColumnCustomizer, { ColumnDef, loadColumns, saveColumns } from './ColumnCustomizer'
 
-type SortKey = 'ticker' | 'name' | 'price' | 'net_credit' | 'static_yield' | 'ann_static' | 'if_called' | 'ann_if_called' | 'cushion' | 'dte'
+type SortKey = 'ticker' | 'name' | 'price' | 'net_credit' | 'static_yield' | 'ann_static' | 'if_called' | 'ann_if_called' | 'cushion' | 'dte' | 'delta' | 'iv_rank'
 
 interface ColDef { key: SortKey; label: string; title?: string; colKey: string }
 
@@ -19,6 +19,8 @@ const ALL_COLS: ColDef[] = [
   { key: 'ann_if_called', label: 'Ann. If-Called †', title: 'Illustrative annualized if-called return (naive 365/DTE)', colKey: 'ann_if_called' },
   { key: 'cushion', label: 'Cushion', title: 'Downside cushion = premium ÷ price (breakeven distance)', colKey: 'cushion' },
   { key: 'dte', label: 'DTE', title: 'Days to expiration of the best available contract', colKey: 'dte' },
+  { key: 'delta', label: 'Delta', title: 'Option delta — rough probability the call finishes in the money', colKey: 'delta' },
+  { key: 'iv_rank', label: 'IV Rank', title: 'Implied volatility rank vs this chain (0–100); higher = richer premium', colKey: 'iv_rank' },
 ]
 
 function getValue(row: ScreenerRow, key: SortKey): number {
@@ -35,6 +37,8 @@ function getValue(row: ScreenerRow, key: SortKey): number {
     case 'ann_if_called': return m.annualized_if_called
     case 'cushion': return m.downside_cushion
     case 'dte': return row.best_call.dte
+    case 'delta': return row.best_call.delta ?? -Infinity
+    case 'iv_rank': return row.best_call.iv_rank ?? -Infinity
   }
 }
 

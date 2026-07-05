@@ -21,7 +21,18 @@ export interface Contract {
   implied_volatility: number
   earnings_within_dte: boolean
   metrics: Metrics
+  delta: number | null
+  gamma: number | null
+  theta: number | null
+  vega: number | null
+  iv_rank: number | null
+  score: number
+  is_itm: boolean
+  recommended: boolean       // overall top-ranked OTM contract
+  best_for_expiry: boolean   // best OTM contract within its expiry
 }
+
+export type Strategy = 'covered_call'
 
 export interface ScreenerRow {
   ticker: string
@@ -35,6 +46,7 @@ export interface ScreenerRow {
 
 export interface ScreenParams {
   tickers?: string
+  strategy?: Strategy
   min_dte?: number
   max_dte?: number
   // General
@@ -89,6 +101,7 @@ const API_BASE = ''
 export async function fetchScreen(params: ScreenParams = {}): Promise<ScreenResult> {
   const qs = new URLSearchParams()
   if (params.tickers) qs.set('tickers', params.tickers)
+  if (params.strategy) qs.set('strategy', params.strategy)
   if (params.min_dte !== undefined) qs.set('min_dte', String(params.min_dte))
   if (params.max_dte !== undefined) qs.set('max_dte', String(params.max_dte))
   if (params.min_market_cap !== undefined) qs.set('min_market_cap', String(params.min_market_cap))

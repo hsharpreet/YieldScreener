@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Literal, Optional
 
 from fastapi import APIRouter, Depends, Query, Response
 from pydantic import BaseModel
@@ -9,7 +9,11 @@ from app.core.deps import get_optional_user
 from app.data.provider import DataProvider
 from app.db.models import User
 from app.screener.filters import FundamentalsFilter, filter_illiquid
-from app.screener.ranker import RankedContract, rank_contracts
+from app.screener.ranker import RankedContract, best_per_expiry, rank_contracts
+
+# Only covered_call is implemented today; the param keeps URLs forward-compatible
+# for cash_secured_put / pmcc without a breaking change later.
+Strategy = Literal["covered_call"]
 
 if TYPE_CHECKING:
     from app.data.scheduler import DataRefreshScheduler
@@ -64,6 +68,10 @@ class ContractOut(BaseModel):
     theta: float | None = None
     vega: float | None = None
     iv_rank: float | None = None
+    score: float = 0.0
+    is_itm: bool = False
+    recommended: bool = False        # overall top-ranked OTM contract
+    best_for_expiry: bool = False    # best OTM contract within its expiry
 
 
 class ScreenerRow(BaseModel):
@@ -79,7 +87,12 @@ class ScreenerRow(BaseModel):
     analyst_rating: float | None = None
 
 
-def _to_contract_out(ranked_contract: RankedContract) -> ContractOut:
+def _to_contract_out(
+    ranked_contract: RankedContract,
+    price: float | None = None,
+    recommended: bool = False,
+    best_for_expiry: bool = False,
+) -> ContractOut:
     c = ranked_contract.contract
     m = ranked_contract.metrics
     return ContractOut(
@@ -108,6 +121,10 @@ def _to_contract_out(ranked_contract: RankedContract) -> ContractOut:
         theta=c.theta,
         vega=c.vega,
         iv_rank=c.iv_rank,
+        score=ranked_contract.score,
+        is_itm=price is not None and c.strike < price,
+        recommended=recommended,
+        best_for_expiry=best_for_expiry,
     )
 
 
@@ -117,6 +134,7 @@ def screen(
     tickers: str | None = Query(
         None, description="Comma-separated tickers; defaults to built-in universe"
     ),
+    strategy: Strategy = Query("covered_call"),
     min_dte: int = Query(21, ge=1),
     max_dte: int = Query(45, ge=1),
     # General
@@ -205,7 +223,11 @@ def screen(
             raw = []
         liquid = filter_illiquid(raw)
         ranked = rank_contracts(liquid, price=quote.price)
-        best = _to_contract_out(ranked[0]) if ranked else None
+        best = (
+            _to_contract_out(ranked[0], price=quote.price, recommended=True)
+            if ranked
+            else None
+        )
         rows.append(
             ScreenerRow(
                 ticker=ticker,
@@ -239,12 +261,17 @@ def screen(
 @router.get("/contracts/{ticker}", response_model=list[ContractOut])
 def get_contracts(
     ticker: str,
+    strategy: Strategy = Query("covered_call"),
     min_dte: int = Query(7, ge=1),
     max_dte: int = Query(60, ge=1),
 ) -> list[ContractOut]:
     """All liquid covered-call contracts for a single ticker.
 
-    Used by the accordion chain view. Educational data only — not investment advice.
+    Used by the accordion chain view.  Each contract carries two ranking
+    flags computed with the same score the screener uses:
+      - best_for_expiry: best OTM contract within its own expiry date
+      - recommended: the single best OTM contract across all expiries
+    Educational data only — not investment advice.
     """
     _p = provider
     if _p is None:
@@ -257,4 +284,15 @@ def get_contracts(
         return []
     liquid = filter_illiquid(raw)
     ranked = rank_contracts(liquid, price=quote.price, otm_only=False)
-    return [_to_contract_out(r) for r in ranked]
+    expiry_winners = best_per_expiry(ranked, price=quote.price)
+    winner_ids = {id(r) for r in expiry_winners.values()}
+    overall = max(expiry_winners.values(), key=lambda r: r.score, default=None)
+    return [
+        _to_contract_out(
+            r,
+            price=quote.price,
+            recommended=r is overall,
+            best_for_expiry=id(r) in winner_ids,
+        )
+        for r in ranked
+    ]

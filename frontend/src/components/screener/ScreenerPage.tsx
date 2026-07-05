@@ -15,6 +15,7 @@ export default function ScreenerPage() {
   const [error, setError] = useState<string | null>(null)
   const [dataStatus, setDataStatus] = useState<'ready' | 'loading' | 'stale'>('ready')
   const [params, setParams] = useState<ScreenParams>({
+    strategy: 'covered_call',
     min_dte: 21,
     max_dte: 45,
     min_market_cap: 5_000_000_000,  // $5B default — visible Mkt Cap chip
@@ -98,10 +99,35 @@ export default function ScreenerPage() {
       {/* Page header */}
       <div className="px-6 pt-5 pb-3" style={{ background: '#0a1628', borderBottom: '1px solid #1a2438' }}>
         <div className="flex items-center gap-3 flex-wrap">
-          <h1 className="text-lg font-semibold text-white tracking-tight">Covered Call Screener</h1>
+          <h1 className="text-lg font-semibold text-white tracking-tight">Options Income Screener</h1>
           <span className="inline-flex items-center gap-1 border border-[#2a3a58] rounded-full px-2.5 py-0.5 text-xs text-gray-400" style={{ background: '#1a2438' }}>
             USA Markets
           </span>
+          {/* Strategy segmented control — covered call live; CSP & PMCC on the roadmap */}
+          <div className="inline-flex items-center rounded-lg border overflow-hidden" style={{ borderColor: '#2a3a58' }}>
+            <button
+              className="text-xs font-semibold px-3 py-1"
+              style={{ background: '#00d4aa', color: '#0a1628' }}
+            >
+              Covered Call
+            </button>
+            <button
+              disabled
+              title="Cash-secured puts are coming soon"
+              className="text-xs px-3 py-1 cursor-not-allowed"
+              style={{ color: '#3a5070', background: '#111c2d' }}
+            >
+              Cash-Secured Put <span className="text-[9px] uppercase">soon</span>
+            </button>
+            <button
+              disabled
+              title="Poor man's covered calls are coming soon"
+              className="text-xs px-3 py-1 cursor-not-allowed"
+              style={{ color: '#3a5070', background: '#111c2d', borderLeft: '1px solid #1a2438' }}
+            >
+              PMCC <span className="text-[9px] uppercase">soon</span>
+            </button>
+          </div>
           {dataStatus === 'loading' && (
             <span className="text-xs" style={{ color: '#f59e0b' }}>
               ⏳ Fetching market data…

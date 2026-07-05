@@ -19,7 +19,6 @@ import datetime
 import json
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Optional
 
 import redis as redis_lib
 import requests

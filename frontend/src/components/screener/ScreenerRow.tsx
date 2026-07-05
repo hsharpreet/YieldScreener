@@ -129,6 +129,20 @@ export default function ScreenerRowComponent({
           </td>
         )}
 
+        {/* Delta */}
+        {show('delta') && (
+          <td className="px-3 py-2.5 text-sm tabular-nums" style={{ color: '#8a9ab0' }}>
+            {c?.delta != null ? c.delta.toFixed(2) : '—'}
+          </td>
+        )}
+
+        {/* IV Rank */}
+        {show('iv_rank') && (
+          <td className="px-3 py-2.5 text-sm tabular-nums" style={{ color: '#8a9ab0' }}>
+            {c?.iv_rank != null ? c.iv_rank.toFixed(0) : '—'}
+          </td>
+        )}
+
         {/* Strike / Expiry */}
         {showStrikeExpiry && (
           <td className="px-3 py-2.5 text-xs whitespace-nowrap" style={{ color: '#6a8ab0' }}>

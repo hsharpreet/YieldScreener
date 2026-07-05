@@ -14,10 +14,13 @@ const DEFAULT_COLUMNS: ColumnDef[] = [
   { key: 'ann_if_called', label: 'Ann. If-Called †', visible: true },
   { key: 'cushion', label: 'Cushion', visible: true },
   { key: 'dte', label: 'DTE', visible: true },
+  { key: 'delta', label: 'Delta', visible: true },
+  { key: 'iv_rank', label: 'IV Rank', visible: true },
   { key: 'strike_expiry', label: 'Strike / Expiry', visible: true },
 ]
 
-const STORAGE_KEY = 'ys_columns_v3'
+// v4: added delta + iv_rank columns (CC-22) — bump invalidates stale saved sets
+const STORAGE_KEY = 'ys_columns_v4'
 
 export function loadColumns(): ColumnDef[] {
   if (typeof window === 'undefined') return DEFAULT_COLUMNS

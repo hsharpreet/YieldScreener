@@ -10,6 +10,7 @@ from app.options.math import CoveredCallMetrics, covered_call_metrics
 class RankedContract:
     contract: OptionContract
     metrics: CoveredCallMetrics
+    score: float = 0.0
 
 
 def _delta_fit(delta: float | None) -> float:
@@ -53,10 +54,28 @@ def rank_contracts(
             m = covered_call_metrics(price=price, strike=c.strike, premium=c.premium, dte=c.dte)
         except ValueError:
             continue
-        ranked.append(RankedContract(contract=c, metrics=m))
+        score = m.annualized_static * _delta_fit(c.delta)
+        ranked.append(RankedContract(contract=c, metrics=m, score=score))
 
-    return sorted(
-        ranked,
-        key=lambda r: r.metrics.annualized_static * _delta_fit(r.contract.delta),
-        reverse=True,
-    )
+    return sorted(ranked, key=lambda r: r.score, reverse=True)
+
+
+def best_per_expiry(
+    ranked: list[RankedContract],
+    price: float,
+) -> dict[str, RankedContract]:
+    """Best OTM contract for each expiry, keyed by expiry date string.
+
+    "Best" uses the same score as rank_contracts (annualized_static ×
+    delta_fit).  ITM contracts never win a group: their premium is mostly
+    intrinsic value, not income.  An expiry whose contracts are all ITM has
+    no entry in the result.
+    """
+    winners: dict[str, RankedContract] = {}
+    for r in ranked:
+        if r.contract.strike < price:
+            continue
+        current = winners.get(r.contract.expiry)
+        if current is None or r.score > current.score:
+            winners[r.contract.expiry] = r
+    return winners
