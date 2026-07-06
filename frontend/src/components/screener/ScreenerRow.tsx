@@ -1,10 +1,11 @@
 'use client'
-import { ScreenerRow } from '@/lib/api'
+import { ScreenerRow, Strategy } from '@/lib/api'
 import AccordionDetail from './AccordionDetail'
 import WatchlistButton from './WatchlistButton'
 
 function pct(n: number) { return `${(n * 100).toFixed(2)}%` }
 function usd(n: number) { return `$${n.toFixed(2)}` }
+function usd0(n: number) { return `$${n.toLocaleString('en-US', { maximumFractionDigits: 0 })}` }
 
 interface Props {
   row: ScreenerRow
@@ -16,6 +17,7 @@ interface Props {
   isEven?: boolean
   visibleColKeys?: Set<string>
   showStrikeExpiry?: boolean
+  strategy?: Strategy
 }
 
 export default function ScreenerRowComponent({
@@ -28,9 +30,11 @@ export default function ScreenerRowComponent({
   isEven,
   visibleColKeys,
   showStrikeExpiry,
+  strategy = 'covered_call',
 }: Props) {
   const c = row.best_call
   const m = c?.metrics
+  const longLeg = row.long_call
 
   // Default: show all columns if no visibility info provided
   const show = (key: string) => !visibleColKeys || visibleColKeys.has(key)
@@ -80,6 +84,26 @@ export default function ScreenerRowComponent({
           </td>
         )}
 
+        {/* PMCC: Capital (long-call debit) */}
+        {strategy === 'pmcc' && show('capital') && (
+          <td className="px-3 py-2.5 text-sm tabular-nums" style={{ color: '#c8d8e8' }}>
+            {m?.capital_required != null ? usd0(m.capital_required) : '—'}
+          </td>
+        )}
+
+        {/* PMCC: Long leg strike/expiry */}
+        {strategy === 'pmcc' && show('long_leg') && (
+          <td className="px-3 py-2.5 text-xs whitespace-nowrap" style={{ color: '#7eb8d4' }}>
+            {longLeg ? (
+              <>
+                <span className="font-medium">${longLeg.strike}</span>
+                <span className="mx-1" style={{ color: '#2a3a58' }}>/</span>
+                {longLeg.expiry}
+              </>
+            ) : '—'}
+          </td>
+        )}
+
         {/* Net Credit */}
         {show('net_credit') && (
           <td className="px-3 py-2.5 text-sm tabular-nums font-semibold" style={{ color: '#00d4aa' }}>
@@ -87,35 +111,42 @@ export default function ScreenerRowComponent({
           </td>
         )}
 
-        {/* Static Yield */}
+        {/* CSP: Collateral */}
+        {strategy === 'cash_secured_put' && show('collateral') && (
+          <td className="px-3 py-2.5 text-sm tabular-nums" style={{ color: '#c8d8e8' }}>
+            {m?.collateral != null ? usd0(m.collateral) : '—'}
+          </td>
+        )}
+
+        {/* Static / Income Yield */}
         {show('static_yield') && (
           <td className="px-3 py-2.5 text-sm tabular-nums font-medium" style={{ color: '#00d4aa' }}>
             {m ? pct(m.static_yield) : '—'}
           </td>
         )}
 
-        {/* Ann. Static */}
+        {/* Ann. Static / Ann. Income */}
         {show('ann_static') && (
           <td className="px-3 py-2.5 text-sm tabular-nums font-semibold" style={{ color: '#00d4aa' }}>
             {m ? pct(m.annualized_static) : '—'}
           </td>
         )}
 
-        {/* If-Called */}
-        {show('if_called') && (
+        {/* If-Called (hidden for CSP — a short put's max profit is the premium) */}
+        {strategy !== 'cash_secured_put' && show('if_called') && (
           <td className="px-3 py-2.5 text-sm tabular-nums" style={{ color: '#7eb8d4' }}>
             {m ? pct(m.if_called_return) : '—'}
           </td>
         )}
 
-        {/* Ann. If-Called */}
-        {show('ann_if_called') && (
+        {/* Ann. If-Called (covered call only) */}
+        {strategy === 'covered_call' && show('ann_if_called') && (
           <td className="px-3 py-2.5 text-sm tabular-nums font-medium" style={{ color: '#7eb8d4' }}>
             {m ? pct(m.annualized_if_called) : '—'}
           </td>
         )}
 
-        {/* Cushion */}
+        {/* Cushion / Discount / BE Cushion */}
         {show('cushion') && (
           <td className="px-3 py-2.5 text-sm tabular-nums" style={{ color: '#8a9ab0' }}>
             {m ? pct(m.downside_cushion) : '—'}
@@ -143,7 +174,7 @@ export default function ScreenerRowComponent({
           </td>
         )}
 
-        {/* Strike / Expiry */}
+        {/* Strike / Expiry (short leg for PMCC) */}
         {showStrikeExpiry && (
           <td className="px-3 py-2.5 text-xs whitespace-nowrap" style={{ color: '#6a8ab0' }}>
             {c ? (
@@ -181,7 +212,14 @@ export default function ScreenerRowComponent({
             }}
           >
             <div className="px-6 py-5">
-              <AccordionDetail ticker={row.ticker} price={row.price} name={row.name} contract={c} />
+              <AccordionDetail
+                ticker={row.ticker}
+                price={row.price}
+                name={row.name}
+                contract={c}
+                strategy={strategy}
+                longLeg={longLeg ?? null}
+              />
             </div>
           </td>
         </tr>

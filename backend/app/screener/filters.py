@@ -36,7 +36,19 @@ class FundamentalsFilter:
     max_beta: float | None = None
     max_short_float: float | None = None      # e.g. 0.10 = 10%
 
-    # Legacy average-volume floor (internal, not exposed as query param yet)
+    # Growth
+    min_eps_growth: float | None = None       # e.g. 0.10 = 10% YoY
+    min_quick_ratio: float | None = None
+
+    # Technicals
+    min_rsi: float | None = None              # 0–100
+    max_rsi: float | None = None
+    above_sma_50: bool | None = None          # True = price above, False = below
+    above_sma_200: bool | None = None
+    min_52w_position: float | None = None     # 0–1: (price−low)/(high−low)
+    max_52w_position: float | None = None
+
+    # Average-volume floor (also exposed as a query param)
     min_avg_volume: int = 500_000
 
     def passes(self, quote: StockQuote) -> bool:
@@ -108,12 +120,76 @@ class FundamentalsFilter:
             if quote.short_float > self.max_short_float:
                 return False
 
+        # Growth
+        if self.min_eps_growth is not None and quote.eps_growth is not None:
+            if quote.eps_growth < self.min_eps_growth:
+                return False
+        if self.min_quick_ratio is not None and quote.quick_ratio is not None:
+            if quote.quick_ratio < self.min_quick_ratio:
+                return False
+
+        # Technicals
+        if self.min_rsi is not None and quote.rsi_14 is not None:
+            if quote.rsi_14 < self.min_rsi:
+                return False
+        if self.max_rsi is not None and quote.rsi_14 is not None:
+            if quote.rsi_14 > self.max_rsi:
+                return False
+        if self.above_sma_50 is not None and quote.sma_50 is not None and quote.price > 0:
+            if (quote.price >= quote.sma_50) != self.above_sma_50:
+                return False
+        if self.above_sma_200 is not None and quote.sma_200 is not None and quote.price > 0:
+            if (quote.price >= quote.sma_200) != self.above_sma_200:
+                return False
+        position = _52w_position(quote)
+        if position is not None:
+            if self.min_52w_position is not None and position < self.min_52w_position:
+                return False
+            if self.max_52w_position is not None and position > self.max_52w_position:
+                return False
+
         # Avg volume floor
         if self.min_avg_volume > 0 and quote.avg_volume is not None:
             if quote.avg_volume < self.min_avg_volume:
                 return False
 
         return True
+
+
+def _52w_position(quote: StockQuote) -> float | None:
+    """Where the price sits in its 52-week range: 0 = at the low, 1 = at the high."""
+    high, low = quote.fifty_two_week_high, quote.fifty_two_week_low
+    if high is None or low is None or high <= low or quote.price <= 0:
+        return None
+    return (quote.price - low) / (high - low)
+
+
+@dataclass
+class ContractFilter:
+    """Per-contract filters applied before ranking (delta is |delta| so the
+    same bounds work for calls and puts)."""
+    min_delta: float | None = None
+    max_delta: float | None = None
+    min_iv_rank: float | None = None
+    min_open_interest: int | None = None
+
+    def passes(self, contract: OptionContract) -> bool:
+        if self.min_delta is not None and contract.delta is not None:
+            if abs(contract.delta) < self.min_delta:
+                return False
+        if self.max_delta is not None and contract.delta is not None:
+            if abs(contract.delta) > self.max_delta:
+                return False
+        if self.min_iv_rank is not None and contract.iv_rank is not None:
+            if contract.iv_rank < self.min_iv_rank:
+                return False
+        if self.min_open_interest is not None:
+            if contract.open_interest < self.min_open_interest:
+                return False
+        return True
+
+    def apply(self, contracts: list[OptionContract]) -> list[OptionContract]:
+        return [c for c in contracts if self.passes(c)]
 
 
 def filter_illiquid(contracts: list[OptionContract]) -> list[OptionContract]:

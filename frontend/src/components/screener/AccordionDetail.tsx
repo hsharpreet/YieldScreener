@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { Contract, fetchContracts } from '@/lib/api'
+import { Contract, fetchContracts, Strategy } from '@/lib/api'
 import MetricCard from './MetricCard'
 
 function pct(n: number) { return `${(n * 100).toFixed(2)}%` }
@@ -17,12 +17,25 @@ function strikeLabel(s: StrikeCount) {
   return String(s)
 }
 
-interface Props { ticker: string; price: number; name: string; contract: Contract }
+interface Props {
+  ticker: string
+  price: number
+  name: string
+  contract: Contract
+  strategy?: Strategy
+  longLeg?: Contract | null
+}
 
 // Pick strikes to show within one expiry group, nearest to ATM.
+// OTM flips for puts: an OTM put sits BELOW the stock price.
 function filterGroupStrikes(forExpiry: Contract[], price: number, filter: StrikeCount): Contract[] {
-  const otm = forExpiry.filter(c => c.strike >= price).sort((a, b) => a.strike - b.strike)
-  const itm = forExpiry.filter(c => c.strike < price).sort((a, b) => b.strike - a.strike)
+  const isPut = forExpiry[0]?.option_type === 'put'
+  const otm = isPut
+    ? forExpiry.filter(c => c.strike <= price).sort((a, b) => b.strike - a.strike)
+    : forExpiry.filter(c => c.strike >= price).sort((a, b) => a.strike - b.strike)
+  const itm = isPut
+    ? forExpiry.filter(c => c.strike > price).sort((a, b) => a.strike - b.strike)
+    : forExpiry.filter(c => c.strike < price).sort((a, b) => b.strike - a.strike)
 
   if (filter === 'all') return [...itm.slice().reverse(), ...otm]
   if (filter === 'otm') return otm
@@ -50,7 +63,9 @@ function groupByExpiry(chain: Contract[]): ExpiryGroup[] {
   })
 }
 
-export default function AccordionDetail({ ticker, price, name, contract }: Props) {
+export default function AccordionDetail({
+  ticker, price, name, contract, strategy = 'covered_call', longLeg = null,
+}: Props) {
   const [chain, setChain] = useState<Contract[]>([])
   const [chainLoading, setChainLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
@@ -60,10 +75,16 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
   const seededRef = useRef(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const m = contract.metrics
-  const capitalRequired = price * 100
+  const isCsp = strategy === 'cash_secured_put'
+  const isPmcc = strategy === 'pmcc'
+  const capitalRequired = isPmcc
+    ? m.capital_required ?? 0
+    : isCsp
+      ? m.collateral ?? 0
+      : price * 100
 
   async function refresh() {
-    const data = await fetchContracts(ticker, 7, 60)
+    const data = await fetchContracts(ticker, 7, 60, strategy)
     setChain(data)
     setChainLoading(false)
     setLastUpdated(new Date())
@@ -77,10 +98,13 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
   }
 
   useEffect(() => {
+    setChain([])
+    setChainLoading(true)
+    seededRef.current = false
     refresh()
     timerRef.current = setInterval(refresh, POLL_INTERVAL_MS)
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
-  }, [ticker]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ticker, strategy]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!lastUpdated) return
@@ -99,8 +123,17 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
     })
   }
 
-  const groups = groupByExpiry(chain)
+  // PMCC: the long leg arrives first in the chain payload — split it out.
+  const chainLong = isPmcc ? chain.find(c => c.leg === 'long') ?? longLeg : null
+  const shortChain = isPmcc ? chain.filter(c => c.leg !== 'long') : chain
+  const groups = groupByExpiry(shortChain)
   const allOpen = groups.length > 0 && groups.every(g => openExpiries.has(g.expiry))
+
+  const summaryLabel = isPmcc
+    ? `Top ranked: sell $${contract.strike} call · expires ${contract.expiry} · ${contract.dte} DTE · premium ${usd(contract.premium)}`
+    : isCsp
+      ? `Top ranked: $${contract.strike} put · expires ${contract.expiry} · ${contract.dte} DTE · premium ${usd(contract.premium)}`
+      : `Top ranked: $${contract.strike} strike · expires ${contract.expiry} · ${contract.dte} DTE · premium ${usd(contract.premium)}`
 
   return (
     <div className="space-y-5">
@@ -124,44 +157,135 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
         )}
       </div>
 
+      {/* PMCC long-leg banner */}
+      {isPmcc && chainLong && (
+        <div
+          className="flex items-center gap-3 flex-wrap rounded px-3 py-2 text-xs"
+          style={{ background: 'rgba(126,184,212,0.08)', border: '1px solid rgba(126,184,212,0.25)', color: '#7eb8d4' }}
+        >
+          <span className="font-semibold uppercase tracking-widest text-[10px]">Long leg</span>
+          <span className="tabular-nums">
+            Buy ${chainLong.strike} call · expires {chainLong.expiry} · {chainLong.dte} DTE · cost {usd(chainLong.premium)}/sh
+            {chainLong.delta != null && <> · delta {chainLong.delta.toFixed(2)}</>}
+          </span>
+          <span style={{ color: '#3a5070' }}>
+            Deep-ITM LEAPS held as the stock substitute — short calls are written against it.
+          </span>
+        </div>
+      )}
+
       {/* Contract summary */}
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: '#3a5070' }}>
-          Top ranked: ${contract.strike} strike &middot; expires {contract.expiry} &middot; {contract.dte} DTE &middot; premium {usd(contract.premium)}
+          {summaryLabel}
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          <MetricCard
-            label="Capital Required"
-            value={dollars(capitalRequired)}
-            sub={`${usd(price)} × 100 shares`}
-            tooltip="Cash needed to own 100 shares to write this covered call."
-          />
-          <MetricCard
-            label="Net Credit"
-            value={dollars(m.net_credit)}
-            sub={`${usd(contract.premium)} × 100 shares`}
-            tooltip="Premium × 100 shares — cash received upfront when you sell the call."
-          />
-          <MetricCard
-            label="Breakeven"
-            value={usd(m.breakeven)}
-            sub={`${usd(price)} − ${usd(contract.premium)} · cushion ${pct(m.downside_cushion)}`}
-            tooltip="Stock price at which you break even = current price minus premium."
-          />
-          <MetricCard
-            label="If Flat (not called)"
-            value={pct(m.static_yield)}
-            sub={`${pct(m.annualized_static)} ann. (illus.) · ${usd(contract.premium)} ÷ ${usd(price)}`}
-            highlight
-            tooltip="Return if the option expires worthless and you keep shares. = premium ÷ price."
-          />
-          <MetricCard
-            label="If Called (assigned)"
-            value={pct(m.if_called_return)}
-            sub={`${pct(m.annualized_if_called)} ann. (illus.) · ${dollars(m.if_called_profit)} total`}
-            highlight
-            tooltip="Return if assigned at the strike. Includes premium + any capital gain or loss."
-          />
+          {isCsp ? (
+            <>
+              <MetricCard
+                label="Collateral"
+                value={dollars(capitalRequired)}
+                sub={`$${contract.strike} × 100 shares`}
+                tooltip="Cash set aside to buy 100 shares at the strike if assigned."
+              />
+              <MetricCard
+                label="Net Credit"
+                value={dollars(m.net_credit)}
+                sub={`${usd(contract.premium)} × 100 shares`}
+                tooltip="Premium × 100 — cash received upfront when you sell the put. Also the max profit."
+              />
+              <MetricCard
+                label="Breakeven"
+                value={usd(m.breakeven)}
+                sub={`$${contract.strike} − ${usd(contract.premium)}`}
+                tooltip="Effective cost basis if assigned = strike minus premium."
+              />
+              <MetricCard
+                label="Yield on Collateral"
+                value={pct(m.static_yield)}
+                sub={`${pct(m.annualized_static)} ann. (illus.) · ${usd(contract.premium)} ÷ $${contract.strike}`}
+                highlight
+                tooltip="Return on the secured cash if the put expires worthless."
+              />
+              <MetricCard
+                label="Discount if Assigned"
+                value={pct(m.downside_cushion)}
+                sub={`vs ${usd(price)} today`}
+                highlight
+                tooltip="How far below today's price your cost basis would be if assigned. Not downside insurance — the stock can fall further."
+              />
+            </>
+          ) : isPmcc ? (
+            <>
+              <MetricCard
+                label="Capital Required"
+                value={dollars(capitalRequired)}
+                sub={chainLong ? `${usd(chainLong.premium)} × 100 (LEAPS)` : 'long-call debit'}
+                tooltip="Cost of the long LEAPS call — the stock substitute. A fraction of buying 100 shares."
+              />
+              <MetricCard
+                label="Net Credit / Cycle"
+                value={dollars(m.net_credit)}
+                sub={`${usd(contract.premium)} × 100 shares`}
+                tooltip="Premium received for the short call this cycle."
+              />
+              <MetricCard
+                label="Breakeven"
+                value={usd(m.breakeven)}
+                sub={m.net_debit != null ? `long strike + ${usd(m.net_debit / 100)}/sh debit` : undefined}
+                tooltip="Approximate structure breakeven at the long expiry: long strike + net debit per share."
+              />
+              <MetricCard
+                label="Income Yield"
+                value={pct(m.static_yield)}
+                sub={`${pct(m.annualized_static)} ann. (illus.)`}
+                highlight
+                tooltip="Short premium ÷ long-call cost — income per cycle on your capital."
+              />
+              <MetricCard
+                label="If Called (approx)"
+                value={pct(m.if_called_return)}
+                sub={`${dollars(m.if_called_profit)} total${m.assignment_safe === false ? ' · ⚠ width < debit' : ''}`}
+                highlight
+                tooltip="Approximate return if the short call is assigned. Ignores remaining LEAPS time value."
+              />
+            </>
+          ) : (
+            <>
+              <MetricCard
+                label="Capital Required"
+                value={dollars(capitalRequired)}
+                sub={`${usd(price)} × 100 shares`}
+                tooltip="Cash needed to own 100 shares to write this covered call."
+              />
+              <MetricCard
+                label="Net Credit"
+                value={dollars(m.net_credit)}
+                sub={`${usd(contract.premium)} × 100 shares`}
+                tooltip="Premium × 100 shares — cash received upfront when you sell the call."
+              />
+              <MetricCard
+                label="Breakeven"
+                value={usd(m.breakeven)}
+                sub={`${usd(price)} − ${usd(contract.premium)} · cushion ${pct(m.downside_cushion)}`}
+                tooltip="Stock price at which you break even = current price minus premium."
+              />
+              <MetricCard
+                label="If Flat (not called)"
+                value={pct(m.static_yield)}
+                sub={`${pct(m.annualized_static)} ann. (illus.) · ${usd(contract.premium)} ÷ ${usd(price)}`}
+                highlight
+                tooltip="Return if the option expires worthless and you keep shares. = premium ÷ price."
+              />
+              <MetricCard
+                label="If Called (assigned)"
+                value={pct(m.if_called_return)}
+                sub={`${pct(m.annualized_if_called)} ann. (illus.) · ${dollars(m.if_called_profit)} total`}
+                highlight
+                tooltip="Return if assigned at the strike. Includes premium + any capital gain or loss."
+              />
+            </>
+          )}
         </div>
       </div>
 
@@ -169,7 +293,9 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
       <div>
         <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
           <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: '#3a5070' }}>
-            Expirations (7–60 DTE) — click a date to expand its strikes
+            {isPmcc
+              ? 'Short-call candidates (7–60 DTE) — click a date to expand'
+              : 'Expirations (7–60 DTE) — click a date to expand its strikes'}
           </p>
           <div className="flex items-center gap-3">
             {/* Strike count selector */}
@@ -203,13 +329,25 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
         {chainLoading ? (
           <p className="text-xs" style={{ color: '#3a5070' }}>Loading chain...</p>
         ) : groups.length === 0 ? (
-          <p className="text-xs" style={{ color: '#3a5070' }}>No liquid contracts found.</p>
+          <p className="text-xs" style={{ color: '#3a5070' }}>
+            {isPmcc ? 'No viable PMCC pairs found (needs a liquid deep-ITM LEAPS).' : 'No liquid contracts found.'}
+          </p>
         ) : (
           <div className="overflow-x-auto rounded" style={{ border: '1px solid #1a2d4a' }}>
             <table className="text-xs w-full" style={{ background: '#0a1628' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid #1a2d4a' }}>
-                  {['Expiry / Strike', 'Net Credit', 'Premium', 'Static %', 'Ann. Static †', 'If-Called $', 'Delta', 'IV', 'Earn.'].map(h => (
+                  {[
+                    'Expiry / Strike',
+                    'Net Credit',
+                    'Premium',
+                    isCsp ? 'Yield %' : isPmcc ? 'Income %' : 'Static %',
+                    isCsp ? 'Ann. Yield †' : isPmcc ? 'Ann. Income †' : 'Ann. Static †',
+                    isCsp ? 'Breakeven' : isPmcc ? 'If-Called $ ≈' : 'If-Called $',
+                    'Delta',
+                    'IV',
+                    'Earn.',
+                  ].map(h => (
                     <th
                       key={h}
                       className="text-left px-3 py-2 font-semibold uppercase tracking-widest text-[10px] whitespace-nowrap"
@@ -287,7 +425,9 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
                           <td className="px-3 py-1.5 tabular-nums" style={{ color: '#6a8ab0' }}>{usd(c.premium)}</td>
                           <td className="px-3 py-1.5 tabular-nums" style={{ color: '#00d4aa' }}>{pct(c.metrics.static_yield)}</td>
                           <td className="px-3 py-1.5 tabular-nums font-medium" style={{ color: '#00d4aa' }}>{pct(c.metrics.annualized_static)}</td>
-                          <td className="px-3 py-1.5 tabular-nums" style={{ color: '#7eb8d4' }}>{dollars(c.metrics.if_called_profit)}</td>
+                          <td className="px-3 py-1.5 tabular-nums" style={{ color: '#7eb8d4' }}>
+                            {isCsp ? usd(c.metrics.breakeven) : dollars(c.metrics.if_called_profit)}
+                          </td>
                           <td className="px-3 py-1.5 tabular-nums" style={{ color: '#8a9ab0' }}>
                             {c.delta !== null ? c.delta.toFixed(2) : '—'}
                           </td>
@@ -305,7 +445,7 @@ export default function AccordionDetail({ ticker, price, name, contract }: Props
               </tbody>
             </table>
             <p className="text-[11px] px-3 py-1.5" style={{ color: '#2a4060', borderTop: '1px solid #162030' }}>
-              ★ Best OTM strike per expiration, ranked by ann. static yield × delta fit — same math for every user. TOP = highest-ranked across all expirations. Net Credit = premium × 100. † Ann. figures illustrative. Educational data only, 15-min delayed — not investment advice.
+              ★ Best OTM strike per expiration, ranked by ann. yield × delta fit — same math for every user. TOP = highest-ranked across all expirations. Net Credit = premium × 100. Delta is a model estimate when the data source has no Greeks. † Ann. figures illustrative. Educational data only, 15-min delayed — not investment advice.
             </p>
           </div>
         )}

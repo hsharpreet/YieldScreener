@@ -1,10 +1,28 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { fetchScreen, fetchWatchlist, ScreenerRow, ScreenParams } from '@/lib/api'
+import { fetchScreen, fetchWatchlist, ScreenerRow, ScreenParams, Strategy } from '@/lib/api'
 import { useAuth } from '@/components/auth'
 import FilterRail from './FilterRail'
 import ScreenerTable from './ScreenerTable'
 import DisclaimerBanner from './DisclaimerBanner'
+
+const STRATEGY_OPTIONS: { value: Strategy; label: string; blurb: string }[] = [
+  {
+    value: 'covered_call',
+    label: 'Covered Call',
+    blurb: 'Quality stocks ranked by best covered call yield.',
+  },
+  {
+    value: 'cash_secured_put',
+    label: 'Cash-Secured Put',
+    blurb: 'Quality stocks ranked by best put premium on secured cash.',
+  },
+  {
+    value: 'pmcc',
+    label: 'PMCC',
+    blurb: 'Long deep-ITM LEAPS + short call — income on a fraction of the capital.',
+  },
+]
 
 export default function ScreenerPage() {
   const { user } = useAuth()
@@ -103,30 +121,27 @@ export default function ScreenerPage() {
           <span className="inline-flex items-center gap-1 border border-[#2a3a58] rounded-full px-2.5 py-0.5 text-xs text-gray-400" style={{ background: '#1a2438' }}>
             USA Markets
           </span>
-          {/* Strategy segmented control — covered call live; CSP & PMCC on the roadmap */}
+          {/* Strategy segmented control */}
           <div className="inline-flex items-center rounded-lg border overflow-hidden" style={{ borderColor: '#2a3a58' }}>
-            <button
-              className="text-xs font-semibold px-3 py-1"
-              style={{ background: '#00d4aa', color: '#0a1628' }}
-            >
-              Covered Call
-            </button>
-            <button
-              disabled
-              title="Cash-secured puts are coming soon"
-              className="text-xs px-3 py-1 cursor-not-allowed"
-              style={{ color: '#3a5070', background: '#111c2d' }}
-            >
-              Cash-Secured Put <span className="text-[9px] uppercase">soon</span>
-            </button>
-            <button
-              disabled
-              title="Poor man's covered calls are coming soon"
-              className="text-xs px-3 py-1 cursor-not-allowed"
-              style={{ color: '#3a5070', background: '#111c2d', borderLeft: '1px solid #1a2438' }}
-            >
-              PMCC <span className="text-[9px] uppercase">soon</span>
-            </button>
+            {STRATEGY_OPTIONS.map((opt, i) => {
+              const active = (params.strategy ?? 'covered_call') === opt.value
+              return (
+                <button
+                  key={opt.value}
+                  title={opt.blurb}
+                  onClick={() => setParams(p => ({ ...p, strategy: opt.value }))}
+                  className="text-xs px-3 py-1 transition-colors"
+                  style={{
+                    background: active ? '#00d4aa' : '#111c2d',
+                    color: active ? '#0a1628' : '#6a8ab0',
+                    fontWeight: active ? 600 : 400,
+                    borderLeft: i > 0 ? '1px solid #1a2438' : undefined,
+                  }}
+                >
+                  {opt.label}
+                </button>
+              )
+            })}
           </div>
           {dataStatus === 'loading' && (
             <span className="text-xs" style={{ color: '#f59e0b' }}>
@@ -140,7 +155,7 @@ export default function ScreenerPage() {
           )}
         </div>
         <p className="text-xs mt-1" style={{ color: '#3a5070' }}>
-          Quality stocks ranked by best covered call yield.{' '}
+          {STRATEGY_OPTIONS.find(o => o.value === (params.strategy ?? 'covered_call'))?.blurb}{' '}
           <span style={{ color: '#2a4060' }}>Annualized figures are illustrative only.</span>
         </p>
       </div>
@@ -196,6 +211,7 @@ export default function ScreenerPage() {
             watchlist={watchlist}
             onWatchlistToggle={handleWatchlistToggle}
             loading={loading}
+            strategy={params.strategy ?? 'covered_call'}
           />
         )}
 

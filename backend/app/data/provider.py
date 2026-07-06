@@ -37,6 +37,10 @@ class StockQuote:
     target_price: float | None = None      # targetMeanPrice
     fifty_two_week_high: float | None = None  # fiftyTwoWeekHigh
     fifty_two_week_low: float | None = None   # fiftyTwoWeekLow
+    # Technicals (computed from daily history by the scheduler)
+    rsi_14: float | None = None            # 14-day RSI (0–100)
+    sma_50: float | None = None            # 50-day simple moving average
+    sma_200: float | None = None           # 200-day simple moving average
 
 
 @dataclass
@@ -57,6 +61,7 @@ class OptionContract:
     theta: float | None = None
     vega: float | None = None
     iv_rank: float | None = None  # 0-100, None if not computable
+    option_type: str = "call"     # "call" | "put"
 
 
 class DataProvider(ABC):
@@ -70,3 +75,21 @@ class DataProvider(ABC):
         min_dte: int = 21,
         max_dte: int = 45,
     ) -> list[OptionContract]: ...
+
+    # Concrete defaults so existing providers/stubs keep working; override
+    # in providers that support these strategies.
+    def get_put_options(
+        self,
+        ticker: str,
+        min_dte: int = 21,
+        max_dte: int = 45,
+    ) -> list[OptionContract]:
+        return []
+
+    def get_leaps_calls(
+        self,
+        ticker: str,
+        min_dte: int = 180,
+        max_dte: int = 730,
+    ) -> list[OptionContract]:
+        return []

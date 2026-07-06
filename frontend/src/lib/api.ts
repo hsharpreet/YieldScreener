@@ -7,6 +7,11 @@ export interface Metrics {
   if_called_profit: number
   if_called_return: number
   annualized_if_called: number
+  // Strategy extras (present only for that strategy)
+  collateral?: number | null          // CSP: strike × 100
+  capital_required?: number | null    // PMCC: long-call debit × 100
+  net_debit?: number | null           // PMCC
+  assignment_safe?: boolean | null    // PMCC
 }
 
 export interface Contract {
@@ -30,9 +35,11 @@ export interface Contract {
   is_itm: boolean
   recommended: boolean       // overall top-ranked OTM contract
   best_for_expiry: boolean   // best OTM contract within its expiry
+  option_type: 'call' | 'put'
+  leg?: 'long' | 'short' | null   // PMCC legs
 }
 
-export type Strategy = 'covered_call'
+export type Strategy = 'covered_call' | 'cash_secured_put' | 'pmcc'
 
 export interface ScreenerRow {
   ticker: string
@@ -41,7 +48,8 @@ export interface ScreenerRow {
   market_cap: number | null
   pe_ratio: number | null
   sector: string | null
-  best_call: Contract | null
+  best_call: Contract | null       // CC: call · CSP: put · PMCC: short leg
+  long_call?: Contract | null      // PMCC only: long LEAPS leg
 }
 
 export interface ScreenParams {
@@ -73,6 +81,21 @@ export interface ScreenParams {
   // Risk / trading
   max_beta?: number
   max_short_float?: number
+  // Growth / liquidity
+  min_eps_growth?: number
+  min_quick_ratio?: number
+  min_avg_volume?: number
+  // Technicals
+  min_rsi?: number
+  max_rsi?: number
+  above_sma_50?: boolean
+  above_sma_200?: boolean
+  min_52w_position?: number
+  max_52w_position?: number
+  // Option Greeks (|delta| — same bounds for calls and puts)
+  min_delta?: number
+  max_delta?: number
+  min_iv_rank?: number
 }
 
 export interface ScreenResult {
@@ -100,29 +123,10 @@ const API_BASE = ''
 
 export async function fetchScreen(params: ScreenParams = {}): Promise<ScreenResult> {
   const qs = new URLSearchParams()
-  if (params.tickers) qs.set('tickers', params.tickers)
-  if (params.strategy) qs.set('strategy', params.strategy)
-  if (params.min_dte !== undefined) qs.set('min_dte', String(params.min_dte))
-  if (params.max_dte !== undefined) qs.set('max_dte', String(params.max_dte))
-  if (params.min_market_cap !== undefined) qs.set('min_market_cap', String(params.min_market_cap))
-  if (params.sectors) qs.set('sectors', params.sectors)
-  if (params.max_analyst_rating !== undefined) qs.set('max_analyst_rating', String(params.max_analyst_rating))
-  if (params.max_pe !== undefined) qs.set('max_pe', String(params.max_pe))
-  if (params.max_forward_pe !== undefined) qs.set('max_forward_pe', String(params.max_forward_pe))
-  if (params.max_peg !== undefined) qs.set('max_peg', String(params.max_peg))
-  if (params.max_price_to_book !== undefined) qs.set('max_price_to_book', String(params.max_price_to_book))
-  if (params.max_price_to_sales !== undefined) qs.set('max_price_to_sales', String(params.max_price_to_sales))
-  if (params.max_ev_to_ebitda !== undefined) qs.set('max_ev_to_ebitda', String(params.max_ev_to_ebitda))
-  if (params.min_dividend_yield !== undefined) qs.set('min_dividend_yield', String(params.min_dividend_yield))
-  if (params.min_gross_margin !== undefined) qs.set('min_gross_margin', String(params.min_gross_margin))
-  if (params.min_operating_margin !== undefined) qs.set('min_operating_margin', String(params.min_operating_margin))
-  if (params.min_net_margin !== undefined) qs.set('min_net_margin', String(params.min_net_margin))
-  if (params.min_roe !== undefined) qs.set('min_roe', String(params.min_roe))
-  if (params.min_roa !== undefined) qs.set('min_roa', String(params.min_roa))
-  if (params.max_debt_to_equity !== undefined) qs.set('max_debt_to_equity', String(params.max_debt_to_equity))
-  if (params.min_current_ratio !== undefined) qs.set('min_current_ratio', String(params.min_current_ratio))
-  if (params.max_beta !== undefined) qs.set('max_beta', String(params.max_beta))
-  if (params.max_short_float !== undefined) qs.set('max_short_float', String(params.max_short_float))
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined || value === '') continue
+    qs.set(key, String(value))
+  }
   const res = await fetch(`${API_BASE}/api/screen?${qs}`, { cache: 'no-store', credentials: 'include' })
   if (!res.ok) throw new Error(`Screen fetch failed: ${res.status}`)
   const rows: ScreenerRow[] = await res.json()
@@ -134,11 +138,16 @@ export async function fetchScreen(params: ScreenParams = {}): Promise<ScreenResu
   }
 }
 
-export async function fetchContracts(ticker: string, minDte = 7, maxDte = 60): Promise<Contract[]> {
-  const res = await fetch(`${API_BASE}/api/contracts/${ticker}?min_dte=${minDte}&max_dte=${maxDte}`, {
-    cache: 'no-store',
-    credentials: 'include',
-  })
+export async function fetchContracts(
+  ticker: string,
+  minDte = 7,
+  maxDte = 60,
+  strategy: Strategy = 'covered_call',
+): Promise<Contract[]> {
+  const res = await fetch(
+    `${API_BASE}/api/contracts/${ticker}?min_dte=${minDte}&max_dte=${maxDte}&strategy=${strategy}`,
+    { cache: 'no-store', credentials: 'include' },
+  )
   if (!res.ok) return []
   return res.json()
 }

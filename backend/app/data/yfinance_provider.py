@@ -38,6 +38,8 @@ FUNDAMENTALS_TTL = 86_400                          # 24 h — quarterly data
 CHAIN_TTL = settings.YF_REFRESH_INTERVAL * 4      # 40 min — same as PRICE_TTL
 EARNINGS_TTL = 86_400                             # 24 h — earnings dates don't change intraday
 EXPIRY_LIST_TTL = 86_400                          # 24 h — option expiry calendar is stable
+LEAPS_TTL = 21_600                                # 6 h — deep-ITM LEAPS move slowly
+TECHNICALS_TTL = 86_400                           # 24 h — daily-bar indicators
 
 # ── Shared requests session with browser User-Agent ───────────────────────────
 _yf_session = requests.Session()
@@ -149,6 +151,73 @@ def refresh_batch_prices(tickers: list[str]) -> dict[str, float]:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Technicals refresh  (called by scheduler — ONE HTTP call for all tickers)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def refresh_technicals(tickers: list[str]) -> None:
+    """Compute RSI(14) / SMA(50) / SMA(200) from one batched 1-year daily
+    download; store per ticker in Redis (24 h TTL). Skips tickers already
+    cached, so steady-state cost is zero."""
+    r = _get_redis()
+    try:
+        missing = [t for t in tickers if not r.get(f"technicals:{t}")]
+    except Exception:
+        missing = list(tickers)
+    if not missing:
+        return
+
+    def _download():
+        return yf.download(
+            " ".join(missing),
+            period="1y",
+            interval="1d",
+            auto_adjust=True,
+            progress=False,
+            session=_yf_session,
+        )
+
+    try:
+        data = _yf_retry(_download)
+    except Exception:
+        return
+    if data is None or data.empty:
+        return
+
+    for ticker in missing:
+        try:
+            if isinstance(data.columns, pd.MultiIndex):
+                closes = data["Close"][ticker].dropna()
+            else:
+                closes = data["Close"].dropna()
+            tech = _compute_technicals(closes)
+            if tech:
+                r.setex(f"technicals:{ticker}", TECHNICALS_TTL, json.dumps(tech))
+        except Exception:
+            continue
+
+
+def _compute_technicals(closes: "pd.Series") -> dict | None:
+    """RSI(14) via Wilder smoothing + simple moving averages from daily closes."""
+    if len(closes) < 15:
+        return None
+    delta = closes.diff().dropna()
+    gains = delta.clip(lower=0.0)
+    losses = -delta.clip(upper=0.0)
+    avg_gain = gains.ewm(alpha=1 / 14, min_periods=14).mean().iloc[-1]
+    avg_loss = losses.ewm(alpha=1 / 14, min_periods=14).mean().iloc[-1]
+    if avg_loss == 0:
+        rsi = 100.0
+    else:
+        rs = avg_gain / avg_loss
+        rsi = 100.0 - 100.0 / (1.0 + rs)
+    return {
+        "rsi_14": round(float(rsi), 2),
+        "sma_50": round(float(closes.tail(50).mean()), 4) if len(closes) >= 50 else None,
+        "sma_200": round(float(closes.tail(200).mean()), 4) if len(closes) >= 200 else None,
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Fundamentals refresh  (called by scheduler — one call per ticker, 24 h cache)
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -225,7 +294,11 @@ def refresh_fundamentals(ticker: str) -> Optional[StockQuote]:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def refresh_option_chain(ticker: str, min_dte: int = 21, max_dte: int = 45) -> list[OptionContract]:
-    """Fetch option chain for one ticker, store in Redis, return contracts."""
+    """Fetch option chain for one ticker, store in Redis, return CALL contracts.
+
+    Each Yahoo option_chain() response carries calls AND puts, so puts are
+    cached too (putchain:*) at zero extra HTTP cost.
+    """
     cache_key = f"chain:{ticker}:{min_dte}:{max_dte}"
 
     with _ticker_lock(cache_key):
@@ -237,20 +310,155 @@ def refresh_option_chain(ticker: str, min_dte: int = 21, max_dte: int = 45) -> l
         except Exception:
             pass
 
-        contracts = _fetch_chain(ticker, min_dte, max_dte)
+        calls, puts = _fetch_chain(ticker, min_dte, max_dte)
 
         try:
-            _get_redis().setex(cache_key, CHAIN_TTL, json.dumps([c.__dict__ for c in contracts]))
+            r = _get_redis()
+            r.setex(cache_key, CHAIN_TTL, json.dumps([c.__dict__ for c in calls]))
+            r.setex(
+                f"putchain:{ticker}:{min_dte}:{max_dte}",
+                CHAIN_TTL,
+                json.dumps([c.__dict__ for c in puts]),
+            )
         except Exception:
             pass
 
-        return contracts
+        return calls
 
 
-def _fetch_chain(ticker: str, min_dte: int, max_dte: int) -> list[OptionContract]:
+def refresh_leaps_chain(
+    ticker: str, min_dte: int = 180, max_dte: int = 730
+) -> list[OptionContract]:
+    """Fetch long-dated call chains (PMCC long legs). Cached 6 h — LEAPS are slow."""
+    cache_key = f"leaps:{ticker}"
+
+    with _ticker_lock(cache_key):
+        try:
+            raw = _get_redis().get(cache_key)
+            if raw:
+                return [OptionContract(**d) for d in json.loads(raw)]
+        except Exception:
+            pass
+
+        calls, _puts = _fetch_chain(ticker, min_dte, max_dte)
+        # Keep only the deep-ITM half plus a buffer — the PMCC long leg is
+        # never OTM, and dropping OTM strikes keeps the cache entry small.
+        price = _cached_price(ticker)
+        if price:
+            calls = [c for c in calls if c.strike <= price * 1.05]
+
+        try:
+            _get_redis().setex(cache_key, LEAPS_TTL, json.dumps([c.__dict__ for c in calls]))
+        except Exception:
+            pass
+
+        return calls
+
+
+def _cached_price(ticker: str) -> float | None:
+    try:
+        raw = _get_redis().get(f"price:{ticker}")
+        return float(raw) if raw is not None else None
+    except Exception:
+        return None
+
+
+def _si(val) -> int:
+    """Safe int: NaN / None → 0. yfinance returns NaN for volume/OI off-hours;
+    float('nan') is truthy so `val or 0` does NOT catch it; int(nan) raises."""
+    try:
+        f = float(val)
+        return 0 if f != f else int(f)  # f != f is True only for NaN
+    except (TypeError, ValueError):
+        return 0
+
+
+def _sf(val) -> float | None:
+    """Safe float: NaN / None → None."""
+    try:
+        f = float(val)
+        return None if f != f else f
+    except (TypeError, ValueError):
+        return None
+
+
+def _parse_chain_df(
+    df,
+    ticker: str,
+    exp_str: str,
+    dte: int,
+    earnings_flag: bool,
+    price: float | None,
+    option_type: str,
+) -> list[OptionContract]:
+    """Turn one yfinance calls/puts DataFrame into OptionContracts.
+
+    Yahoo supplies IV but no Greeks — when delta is absent we estimate it
+    with Black-Scholes from the cached underlying price (marked as an
+    estimate in the UI; providers with real Greeks keep theirs).
+    """
+    from app.options.greeks import bs_call_delta, bs_put_delta
+
+    iv_vals = [
+        v for _, row in df.iterrows()
+        if (v := _sf(row.get("impliedVolatility"))) is not None
+    ]
+    iv_min = min(iv_vals) if iv_vals else None
+    iv_max = max(iv_vals) if iv_vals else None
+    iv_range = (iv_max - iv_min) if iv_min is not None and iv_max is not None else None
+
+    contracts: list[OptionContract] = []
+    for _, row in df.iterrows():
+        bid = _sf(row.get("bid")) or 0.0
+        ask = _sf(row.get("ask")) or 0.0
+        if bid <= 0 or ask <= 0:
+            continue
+        premium = (bid + ask) / 2
+        strike = float(row["strike"])
+        cur_iv = _sf(row.get("impliedVolatility"))
+        iv_rank = (
+            (cur_iv - iv_min) / iv_range * 100
+            if iv_range and iv_range > 0 and cur_iv is not None and iv_min is not None
+            else None
+        )
+        delta = _sf(row.get("delta"))
+        if delta is None and price and cur_iv:
+            delta = (
+                bs_put_delta(price, strike, dte, cur_iv)
+                if option_type == "put"
+                else bs_call_delta(price, strike, dte, cur_iv)
+            )
+
+        contracts.append(OptionContract(
+            ticker=ticker,
+            strike=strike,
+            expiry=exp_str,
+            dte=dte,
+            premium=premium,
+            bid=bid,
+            ask=ask,
+            volume=_si(row.get("volume")),
+            open_interest=_si(row.get("openInterest")),
+            implied_volatility=cur_iv or 0.0,
+            earnings_within_dte=earnings_flag,
+            delta=delta,
+            gamma=_sf(row.get("gamma")),
+            theta=_sf(row.get("theta")),
+            vega=_sf(row.get("vega")),
+            iv_rank=iv_rank,
+            option_type=option_type,
+        ))
+    return contracts
+
+
+def _fetch_chain(
+    ticker: str, min_dte: int, max_dte: int
+) -> tuple[list[OptionContract], list[OptionContract]]:
+    """Fetch chains for every expiry in range. Returns (calls, puts)."""
     t = yf.Ticker(ticker, session=_yf_session)
     today = datetime.date.today()
     r = _get_redis()
+    price = _cached_price(ticker)
 
     # ── Earnings date: cached 24 h (never changes intraday) ───────────────────
     earnings_date: datetime.date | None = None
@@ -294,76 +502,25 @@ def _fetch_chain(ticker: str, min_dte: int, max_dte: int) -> list[OptionContract
         if min_dte <= (datetime.date.fromisoformat(exp_str) - today).days <= max_dte
     ]
 
-    contracts: list[OptionContract] = []
+    calls: list[OptionContract] = []
+    puts: list[OptionContract] = []
     for exp_str, dte in valid_expiries:
         try:
-            chain = _yf_retry(lambda: t.option_chain(exp_str).calls)
+            chain = _yf_retry(lambda: t.option_chain(exp_str))
         except Exception:
             continue
 
-        # NaN-safe helpers — yfinance returns NaN for volume/OI on weekends/off-hours.
-        # float('nan') is truthy so `val or 0` does NOT catch it; int(nan) raises.
-        def _si(val) -> int:
-            """Safe int: NaN / None → 0."""
-            try:
-                f = float(val)
-                return 0 if f != f else int(f)  # f != f is True only for NaN
-            except (TypeError, ValueError):
-                return 0
-
-        def _sf(val) -> float | None:
-            """Safe float: NaN / None → None."""
-            try:
-                f = float(val)
-                return None if f != f else f
-            except (TypeError, ValueError):
-                return None
-
-        iv_vals = [
-            _sf(r.get("impliedVolatility"))
-            for _, r in chain.iterrows()
-            if _sf(r.get("impliedVolatility")) is not None
-        ]
-        iv_min = min(iv_vals) if iv_vals else None  # type: ignore[type-var]
-        iv_max = max(iv_vals) if iv_vals else None  # type: ignore[type-var]
-        iv_range = (iv_max - iv_min) if iv_min is not None and iv_max is not None else None
-
-        for _, row in chain.iterrows():
-            bid = _sf(row.get("bid")) or 0.0
-            ask = _sf(row.get("ask")) or 0.0
-            if bid <= 0 or ask <= 0:
-                continue
-            premium = (bid + ask) / 2
-            earnings_flag = (
-                earnings_date is not None
-                and today < earnings_date <= today + datetime.timedelta(days=dte)
-            )
-            cur_iv_f = _sf(row.get("impliedVolatility"))
-            iv_rank = (
-                (cur_iv_f - iv_min) / iv_range * 100
-                if iv_range and iv_range > 0 and cur_iv_f is not None and iv_min is not None
-                else None
-            )
-
-            contracts.append(OptionContract(
-                ticker=ticker,
-                strike=float(row["strike"]),
-                expiry=exp_str,
-                dte=dte,
-                premium=premium,
-                bid=bid,
-                ask=ask,
-                volume=_si(row.get("volume")),
-                open_interest=_si(row.get("openInterest")),
-                implied_volatility=_sf(row.get("impliedVolatility")) or 0.0,
-                earnings_within_dte=earnings_flag,
-                delta=_sf(row.get("delta")),
-                gamma=_sf(row.get("gamma")),
-                theta=_sf(row.get("theta")),
-                vega=_sf(row.get("vega")),
-                iv_rank=iv_rank,
-            ))
-    return contracts
+        earnings_flag = (
+            earnings_date is not None
+            and today < earnings_date <= today + datetime.timedelta(days=dte)
+        )
+        calls.extend(_parse_chain_df(
+            chain.calls, ticker, exp_str, dte, earnings_flag, price, "call"
+        ))
+        puts.extend(_parse_chain_df(
+            chain.puts, ticker, exp_str, dte, earnings_flag, price, "put"
+        ))
+    return calls, puts
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -389,6 +546,17 @@ class YFinanceProvider(DataProvider):
         quote = StockQuote(**json.loads(fund_raw))
         if price_str is not None:
             quote.price = float(price_str)
+
+        # Merge cached technicals (RSI / SMAs) when the scheduler has them.
+        try:
+            tech_raw = r.get(f"technicals:{ticker}")
+            if tech_raw:
+                tech = json.loads(tech_raw)
+                quote.rsi_14 = tech.get("rsi_14")
+                quote.sma_50 = tech.get("sma_50")
+                quote.sma_200 = tech.get("sma_200")
+        except Exception:
+            pass
 
         return quote
 
@@ -418,4 +586,44 @@ class YFinanceProvider(DataProvider):
         except Exception:
             pass
 
+        return []
+
+    def get_put_options(
+        self,
+        ticker: str,
+        min_dte: int = 21,
+        max_dte: int = 45,
+    ) -> list[OptionContract]:
+        r = _get_redis()
+        try:
+            raw = r.get(f"putchain:{ticker}:{min_dte}:{max_dte}")
+            if raw:
+                return [OptionContract(**d) for d in json.loads(raw)]
+        except Exception:
+            pass
+
+        # Same broad-cache fallback as calls.
+        try:
+            raw = r.get(f"putchain:{ticker}:7:60")
+            if raw:
+                all_contracts = [OptionContract(**d) for d in json.loads(raw)]
+                return [c for c in all_contracts if min_dte <= c.dte <= max_dte]
+        except Exception:
+            pass
+
+        return []
+
+    def get_leaps_calls(
+        self,
+        ticker: str,
+        min_dte: int = 180,
+        max_dte: int = 730,
+    ) -> list[OptionContract]:
+        try:
+            raw = _get_redis().get(f"leaps:{ticker}")
+            if raw:
+                all_contracts = [OptionContract(**d) for d in json.loads(raw)]
+                return [c for c in all_contracts if min_dte <= c.dte <= max_dte]
+        except Exception:
+            pass
         return []

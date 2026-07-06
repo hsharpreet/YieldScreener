@@ -3,46 +3,43 @@ import { useState } from 'react'
 
 export interface ColumnDef { key: string; label: string; visible: boolean }
 
-const DEFAULT_COLUMNS: ColumnDef[] = [
-  { key: 'ticker', label: 'Symbol', visible: true },
-  { key: 'name', label: 'Name', visible: true },
-  { key: 'price', label: 'Price', visible: true },
-  { key: 'net_credit', label: 'Net Credit ($)', visible: true },
-  { key: 'static_yield', label: 'Static Yield', visible: true },
-  { key: 'ann_static', label: 'Ann. Static †', visible: true },
-  { key: 'if_called', label: 'If-Called', visible: true },
-  { key: 'ann_if_called', label: 'Ann. If-Called †', visible: true },
-  { key: 'cushion', label: 'Cushion', visible: true },
-  { key: 'dte', label: 'DTE', visible: true },
-  { key: 'delta', label: 'Delta', visible: true },
-  { key: 'iv_rank', label: 'IV Rank', visible: true },
-  { key: 'strike_expiry', label: 'Strike / Expiry', visible: true },
-]
+// v5: per-strategy column sets — bump invalidates stale saved sets
+const STORAGE_PREFIX = 'ys_columns_v5'
 
-// v4: added delta + iv_rank columns (CC-22) — bump invalidates stale saved sets
-const STORAGE_KEY = 'ys_columns_v4'
-
-export function loadColumns(): ColumnDef[] {
-  if (typeof window === 'undefined') return DEFAULT_COLUMNS
+export function loadColumns(strategy: string, defaults: ColumnDef[]): ColumnDef[] {
+  if (typeof window === 'undefined') return defaults
   try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) return JSON.parse(saved) as ColumnDef[]
+    const saved = localStorage.getItem(`${STORAGE_PREFIX}_${strategy}`)
+    if (saved) {
+      const parsed = JSON.parse(saved) as ColumnDef[]
+      // Only trust saved sets whose keys match the current column set
+      if (
+        parsed.length === defaults.length &&
+        parsed.every((c, i) => c.key === defaults[i].key)
+      ) return parsed
+    }
   } catch { /* ignore */ }
-  return DEFAULT_COLUMNS
+  return defaults
 }
 
-export function saveColumns(cols: ColumnDef[]): void {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cols)) } catch { /* ignore */ }
+export function saveColumns(strategy: string, cols: ColumnDef[]): void {
+  try {
+    localStorage.setItem(`${STORAGE_PREFIX}_${strategy}`, JSON.stringify(cols))
+  } catch { /* ignore */ }
 }
 
-interface Props { columns: ColumnDef[]; onChange: (cols: ColumnDef[]) => void }
+interface Props {
+  columns: ColumnDef[]
+  onChange: (cols: ColumnDef[]) => void
+  strategy: string
+}
 
-export default function ColumnCustomizer({ columns, onChange }: Props) {
+export default function ColumnCustomizer({ columns, onChange, strategy }: Props) {
   const [open, setOpen] = useState(false)
 
   function toggle(key: string) {
     const next = columns.map(c => c.key === key ? { ...c, visible: !c.visible } : c)
-    saveColumns(next)
+    saveColumns(strategy, next)
     onChange(next)
   }
 

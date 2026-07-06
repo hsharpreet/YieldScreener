@@ -173,9 +173,16 @@ yfinance hits `query2.finance.yahoo.com` and gets 429 errors when > ~20 requests
 3. **API rate-limit fix** — warm cache now covers option chains; inter-expiry delay added.
 4. **Screener UI redesign** — frontend-dev agent converting FilterRail to TradingView-style horizontal filter chips with preset value dropdowns (DTE, Market Cap, P/E, Beta, Sector). Dark theme (#0f1724). Status: pending agent output + Harry approval.
 
+### Completed 2026-07-06 (branch claude/options-strategy-screener-fqnm81)
+5. **Greeks/IV Rank columns (CC-22)** — Delta + IV Rank in table & accordion; delta estimated via Black-Scholes (`app/options/greeks.py`) when the provider has no Greeks (yfinance).
+6. **All three strategies live** — Covered Call, Cash-Secured Put, PMCC. Strategy segmented control wired; per-strategy math in `app/options/math.py` (CSP: yield-on-collateral, breakeven, discount; PMCC: long-LEAPS selection by min extrinsic, assignment-safe width rule). Puts cached from the same option_chain() calls (zero extra HTTP); LEAPS cached 6 h.
+7. **Greek filters** — |delta| min/max + IV Rank filter chips (work for calls and puts); presets incl. "Deep ITM ≥ 0.75" for PMCC longs.
+8. **All "Coming Soon" filters implemented** — EPS Growth, Quick Ratio, Avg Volume, RSI(14), 52W range position, SMA50/SMA200 (technicals computed by scheduler from one batched daily download, cached 24 h).
+9. **Docker fix** — `frontend/public/` now exists in git (robots.txt); `COPY /app/public` no longer fails the frontend image build.
+10. Test suite: 119 backend tests green; ruff, tsc, eslint, next build clean.
+
 ### Remaining for Phase 3
-- Harry reviews and approves screener redesign
-- Add Greeks/IV Rank columns to ScreenerTable (CC-22)
+- Harry reviews strategy screener (CSP + PMCC + Greek/technical filters)
 - Deploy to Hostinger VPS (CC-23) — **BLOCKED until screener is approved**
 - GATE: Canadian securities lawyer review before charging real money
 

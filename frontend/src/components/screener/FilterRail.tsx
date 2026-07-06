@@ -260,6 +260,68 @@ const SHORT_FLOAT_PRESETS = [
   { label: 'Under 20%', value: 0.20 },
 ]
 
+// |delta| — the same bounds cover calls (0.30) and puts (−0.30)
+const DELTA_PRESETS: { label: string; sub?: string; min?: number; max?: number }[] = [
+  { label: 'Any' },
+  { label: 'Conservative', sub: '|Δ| ≤ 0.20', max: 0.20 },
+  { label: 'Standard', sub: '|Δ| ≤ 0.30', max: 0.30 },
+  { label: 'Aggressive', sub: '|Δ| ≤ 0.40', max: 0.40 },
+  { label: 'Deep ITM', sub: '|Δ| ≥ 0.75 (PMCC longs)', min: 0.75 },
+]
+
+const IV_RANK_PRESETS = [
+  { label: 'Any', value: undefined as number | undefined },
+  { label: 'Over 25', value: 25 },
+  { label: 'Over 50 (Elevated)', value: 50 },
+  { label: 'Over 75 (Rich)', value: 75 },
+]
+
+const EPS_GROWTH_PRESETS = [
+  { label: 'Any', value: undefined as number | undefined },
+  { label: 'Positive', value: 0 },
+  { label: 'Over 10%', value: 0.10 },
+  { label: 'Over 20%', value: 0.20 },
+  { label: 'Over 30%', value: 0.30 },
+]
+
+const QUICK_RATIO_PRESETS = [
+  { label: 'Any', value: undefined as number | undefined },
+  { label: 'Over 0.5', value: 0.5 },
+  { label: 'Over 1', value: 1 },
+  { label: 'Over 1.5', value: 1.5 },
+]
+
+const AVG_VOLUME_PRESETS = [
+  { label: 'Any', value: undefined as number | undefined },
+  { label: 'Over 500K', value: 500_000 },
+  { label: 'Over 1M', value: 1_000_000 },
+  { label: 'Over 5M', value: 5_000_000 },
+  { label: 'Over 10M', value: 10_000_000 },
+]
+
+const RSI_PRESETS: { label: string; sub?: string; min?: number; max?: number }[] = [
+  { label: 'Any' },
+  { label: 'Oversold', sub: 'RSI ≤ 30', max: 30 },
+  { label: 'Under 40', max: 40 },
+  { label: 'Neutral', sub: '30–70', min: 30, max: 70 },
+  { label: 'Over 60', min: 60 },
+  { label: 'Overbought', sub: 'RSI ≥ 70', min: 70 },
+]
+
+const W52_PRESETS: { label: string; sub?: string; min?: number; max?: number }[] = [
+  { label: 'Any' },
+  { label: 'Near 52W low', sub: 'bottom 25% of range', max: 0.25 },
+  { label: 'Lower half', max: 0.50 },
+  { label: 'Upper half', min: 0.50 },
+  { label: 'Near 52W high', sub: 'top 25% of range', min: 0.75 },
+]
+
+const SMA_PRESETS: { label: string; value: boolean | undefined }[] = [
+  { label: 'Any', value: undefined },
+  { label: 'Price above', value: true },
+  { label: 'Price below', value: false },
+]
+
 const ALL_SECTORS = [
   'Technology', 'Healthcare', 'Financials', 'Consumer Discretionary',
   'Consumer Staples', 'Energy', 'Industrials', 'Materials',
@@ -317,12 +379,47 @@ export default function FilterRail({ params, onChange, onRun, watchlistMode, onW
     params.min_dividend_yield, params.min_gross_margin, params.min_operating_margin,
     params.min_net_margin, params.min_roe, params.min_roa, params.max_debt_to_equity,
     params.min_current_ratio, params.max_beta, params.max_short_float,
+    params.min_eps_growth, params.min_quick_ratio, params.min_avg_volume,
+    params.min_rsi, params.max_rsi, params.above_sma_50, params.above_sma_200,
+    params.min_52w_position, params.max_52w_position,
+    params.min_delta, params.max_delta, params.min_iv_rank,
     params.tickers,
   ].filter(v => v !== undefined && v !== '').length
 
   function handleReset() {
-    onChange({ min_dte: 21, max_dte: 45, min_market_cap: 5_000_000_000 })
+    // Keep the selected strategy — reset only clears filters.
+    onChange({ strategy: params.strategy, min_dte: 21, max_dte: 45, min_market_cap: 5_000_000_000 })
   }
+
+  const deltaDisplay = (() => {
+    const p = DELTA_PRESETS.find(p => p.min === params.min_delta && p.max === params.max_delta)
+    if (p && p.label !== 'Any') return p.sub ?? p.label
+    if (params.min_delta !== undefined && params.max_delta !== undefined)
+      return `${params.min_delta}–${params.max_delta}`
+    if (params.max_delta !== undefined) return `|Δ| ≤ ${params.max_delta}`
+    if (params.min_delta !== undefined) return `|Δ| ≥ ${params.min_delta}`
+    return 'Any'
+  })()
+
+  const rsiDisplay = (() => {
+    const p = RSI_PRESETS.find(p => p.min === params.min_rsi && p.max === params.max_rsi)
+    if (p && p.label !== 'Any') return p.label
+    if (params.min_rsi !== undefined || params.max_rsi !== undefined)
+      return `${params.min_rsi ?? 0}–${params.max_rsi ?? 100}`
+    return 'Any'
+  })()
+
+  const w52Display = (() => {
+    const p = W52_PRESETS.find(p => p.min === params.min_52w_position && p.max === params.max_52w_position)
+    if (p && p.label !== 'Any') return p.label
+    return 'Any'
+  })()
+
+  const avgVolDisplay = (() => {
+    if (params.min_avg_volume === undefined) return 'Any'
+    const p = AVG_VOLUME_PRESETS.find(p => p.value === params.min_avg_volume)
+    return p ? p.label : `> ${(params.min_avg_volume / 1e6).toFixed(1)}M`
+  })()
 
   function handleLoad(loaded: ScreenParams) {
     onChange(loaded); onRun(); setSavedOpen(false)
@@ -437,6 +534,49 @@ export default function FilterRail({ params, onChange, onRun, watchlistMode, onW
                 onChange={e => onChange({ ...params, max_dte: e.target.value === '' ? undefined : Number(e.target.value) })} />
             </div>
           </div>
+        </FilterCell>
+
+        {/* Delta */}
+        <FilterCell label="Delta |Δ|" displayValue={deltaDisplay} active={params.min_delta !== undefined || params.max_delta !== undefined}>
+          <div className="py-1">
+            <p className="px-4 py-1.5 text-[10px] font-semibold text-gray-500 uppercase tracking-widest">
+              Option Delta (abs — calls &amp; puts)
+            </p>
+            {DELTA_PRESETS.map(p => (
+              <PresetRow
+                key={p.label} label={p.label} sub={p.sub}
+                selected={params.min_delta === p.min && params.max_delta === p.max}
+                onClick={() => onChange({ ...params, min_delta: p.min, max_delta: p.max })}
+              />
+            ))}
+          </div>
+          <div className="border-t border-[#1a2438] px-4 py-2.5">
+            <p className="text-[10px] text-gray-500 mb-1.5 uppercase tracking-widest font-semibold">Custom Range</p>
+            <div className="flex gap-2 items-center">
+              <input type="number" step="0.05" min="0" max="1" value={params.min_delta ?? ''} placeholder="Min"
+                className="w-16 bg-[#1a2438] border border-[#2a3a58] rounded px-2 py-1 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-[#00d4aa]"
+                onClick={e => e.stopPropagation()}
+                onChange={e => onChange({ ...params, min_delta: e.target.value === '' ? undefined : Number(e.target.value) })} />
+              <span className="text-gray-600 text-xs">–</span>
+              <input type="number" step="0.05" min="0" max="1" value={params.max_delta ?? ''} placeholder="Max"
+                className="w-16 bg-[#1a2438] border border-[#2a3a58] rounded px-2 py-1 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-[#00d4aa]"
+                onClick={e => e.stopPropagation()}
+                onChange={e => onChange({ ...params, max_delta: e.target.value === '' ? undefined : Number(e.target.value) })} />
+            </div>
+            <p className="text-[10px] text-gray-600 mt-1.5">e.g. max 0.30 for income shorts · min 0.75 for deep-ITM longs</p>
+          </div>
+        </FilterCell>
+
+        {/* IV Rank */}
+        <FilterCell label="IV Rank" displayValue={params.min_iv_rank !== undefined ? `> ${params.min_iv_rank}` : 'Any'} active={params.min_iv_rank !== undefined}>
+          <div className="py-1">
+            <p className="px-4 py-1.5 text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Min IV Rank (0–100)</p>
+            {IV_RANK_PRESETS.map(p => (
+              <PresetRow key={p.label} label={p.label} selected={params.min_iv_rank === p.value}
+                onClick={() => onChange({ ...params, min_iv_rank: p.value })} />
+            ))}
+          </div>
+          <CustomNumericInput label="> " value={params.min_iv_rank} onChange={v => onChange({ ...params, min_iv_rank: v })} placeholder="e.g. 50" />
         </FilterCell>
 
         {/* Beta */}
@@ -676,8 +816,18 @@ export default function FilterRail({ params, onChange, onRun, watchlistMode, onW
             onChange={v => onChange({ ...params, min_roa: v !== undefined ? v / 100 : undefined })} placeholder="e.g. 10" />
         </FilterCell>
 
-        {/* EPS Growth — Coming Soon */}
-        <FilterCell label="EPS Growth" displayValue="Any" active={false} comingSoon />
+        {/* EPS Growth */}
+        <FilterCell label="EPS Growth" displayValue={params.min_eps_growth !== undefined ? `> ${pct(params.min_eps_growth)}` : 'Any'} active={params.min_eps_growth !== undefined}>
+          <div className="py-1">
+            <p className="px-4 py-1.5 text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Min EPS Growth (YoY)</p>
+            {EPS_GROWTH_PRESETS.map(p => (
+              <PresetRow key={p.label} label={p.label} selected={params.min_eps_growth === p.value}
+                onClick={() => onChange({ ...params, min_eps_growth: p.value })} />
+            ))}
+          </div>
+          <CustomNumericInput label="> % " value={params.min_eps_growth !== undefined ? params.min_eps_growth * 100 : undefined}
+            onChange={v => onChange({ ...params, min_eps_growth: v !== undefined ? v / 100 : undefined })} placeholder="e.g. 15" />
+        </FilterCell>
 
         {/* ── SECTION: Financial Health ── */}
         <SectionHeader title="Financial Health" />
@@ -706,8 +856,17 @@ export default function FilterRail({ params, onChange, onRun, watchlistMode, onW
           <CustomNumericInput label="> " value={params.min_current_ratio} onChange={v => onChange({ ...params, min_current_ratio: v })} placeholder="e.g. 1.5" />
         </FilterCell>
 
-        {/* Quick Ratio — Coming Soon */}
-        <FilterCell label="Quick Ratio" displayValue="Any" active={false} comingSoon />
+        {/* Quick Ratio */}
+        <FilterCell label="Quick Ratio" displayValue={params.min_quick_ratio !== undefined ? `> ${params.min_quick_ratio}` : 'Any'} active={params.min_quick_ratio !== undefined}>
+          <div className="py-1">
+            <p className="px-4 py-1.5 text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Min Quick Ratio</p>
+            {QUICK_RATIO_PRESETS.map(p => (
+              <PresetRow key={p.label} label={p.label} selected={params.min_quick_ratio === p.value}
+                onClick={() => onChange({ ...params, min_quick_ratio: p.value })} />
+            ))}
+          </div>
+          <CustomNumericInput label="> " value={params.min_quick_ratio} onChange={v => onChange({ ...params, min_quick_ratio: v })} placeholder="e.g. 1" />
+        </FilterCell>
 
         {/* ── SECTION: Trading ── */}
         <SectionHeader title="Trading" />
@@ -725,18 +884,65 @@ export default function FilterRail({ params, onChange, onRun, watchlistMode, onW
             onChange={v => onChange({ ...params, max_short_float: v !== undefined ? v / 100 : undefined })} placeholder="e.g. 10" />
         </FilterCell>
 
-        {/* Avg Volume — Coming Soon */}
-        <FilterCell label="Avg. Volume" displayValue="Any" active={false} comingSoon />
+        {/* Avg Volume */}
+        <FilterCell label="Avg. Volume" displayValue={avgVolDisplay} active={params.min_avg_volume !== undefined}>
+          <div className="py-1">
+            <p className="px-4 py-1.5 text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Min Average Daily Volume</p>
+            {AVG_VOLUME_PRESETS.map(p => (
+              <PresetRow key={p.label} label={p.label} selected={params.min_avg_volume === p.value}
+                onClick={() => onChange({ ...params, min_avg_volume: p.value })} />
+            ))}
+          </div>
+        </FilterCell>
 
-        {/* RSI — Coming Soon */}
-        <FilterCell label="RSI (14)" displayValue="Any" active={false} comingSoon />
+        {/* RSI */}
+        <FilterCell label="RSI (14)" displayValue={rsiDisplay} active={params.min_rsi !== undefined || params.max_rsi !== undefined}>
+          <div className="py-1">
+            <p className="px-4 py-1.5 text-[10px] font-semibold text-gray-500 uppercase tracking-widest">14-Day RSI</p>
+            {RSI_PRESETS.map(p => (
+              <PresetRow key={p.label} label={p.label} sub={p.sub}
+                selected={params.min_rsi === p.min && params.max_rsi === p.max}
+                onClick={() => onChange({ ...params, min_rsi: p.min, max_rsi: p.max })} />
+            ))}
+          </div>
+        </FilterCell>
 
         {/* ── SECTION: Technical ── */}
         <SectionHeader title="Technical" />
 
-        <FilterCell label="52W High/Low" displayValue="Any" active={false} comingSoon />
-        <FilterCell label="SMA 50-Day" displayValue="Any" active={false} comingSoon />
-        <FilterCell label="SMA 200-Day" displayValue="Any" active={false} comingSoon />
+        {/* 52W position */}
+        <FilterCell label="52W High/Low" displayValue={w52Display} active={params.min_52w_position !== undefined || params.max_52w_position !== undefined}>
+          <div className="py-1">
+            <p className="px-4 py-1.5 text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Position in 52-Week Range</p>
+            {W52_PRESETS.map(p => (
+              <PresetRow key={p.label} label={p.label} sub={p.sub}
+                selected={params.min_52w_position === p.min && params.max_52w_position === p.max}
+                onClick={() => onChange({ ...params, min_52w_position: p.min, max_52w_position: p.max })} />
+            ))}
+          </div>
+        </FilterCell>
+
+        {/* SMA 50 */}
+        <FilterCell label="SMA 50-Day" displayValue={params.above_sma_50 === undefined ? 'Any' : params.above_sma_50 ? 'Price above' : 'Price below'} active={params.above_sma_50 !== undefined}>
+          <div className="py-1">
+            <p className="px-4 py-1.5 text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Price vs 50-Day SMA</p>
+            {SMA_PRESETS.map(p => (
+              <PresetRow key={p.label} label={p.label} selected={params.above_sma_50 === p.value}
+                onClick={() => onChange({ ...params, above_sma_50: p.value })} />
+            ))}
+          </div>
+        </FilterCell>
+
+        {/* SMA 200 */}
+        <FilterCell label="SMA 200-Day" displayValue={params.above_sma_200 === undefined ? 'Any' : params.above_sma_200 ? 'Price above' : 'Price below'} active={params.above_sma_200 !== undefined}>
+          <div className="py-1">
+            <p className="px-4 py-1.5 text-[10px] font-semibold text-gray-500 uppercase tracking-widest">Price vs 200-Day SMA</p>
+            {SMA_PRESETS.map(p => (
+              <PresetRow key={p.label} label={p.label} selected={params.above_sma_200 === p.value}
+                onClick={() => onChange({ ...params, above_sma_200: p.value })} />
+            ))}
+          </div>
+        </FilterCell>
 
       </div>
     </div>

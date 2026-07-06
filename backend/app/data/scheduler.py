@@ -80,7 +80,9 @@ class DataRefreshScheduler:
         from app.data.yfinance_provider import (
             refresh_batch_prices,
             refresh_fundamentals,
+            refresh_leaps_chain,
             refresh_option_chain,
+            refresh_technicals,
         )
 
         try:
@@ -92,6 +94,11 @@ class DataRefreshScheduler:
             )
         except Exception as exc:
             logger.warning("DataRefreshScheduler: batch price download failed: %s", exc)
+
+        try:
+            refresh_technicals(self.tickers)  # one batched call; 24 h cache
+        except Exception as exc:
+            logger.warning("DataRefreshScheduler: technicals refresh failed: %s", exc)
 
         for ticker in self.tickers:
             if self._stop.is_set():
@@ -108,3 +115,12 @@ class DataRefreshScheduler:
                 refresh_option_chain(ticker, min_dte=7, max_dte=60)
             except Exception as exc:
                 logger.debug("DataRefreshScheduler: chain failed for %s: %s", ticker, exc)
+
+        # LEAPS for PMCC long legs — cached 6 h, so most cycles skip the fetch.
+        for ticker in self.tickers:
+            if self._stop.is_set():
+                return
+            try:
+                refresh_leaps_chain(ticker)
+            except Exception as exc:
+                logger.debug("DataRefreshScheduler: LEAPS failed for %s: %s", ticker, exc)
